@@ -1,0 +1,21 @@
+{{#each-in details as | displayValue collectionType|}}
+  <h1 class="p-title">{{fa-icon collectionType.icon fixedWidth=true}} {{displayValue}}</h1>
+  {{#each collectionType.values as | collection |}}
+    <div class="result-container">
+    {{#each collection as | field |}}
+      {{#if (gt field.value.length 0)}}
+        <div>
+          <span class="p-key">{{field.key}}: </span>
+          {{#if field.value.[0]}}
+            {{#each field.value as | listValue |}}
+              <span class="tag">{{listValue}}</span>
+            {{/each}}
+          {{else}}
+            <span class="p-value">{{field.value}}</span>
+          {{/if}}
+        </div>
+      {{/if}}
+    {{/each}}
+    </div>
+  {{/each}}
+{{/each-in}}
