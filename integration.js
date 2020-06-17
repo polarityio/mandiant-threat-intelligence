@@ -38,8 +38,16 @@ const fireEyeTypes = {
             value: Array.isArray(malware.malware_types) ? malware.malware_types : []
           },
           {
+            key: 'Is Family',
+            value: malware.is_family
+          },
+          {
             key: 'OS Execution Envs',
             value: Array.isArray(malware.os_execution_envs) ? malware.os_execution_envs : []
+          },
+          {
+            key: 'Associated Detection Names',
+            value: malware.x_fireeye_com_associated_detection_names
           },
           {
             key: 'Description',
@@ -492,10 +500,6 @@ function _createQuery(entityObj) {
       {
         type: 'vulnerability',
         query: `name = '${entityObj.value}'`
-      },
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -505,10 +509,6 @@ function _createQuery(entityObj) {
       {
         type: 'ipv4-addr',
         query: `value = '${entityObj.value}'`
-      },
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -518,10 +518,6 @@ function _createQuery(entityObj) {
       {
         type: 'file',
         query: `hashes.MD5 = '${entityObj.value}'`
-      },
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -531,10 +527,6 @@ function _createQuery(entityObj) {
       {
         type: 'file',
         query: `hashes.SHA-1 = '${entityObj.value}'`
-      },
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -544,10 +536,6 @@ function _createQuery(entityObj) {
       {
         type: 'file',
         query: `hashes.SHA-256 = '${entityObj.value}'`
-      },
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -562,10 +550,6 @@ function _createQuery(entityObj) {
       {
         type: 'domain-name',
         query: query
-      },
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -575,10 +559,6 @@ function _createQuery(entityObj) {
       {
         type: 'email-addr',
         query: `value = '${entityObj.value}'`
-      },
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -590,7 +570,13 @@ function _lookupEntity(entityObj, options, cb) {
     method: 'POST',
     body: {
       queries: _createQuery(entityObj),
-      include_connected_objects: true
+      include_connected_objects: true,
+      limit: 10,
+      offset: 0,
+      connected_objects: [
+        { object_type: 'threat-actor'},
+        { object_type: 'report'}
+      ]
     }
   };
 
@@ -626,7 +612,7 @@ function _handleRestErrors(response, body) {
       return;
     case 403:
       return _createJsonErrorPayload(
-        'Forbidden - most commonly, user authentication failed',
+        'Forbidden -- User is not authorized to access this resource with an explicit deny.',
         null,
         '403',
         '1',
@@ -635,13 +621,9 @@ function _handleRestErrors(response, body) {
           body: body
         }
       );
-    case 404:
-      return _createJsonErrorPayload('Object not found', null, '404', '1', 'Not Found', {
-        body: body
-      });
     case 400:
       return _createJsonErrorPayload(
-        'Invalid Search, please check search parameters',
+        'Bad Request -- Your request is invalid.',
         null,
         '400',
         '2',
@@ -650,28 +632,39 @@ function _handleRestErrors(response, body) {
           body: body
         }
       );
-    case 409:
-      return _createJsonErrorPayload('Conflicting PUT operation', null, '409', '3', 'Conflict', {
+    case 401:
+      return _createJsonErrorPayload('Unauthorized -- Your account is expired or the dates are wrong.', null, '401', '3', 'Conflict', {
         body: body
       });
-    case 503:
+    case 502:
       return _createJsonErrorPayload(
-        'Service unavailable - usually related to LDAP not being accessible',
+        'Gateway Error -- We had a problem with the FireEye gateway server, please let us know.\t',
         null,
-        '503',
+        '502',
         '4',
-        'Service Unavailable',
+        'FireEye Service Unavailable',
+        {
+          body: body
+        }
+      );
+    case 504:
+      return _createJsonErrorPayload(
+        'Gateway Error -- We had a problem with the FireEye gateway server, please let us know.\t',
+        null,
+        '504',
+        '5',
+        'FireEye Service Unavailable',
         {
           body: body
         }
       );
     case 500:
       return _createJsonErrorPayload(
-        'Internal Server error, please check your instance',
+        'Internal Server Error -- We had a problem with the FireEye application server, please let us know.',
         null,
         '500',
-        '5',
-        'Internal error',
+        '6',
+        'Internal FireEye Server Error',
         {
           body: body
         }
