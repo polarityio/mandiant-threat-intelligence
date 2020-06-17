@@ -15,139 +15,202 @@ let authenticatedRequest;
 let previousDomainRegexAsString = '';
 let domainBlacklistRegex = null;
 
+const BASE_WEB_URL = 'https://intelligence.fireeye.com';
+
 const fireEyeTypes = {
   malware: {
     displayValue: 'Malware',
-    icon: "bug",
+    icon: 'bug',
     getFields: (malware) => {
-      return [
-        {
-          key: 'Name',
-          value: malware.name
-        },
-        {
-          key: 'Labels',
-          value: Array.isArray(malware.labels) ? malware.labels : []
-        },
-        {
-          key: 'Malware Types',
-          value: Array.isArray(malware.malware_types) ? malware.malware_types : []
-        },
-        {
-          key: 'OS Execution Envs',
-          value: Array.isArray(malware.os_execution_envs) ? malware.os_execution_envs : []
-        },
-        {
-          key: 'Description',
-          value: malware.description
-        }
-      ]
+      return {
+        link: `${BASE_WEB_URL}/search?search=malware%20is%20${malware.name}`,
+        fields: [
+          {
+            key: 'Name',
+            value: malware.name
+          },
+          {
+            key: 'Labels',
+            value: Array.isArray(malware.labels) ? malware.labels : []
+          },
+          {
+            key: 'Malware Types',
+            value: Array.isArray(malware.malware_types) ? malware.malware_types : []
+          },
+          {
+            key: 'OS Execution Envs',
+            value: Array.isArray(malware.os_execution_envs) ? malware.os_execution_envs : []
+          },
+          {
+            key: 'Description',
+            value: malware.description
+          }
+        ]
+      };
+    }
+  },
+  indicator: {
+    displayValue: 'Indicators',
+    icon: 'bullseye',
+    getFields: (indicator) => {
+      return {
+        link: null,
+        fields: [
+          {
+            key: 'Types',
+            value: indicator.indicator_types
+          },
+          {
+            key: 'Confidence',
+            value: indicator.confidence
+          },
+          {
+            key: 'Pattern',
+            value: indicator.pattern
+          },
+          {
+            key: 'Labels',
+            value: indicator.labels
+          },
+          {
+            key: 'Metadata',
+            nested: true,
+            value: indicator.x_fireeye_com_metadata
+          }
+        ]
+      };
     }
   },
   'threat-actor': {
     displayValue: 'Threat Actors',
-    icon: "user-secret",
+    icon: 'user-secret',
     getFields: (actor) => {
-      return [
-        {
-          key: 'id',
-          value: actor.id
-        },
-        {
-          key: 'Name',
-          value: actor.name
-        },
-        {
-          key: 'Labels',
-          value: Array.isArray(actor.labels) ? actor.labels : []
-        },
-        {
-          key: 'Aliases',
-          value: Array.isArray(actor.aliases) ? actor.aliases : []
-        },
-        {
-          key: 'Threat Actor Types',
-          value: Array.isArray(actor.threatActorTypes) ? actor.threatActorTypes : []
-        },
-        {
-          key: 'Description',
-          value: actor.description
-        }
-      ];
+      return {
+        link: `${BASE_WEB_URL}/search?search=actor%20is%20${actor.name}&exclude_indicator_reports=false`,
+        fields: [
+          {
+            key: 'Name',
+            value: actor.name
+          },
+
+          {
+            key: 'id',
+            value: actor.id
+          },
+          {
+            key: 'Labels',
+            value: Array.isArray(actor.labels) ? actor.labels : []
+          },
+          {
+            key: 'Aliases',
+            value: Array.isArray(actor.aliases) ? actor.aliases : []
+          },
+          {
+            key: 'Threat Actor Types',
+            value: Array.isArray(actor.threatActorTypes) ? actor.threatActorTypes : []
+          },
+          {
+            key: 'Description',
+            value: actor.description
+          }
+        ]
+      };
     }
   },
   'x-fireeye-com-remedy-action': {
     displayValue: 'Remedies',
-    icon: "prescription-bottle-alt",
+    icon: 'prescription-bottle-alt',
     getFields: (remedy) => {
-      return [
-        {
-          key: 'id',
-          value: remedy.id
-        },
-        {
-          key: 'Type',
-          value: remedy.remedy_type
-        },
-        {
-          key: 'References',
-          value: Array.isArray(remedy.external_references) ? remedy.external_references : []
-        },
-        {
-          key: 'Description',
-          value: remedy.description
-        }
-      ];
+      return {
+        link: null,
+        fields: [
+          {
+            key: 'Type',
+            value: remedy.remedy_type
+          },
+          {
+            key: 'id',
+            value: remedy.id
+          },
+          {
+            key: 'References',
+            value: Array.isArray(remedy.external_references) ? remedy.external_references : []
+          },
+          {
+            key: 'Description',
+            value: remedy.description
+          }
+        ]
+      };
     }
   },
   report: {
     displayValue: 'Reports',
-    icon: "book",
+    icon: 'book',
     getFields: (report) => {
-      return [
-        {
-          key: 'id',
-          value: report.id
-        },
-        {
-          key: 'Name',
-          value: report.name
-        },
-        {
-          key: 'Labels',
-          value: report.labels
-        },
-        {
-          key: 'Published',
-          value: report.published
-        },
-        {
-          key: 'Metadata',
-          value: report.x_fireeye_com_metadata
-        },
-        {
-          key: 'Description',
-          value: report.description
-        }
-      ];
+      return {
+        link:
+          report && report.x_fireeye_com_tracking_info && report.x_fireeye_com_tracking_info.document_id
+            ? `${BASE_WEB_URL}/reports/${report.x_fireeye_com_tracking_info.document_id}`
+            : null,
+        fields: [
+          {
+            key: 'Name',
+            value: report.name
+          },
+          {
+            key: 'id',
+            value: report.id
+          },
+          {
+            key: 'Labels',
+            value: report.labels
+          },
+          {
+            key: 'Published',
+            value: report.published
+          },
+          {
+            key: 'Fireeye Metadata',
+            nested: true,
+            value: report.x_fireeye_com_metadata
+          },
+          {
+            key: 'Description',
+            value: report.description
+          }
+        ]
+      };
     }
   },
   vulnerability: {
     displayValue: 'Vulnerabilities',
-    icon: "spider",
+    icon: 'spider',
     getFields: (vuln) => {
       // Only return the vulnerability if Fireeye has a score for it
       if (Array.isArray(vuln.x_fireeye_com_vulnerability_score)) {
-        return [
-          {
-            key: 'id',
-            value: vuln.id
-          },
-          {
-            key: 'Score',
-            value: Array.isArray(vuln.x_fireeye_com_vulnerability_score) ? vuln.x_fireeye_com_vulnerability_score : []
-          }
-        ];
+        return {
+          link: null,
+          fields: [
+            {
+              key: 'id',
+              value: vuln.id
+            },
+            {
+              key: 'Scores',
+              nested: true,
+              value: Array.isArray(vuln.x_fireeye_com_vulnerability_score)
+                ? vuln.x_fireeye_com_vulnerability_score.map((vuln) => {
+                    return {
+                      Vector: _.get(vuln, 'vector'),
+                      'Temporal Score': _.get(vuln, 'temporal_metrics.temporal_score'),
+                      'Base Score': _.get(vuln, 'base_metrics.base_score')
+                    };
+                  })
+                : []
+            }
+          ]
+        };
       } else {
         return null;
       }
@@ -155,22 +218,25 @@ const fireEyeTypes = {
   },
   file: {
     displayValue: 'Files',
-    icon: "file",
+    icon: 'file',
     getFields: (file) => {
-      return [
-        {
-          key: 'id',
-          value: file.id
-        },
-        {
-          key: 'name',
-          value: file.name
-        },
-        {
-          key: 'size',
-          value: file.size
-        }
-      ];
+      return {
+        link: null,
+        fields: [
+          {
+            key: 'Name',
+            value: file.name
+          },
+          {
+            key: 'id',
+            value: file.id
+          },
+          {
+            key: 'Size',
+            value: file.size
+          }
+        ]
+      };
     }
   }
 };
@@ -188,23 +254,23 @@ function getResultObjectDataFields(objects) {
   objects.forEach((object) => {
     const fireEyeType = object.type;
     const formatter = fireEyeTypes[fireEyeType];
-    Logger.info({ fireeye: formatter, fireEyeType }, 'fireEyeType');
+
     if (formatter && typeof formatter.getFields === 'function') {
       const fields = formatter.getFields(object);
       const displayValue = formatter.displayValue;
       const icon = formatter.icon;
 
-
       // Returned types do not always have all fields.  We don't want to return
       // and object if it has no fields.
       if (fields !== null) {
-        if(!details[displayValue]){
+        if (!details[displayValue]) {
           details[displayValue] = {
             icon,
             values: []
-          }
+          };
         }
         details[displayValue].values.push(fields);
+
         if (typeof counts[fireEyeType] === 'undefined') {
           counts[fireEyeType] = 1;
         } else {
@@ -426,6 +492,10 @@ function _createQuery(entityObj) {
       {
         type: 'vulnerability',
         query: `name = '${entityObj.value}'`
+      },
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -435,6 +505,10 @@ function _createQuery(entityObj) {
       {
         type: 'ipv4-addr',
         query: `value = '${entityObj.value}'`
+      },
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -444,6 +518,10 @@ function _createQuery(entityObj) {
       {
         type: 'file',
         query: `hashes.MD5 = '${entityObj.value}'`
+      },
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -453,6 +531,10 @@ function _createQuery(entityObj) {
       {
         type: 'file',
         query: `hashes.SHA-1 = '${entityObj.value}'`
+      },
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -462,6 +544,10 @@ function _createQuery(entityObj) {
       {
         type: 'file',
         query: `hashes.SHA-256 = '${entityObj.value}'`
+      },
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -476,6 +562,10 @@ function _createQuery(entityObj) {
       {
         type: 'domain-name',
         query: query
+      },
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -485,6 +575,10 @@ function _createQuery(entityObj) {
       {
         type: 'email-addr',
         query: `value = '${entityObj.value}'`
+      },
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
