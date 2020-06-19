@@ -8,12 +8,13 @@ const _ = require('lodash');
 
 const tokenCache = new Map();
 const MAX_AUTH_RETRIES = 2;
+const MAX_RESULTS = 10;
 
 let Logger;
 let requestWithDefaults;
 let authenticatedRequest;
 let previousDomainRegexAsString = '';
-let domainBlacklistRegex = null;
+let domainBlocklistRegex = null;
 
 const BASE_WEB_URL = 'https://intelligence.fireeye.com';
 
@@ -23,7 +24,10 @@ const fireEyeTypes = {
     icon: 'bug',
     getFields: (malware) => {
       return {
-        link: `${BASE_WEB_URL}/search?search=malware%20is%20${malware.name}`,
+        link: {
+          display: 'Search in FireEye Intel',
+          url: `${BASE_WEB_URL}/search?search=malware%20is%20${malware.name}`
+        },
         fields: [
           {
             key: 'Name',
@@ -60,9 +64,14 @@ const fireEyeTypes = {
   indicator: {
     displayValue: 'Indicators',
     icon: 'bullseye',
-    getFields: (indicator) => {
+    getFields: (indicator, entityObj) => {
       return {
-        link: null,
+        link: {
+          display: 'Search in FireEye Intel',
+          url: `${BASE_WEB_URL}/search?search=indicator%20${entityTypeToIndicatorType(entityObj)}%20is${
+            entityObj.value
+          }`
+        },
         fields: [
           {
             key: 'Types',
@@ -94,7 +103,10 @@ const fireEyeTypes = {
     icon: 'user-secret',
     getFields: (actor) => {
       return {
-        link: `${BASE_WEB_URL}/search?search=actor%20is%20${actor.name}&exclude_indicator_reports=false`,
+        link: {
+          display: 'Search in FireEye Intel',
+          url: `${BASE_WEB_URL}/search?search=actor%20is%20${actor.name}&exclude_indicator_reports=false`
+        },
         fields: [
           {
             key: 'Name',
@@ -125,42 +137,18 @@ const fireEyeTypes = {
       };
     }
   },
-  'x-fireeye-com-remedy-action': {
-    displayValue: 'Remedies',
-    icon: 'prescription-bottle-alt',
-    getFields: (remedy) => {
-      return {
-        link: null,
-        fields: [
-          {
-            key: 'Type',
-            value: remedy.remedy_type
-          },
-          {
-            key: 'id',
-            value: remedy.id
-          },
-          {
-            key: 'References',
-            value: Array.isArray(remedy.external_references) ? remedy.external_references : []
-          },
-          {
-            key: 'Description',
-            value: remedy.description
-          }
-        ]
-      };
-    }
-  },
   report: {
     displayValue: 'Reports',
     icon: 'book',
     getFields: (report) => {
       return {
-        link:
-          report && report.x_fireeye_com_tracking_info && report.x_fireeye_com_tracking_info.document_id
-            ? `${BASE_WEB_URL}/reports/${report.x_fireeye_com_tracking_info.document_id}`
-            : null,
+        link: {
+          display: 'View Report in FireEye Intel',
+          url:
+            report && report.x_fireeye_com_tracking_info && report.x_fireeye_com_tracking_info.document_id
+              ? `${BASE_WEB_URL}/reports/${report.x_fireeye_com_tracking_info.document_id}`
+              : null
+        },
         fields: [
           {
             key: 'Name',
@@ -194,11 +182,14 @@ const fireEyeTypes = {
   vulnerability: {
     displayValue: 'Vulnerabilities',
     icon: 'spider',
-    getFields: (vuln) => {
+    getFields: (vuln, entityObj) => {
       // Only return the vulnerability if Fireeye has a score for it
       if (Array.isArray(vuln.x_fireeye_com_vulnerability_score)) {
         return {
-          link: null,
+          link: {
+            display: 'Search in FireEye Intel',
+            url: `${BASE_WEB_URL}/search?search=${entityObj.value}`
+          },
           fields: [
             {
               key: 'id',
@@ -227,9 +218,12 @@ const fireEyeTypes = {
   file: {
     displayValue: 'Files',
     icon: 'file',
-    getFields: (file) => {
+    getFields: (file, entityObj) => {
       return {
-        link: null,
+        link: {
+          display: 'Search in FireEye Intel',
+          url: `${BASE_WEB_URL}/search?search=${entityObj.value}`
+        },
         fields: [
           {
             key: 'Name',
@@ -246,46 +240,136 @@ const fireEyeTypes = {
         ]
       };
     }
+  },
+  'email-addr': {
+    displayValue: 'Email',
+    icon: 'email',
+    getFields: (email, entityObj) => {
+      return {
+        link: {
+          display: 'Search in FireEye Intel',
+          url: `${BASE_WEB_URL}/search?search=${entityObj.value}`
+        },
+        fields: [
+          {
+            key: 'id',
+            value: email.id
+          },
+          {
+            key: 'Modified',
+            value: email.modified
+          }
+        ]
+      };
+    }
+  },
+  'x-fireeye-com-remedy-action': {
+    displayValue: 'Remedies',
+    icon: 'prescription-bottle-alt',
+    getFields: (remedy) => {
+      return {
+        link: null,
+        fields: [
+          {
+            key: 'Type',
+            value: remedy.remedy_type
+          },
+          {
+            key: 'id',
+            value: remedy.id
+          },
+          {
+            key: 'References',
+            nested: true,
+            value: Array.isArray(remedy.external_references) ? remedy.external_references : []
+          },
+          {
+            key: 'Description',
+            value: remedy.description
+          }
+        ]
+      };
+    }
   }
 };
 
+function entityTypeToIndicatorType(entityObj) {
+  if (entityObj.isIP) {
+    return 'IP';
+  }
+  if (entityObj.isMD5) {
+    return 'MD5';
+  }
+  if (entityObj.isSHA1) {
+    return 'SHA1';
+  }
+  if (entityObj.isSHA256) {
+    return 'SHA256';
+  }
+  if (entityObj.isEmail) {
+    return 'Email Sender';
+  }
+  if (entityObj.isDomain) {
+    return 'Domain';
+  }
+  if (entityObj.type === 'cve') {
+    return 'CVE';
+  }
+  return '';
+}
+
 /**
  *
- * @param objects
+ * @param collections (array of arrays)
  * @returns {null|{summary: [], details: {}}}
  */
-function getResultObjectDataFields(objects) {
+function getResultObjectDataFields(collections, entityObj) {
   const summary = [];
   const details = {};
   const counts = {};
+  // used to ensure we don't return duplicate results
+  const idSet = new Set();
 
-  objects.forEach((object) => {
-    const fireEyeType = object.type;
-    const formatter = fireEyeTypes[fireEyeType];
+  collections.forEach((collection) => {
+    collection.forEach((object) => {
+      if(idSet.has(object.id)){
+        return;
+      }
+      idSet.add(object.id);
 
-    if (formatter && typeof formatter.getFields === 'function') {
-      const fields = formatter.getFields(object);
-      const displayValue = formatter.displayValue;
-      const icon = formatter.icon;
+      const fireEyeType = object.type;
+      const formatter = fireEyeTypes[fireEyeType];
 
-      // Returned types do not always have all fields.  We don't want to return
-      // and object if it has no fields.
-      if (fields !== null) {
-        if (!details[displayValue]) {
-          details[displayValue] = {
-            icon,
-            values: []
-          };
-        }
-        details[displayValue].values.push(fields);
+      if (formatter && typeof formatter.getFields === 'function') {
+        const fields = formatter.getFields(object, entityObj);
+        const displayValue = formatter.displayValue;
+        const icon = formatter.icon;
 
-        if (typeof counts[fireEyeType] === 'undefined') {
-          counts[fireEyeType] = 1;
-        } else {
-          counts[fireEyeType]++;
+        // Returned types do not always have all fields.  We don't want to return
+        // and object if it has no fields.
+        if (fields !== null) {
+          if (!details[displayValue]) {
+            details[displayValue] = {
+              icon,
+              total: 0,
+              values: []
+            };
+          }
+
+          if (details[displayValue].values.length < MAX_RESULTS) {
+            details[displayValue].values.push(fields);
+          }
+
+          details[displayValue].total += 1;
+
+          if (typeof counts[fireEyeType] === 'undefined') {
+            counts[fireEyeType] = 1;
+          } else {
+            counts[fireEyeType]++;
+          }
         }
       }
-    }
+    });
   });
 
   Object.keys(counts).forEach((type) => {
@@ -378,16 +462,16 @@ function startup(logger) {
   };
 }
 
-function _setupRegexBlacklists(options) {
-  if (options.domainBlacklistRegex !== previousDomainRegexAsString && options.domainBlacklistRegex.length === 0) {
-    Logger.debug('Removing Domain Blacklist Regex Filtering');
+function _setupRegexBlocklists(options) {
+  if (options.domainBlocklistRegex !== previousDomainRegexAsString && options.domainBlocklistRegex.length === 0) {
+    Logger.debug('Removing Domain Blocklist Regex Filtering');
     previousDomainRegexAsString = '';
-    domainBlacklistRegex = null;
+    domainBlocklistRegex = null;
   } else {
-    if (options.domainBlacklistRegex !== previousDomainRegexAsString) {
-      previousDomainRegexAsString = options.domainBlacklistRegex;
-      Logger.debug({ domainBlacklistRegex: previousDomainRegexAsString }, 'Modifying Domain Blacklist Regex');
-      domainBlacklistRegex = new RegExp(options.domainBlacklistRegex, 'i');
+    if (options.domainBlocklistRegex !== previousDomainRegexAsString) {
+      previousDomainRegexAsString = options.domainBlocklistRegex;
+      Logger.debug({ domainBlocklistRegex: previousDomainRegexAsString }, 'Modifying Domain Blocklist Regex');
+      domainBlocklistRegex = new RegExp(options.domainBlocklistRegex, 'i');
     }
   }
 }
@@ -451,24 +535,24 @@ function createToken(options, cb) {
 }
 
 function doLookup(entities, options, cb) {
-  _setupRegexBlacklists(options);
+  _setupRegexBlocklists(options);
 
   let lookupResults = [];
 
   async.each(
     entities,
     (entityObj, next) => {
-      if (options.blacklist.toLowerCase().includes(entityObj.value.toLowerCase())) {
-        Logger.debug({ entity: entityObj.value }, 'Ignored BlackListed Entity Lookup');
+      if (options.blocklist.toLowerCase().includes(entityObj.value.toLowerCase())) {
+        Logger.debug({ entity: entityObj.value }, 'Ignored BlockListed Entity Lookup');
         lookupResults.push({
           entity: entityObj,
           data: null
         });
         return next(null);
       } else if (entityObj.isDomain) {
-        if (domainBlacklistRegex !== null) {
-          if (domainBlacklistRegex.test(entityObj.value)) {
-            Logger.debug({ domain: entityObj.value }, 'Ignored BlackListed Domain Lookup');
+        if (domainBlocklistRegex !== null) {
+          if (domainBlocklistRegex.test(entityObj.value)) {
+            Logger.debug({ domain: entityObj.value }, 'Ignored BlockListed Domain Lookup');
             lookupResults.push({
               entity: entityObj,
               data: null
@@ -494,7 +578,19 @@ function doLookup(entities, options, cb) {
   );
 }
 
-function _createQuery(entityObj) {
+function _createIndicatorQuery(entityObj, options) {
+  if (entityObj.isIP || entityObj.isHash || entityObj.isDomain || entityObj.isEmail) {
+    return [
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
+      }
+    ];
+  }
+  return null;
+}
+
+function _createQuery(entityObj, options) {
   if (entityObj.type === 'cve') {
     return [
       {
@@ -518,6 +614,10 @@ function _createQuery(entityObj) {
       {
         type: 'file',
         query: `hashes.MD5 = '${entityObj.value}'`
+      },
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -527,6 +627,10 @@ function _createQuery(entityObj) {
       {
         type: 'file',
         query: `hashes.SHA-1 = '${entityObj.value}'`
+      },
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -536,6 +640,10 @@ function _createQuery(entityObj) {
       {
         type: 'file',
         query: `hashes.SHA-256 = '${entityObj.value}'`
+      },
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -559,50 +667,115 @@ function _createQuery(entityObj) {
       {
         type: 'email-addr',
         query: `value = '${entityObj.value}'`
+      },
+      {
+        type: 'indicator',
+        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
 }
 
-function _lookupEntity(entityObj, options, cb) {
+function _searchIndicators(entityObj, options, cb) {
   let requestOptions = {
     uri: `${options.uri}/collections/search`,
     method: 'POST',
     body: {
-      queries: _createQuery(entityObj),
+      queries: _createIndicatorQuery(entityObj, options),
       include_connected_objects: true,
-      limit: 10,
-      offset: 0,
-      connected_objects: [
-        { object_type: 'threat-actor'},
-        { object_type: 'report'}
-      ]
+      // Note that this limit only applies to the number of objects returned that are not being
+      // returned because they are a connected object.  There does not appear to be a way
+      // to limit the number of connected objects returned.  We limit the number of connected
+      // objects we return to the Overlay Window in post processing.
+      limit: MAX_RESULTS,
+      offset: 0
     }
   };
 
-  Logger.trace({ request: requestOptions }, 'search_ex request options');
+  Logger.trace({ request: requestOptions }, 'incident search request options');
 
   authenticatedRequest(options, requestOptions, function (err, response, body) {
     if (err) {
-      Logger.trace({ err: err, response: response }, 'Error in _lookupEntity() requestWithDefault');
+      Logger.trace({ err: err, response: response }, 'Error running incident search');
       return cb(err);
     }
 
-    Logger.trace({ data: body }, 'Body');
+    Logger.trace({ data: body }, 'Incident Search Body');
 
     if (!body || !Array.isArray(body.objects) || body.objects.length === 0) {
-      cb(null, {
-        entity: entityObj,
-        data: null
-      });
-      return;
+      // this is a miss
+      return cb(null, []);
     }
 
-    cb(null, {
-      entity: entityObj,
-      data: getResultObjectDataFields(body.objects)
-    });
+    cb(null, body.objects);
   });
+}
+
+function _searchCollections(entityObj, options, cb) {
+  let requestOptions = {
+    uri: `${options.uri}/collections/search`,
+    method: 'POST',
+    body: {
+      queries: _createQuery(entityObj, options),
+      include_connected_objects: true,
+      // Note that this limit only applies to the number of objects returned that are not being
+      // returned because they are a connected object.  There does not appear to be a way
+      // to limit the number of connected objects returned.  We limit the number of connected
+      // objects we return to the Overlay Window in post processing.
+      limit: MAX_RESULTS,
+      offset: 0
+    }
+  };
+
+  Logger.trace({ request: requestOptions }, 'collection search request options');
+
+  authenticatedRequest(options, requestOptions, function (err, response, body) {
+    if (err) {
+      Logger.trace({ err: err, response: response }, 'Error running collection search');
+      return cb(err);
+    }
+
+    Logger.trace({ data: body }, 'Collection Search Body');
+
+    if (!body || !Array.isArray(body.objects) || body.objects.length === 0) {
+      // this is a miss
+      return cb(null, []);
+    }
+
+    cb(null, body.objects);
+  });
+}
+
+function _lookupEntity(entityObj, options, cb) {
+  async.parallel(
+    {
+      indicator: (done) => {
+        if (!options.enableIndicatorSearch) {
+          return done(null, []);
+        }
+        _searchIndicators(entityObj, options, done);
+      },
+      collection: (done) => {
+        _searchCollections(entityObj, options, done);
+      }
+    },
+    (err, results) => {
+      Logger.trace({ results }, 'Search Results');
+
+      if (results.indicator.length === 0 && results.collection.length === 0) {
+        cb(null, {
+          entity: entityObj,
+          data: null
+        });
+        return;
+      }
+
+      cb(null, {
+        entity: entityObj,
+        data: getResultObjectDataFields([results.indicator, results.collection], entityObj)
+      });
+    }
+  );
 }
 
 function _handleRestErrors(response, body) {
@@ -622,20 +795,20 @@ function _handleRestErrors(response, body) {
         }
       );
     case 400:
+      return _createJsonErrorPayload('Bad Request -- Your request is invalid.', null, '400', '2', 'Bad Request', {
+        body: body
+      });
+    case 401:
       return _createJsonErrorPayload(
-        'Bad Request -- Your request is invalid.',
+        'Unauthorized -- Your account is expired or the dates are wrong.',
         null,
-        '400',
-        '2',
-        'Bad Request',
+        '401',
+        '3',
+        'Conflict',
         {
           body: body
         }
       );
-    case 401:
-      return _createJsonErrorPayload('Unauthorized -- Your account is expired or the dates are wrong.', null, '401', '3', 'Conflict', {
-        body: body
-      });
     case 502:
       return _createJsonErrorPayload(
         'Gateway Error -- We had a problem with the FireEye gateway server, please let us know.\t',

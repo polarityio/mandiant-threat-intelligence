@@ -111,8 +111,17 @@ module.exports = {
       adminOnly: false
     },
     {
-      key: 'blacklist',
-      name: 'Blacklisted Entities',
+      key: 'enableIndicatorSearch',
+      name: 'Enable Indicator Search',
+      description: 'If checked, the integration will return Indicator results from the FireEye Intel API.  Enabling this option requires the integration to issue an extra REST API lookup request per entity.',
+      default: true,
+      type: 'boolean',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'blocklist',
+      name: 'Blocklisted Entities',
       description: 'Comma separated list of entities that you never want looked up. Should be set to "Only admins can view and edit".',
       default: '',
       type: 'text',
@@ -120,8 +129,8 @@ module.exports = {
       adminOnly: true
     },
     {
-      key: 'domainBlacklistRegex',
-      name: 'Domain Blacklist Regex',
+      key: 'domainBlocklistRegex',
+      name: 'Domain Blocklist Regex',
       description:
         'Domains that match the given regex will not be looked up (if blank, no domains will be black listed).  Should be set to "Only admins can view and edit".',
       default: '',
