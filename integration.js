@@ -624,10 +624,6 @@ function _createQuery(entityObj, options) {
       {
         type: 'file',
         query: `hashes.MD5 = '${entityObj.value}'`
-      },
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -637,10 +633,6 @@ function _createQuery(entityObj, options) {
       {
         type: 'file',
         query: `hashes.SHA-1 = '${entityObj.value}'`
-      },
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -650,10 +642,6 @@ function _createQuery(entityObj, options) {
       {
         type: 'file',
         query: `hashes.SHA-256 = '${entityObj.value}'`
-      },
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
@@ -677,10 +665,6 @@ function _createQuery(entityObj, options) {
       {
         type: 'email-addr',
         query: `value = '${entityObj.value}'`
-      },
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
       }
     ];
   }
