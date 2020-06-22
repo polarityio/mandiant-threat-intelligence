@@ -1,74 +1,77 @@
-{{#each-in details as | displayValue collectionType|}}
-  <h1 class="p-title">{{fa-icon collectionType.icon fixedWidth=true}} {{displayValue}}</h1>
-  {{#each collectionType.values as | collection |}}
-    <div class="result-container">
-      <h1 class="p-title">{{fa-icon "th-list" fixedWidth=true}} {{collection.fields.[0].key}}: {{collection.fields.[0].value}}</h1>
-      {{#if (and collection.link collection.link.url)}}
-        <div>
-          <span class="p-key">Link: </span>
-          <a class="p-link" href="{{collection.link.url}}">{{collection.link.display}} {{fa-icon "external-link" class="external-icon"}}</a>
-        </div>
-      {{/if}}
-      {{#each collection.fields as | field index|}}
-        {{#if field.value}}
-          {{#if (not-eq index 0)}}
-            <div>
-              {{#if field.nested}}
-                <span class="p-key">{{field.key}}</span>
-                {{!-- Nested List --}}
-                <div class="sub-object-container">
-                  {{#if field.value.[0]}}
-                    {{#each field.value as | nestedObject |}}
-                        {{#each-in nestedObject as | key value |}}
-                          {{#if value}}
-                            <div>
-                              <span class="p-key">{{key}}: </span>
-                              <span class="p-value">{{value}}</span>
-                            </div>
-                          {{/if}}
-                        {{/each-in}}
-                    {{/each}}
-                  {{else}}
-                  {{!-- Nested Object --}}
-                    {{#each-in field.value as | nestedKey nestedValue |}}
-                      <div>
-                        <span class="p-key">{{humanize nestedKey}}: </span>
-                        {{!-- Nested Object where value is an array --}}
-                        {{#if nestedValue.[0]}}
-                          <div>
-                            {{#each nestedValue as | listValue |}}
-                              {{#if listValue}}
-                                <span class="tag">{{listValue}}</span>
-                              {{/if}}
-                            {{/each}}
-                          </div>
-                        {{else}}
-                          <span class="p-value">{{nestedValue}}</span>
-                        {{/if}}
-                      </div>
-                    {{/each-in}}
-                  {{/if}}
-                </div>
-              {{else if field.value.[0]}}
-                {{!-- Basic list value --}}
-                <span class="p-key">{{field.key}}: </span>
-                {{#each field.value as | listValue |}}
-                  <span class="tag">{{listValue}}</span>
-                {{/each}}
-              {{else}}
-                {{!-- Plain string value --}}
-                <span class="p-key">{{field.key}}: </span>
-                <span class="p-value">{{field.value}}</span>
-              {{/if}}
-            </div>
-          {{/if}}
+{{#each details as | collectionType|}}
+  {{#if collectionType}}
+    <h1 class="p-title">{{fa-icon collectionType.icon fixedWidth=true}} {{collectionType.displayValue}}</h1>
+    {{#each collectionType.values as | collection |}}
+      <div class="result-container">
+        <h1 class="p-title">{{fa-icon "th-list" fixedWidth=true}} {{collection.fields.[0].key}}: {{collection.fields.[0].value}}</h1>
+        {{#if (and collection.link collection.link.url)}}
+          <div>
+            <span class="p-key">Link: </span>
+            <a class="p-link" href="{{collection.link.url}}">{{collection.link.display}} {{fa-icon "external-link" class="external-icon"}}</a>
+          </div>
         {{/if}}
-      {{/each}}
-    </div>
-  {{/each}}
-  {{#if (lt collectionType.values.length collectionType.total)}}
-    <div>
-      +{{sub collectionType.total collectionType.values.length}} more {{lowercase displayValue}}.
-    </div>
+        {{#each collection.fields as | field index|}}
+          {{#if field.value}}
+            {{#if (not-eq index 0)}}
+              <div>
+                {{#if field.nested}}
+                  <span class="p-key">{{field.key}}</span>
+                  {{!-- Nested List --}}
+                  <div class="sub-object-container">
+                    {{!-- If field.value is an array --}}
+                    {{#if field.value.[0]}}
+                      {{#each field.value as | nestedObject |}}
+                          {{#each-in nestedObject as | key value |}}
+                            {{#if value}}
+                              <div>
+                                <span class="p-key">{{key}}: </span>
+                                <span class="p-value">{{value}}</span>
+                              </div>
+                            {{/if}}
+                          {{/each-in}}
+                      {{/each}}
+                    {{else}}
+                    {{!-- Nested Object --}}
+                      {{#each-in field.value as | nestedKey nestedValue |}}
+                        <div>
+                          <span class="p-key">{{humanize nestedKey}}: </span>
+                          {{!-- Nested Object where nestedValue is an array --}}
+                          {{#if nestedValue.[0]}}
+                            <div>
+                              {{#each nestedValue as | listValue |}}
+                                {{#if listValue}}
+                                  <span class="tag">{{listValue}}</span>
+                                {{/if}}
+                              {{/each}}
+                            </div>
+                          {{else}}
+                            <span class="p-value">{{nestedValue}}</span>
+                          {{/if}}
+                        </div>
+                      {{/each-in}}
+                    {{/if}}
+                  </div>
+                {{else if field.value.[0]}}
+                  {{!-- Basic list value --}}
+                  <span class="p-key">{{field.key}}: </span>
+                  {{#each field.value as | listValue |}}
+                    <span class="tag">{{listValue}}</span>
+                  {{/each}}
+                {{else}}
+                  {{!-- Plain string value --}}
+                  <span class="p-key">{{field.key}}: </span>
+                  <span class="p-value">{{field.value}}</span>
+                {{/if}}
+              </div>
+            {{/if}}
+          {{/if}}
+        {{/each}}
+      </div>
+    {{/each}}
+    {{#if (lt collectionType.values.length collectionType.total)}}
+      <div>
+        +{{sub collectionType.total collectionType.values.length}} more {{lowercase collectionType.displayValue}}.
+      </div>
+    {{/if}}
   {{/if}}
-{{/each-in}}
+{{/each}}

@@ -22,6 +22,7 @@ const fireEyeTypes = {
   malware: {
     displayValue: 'Malware',
     icon: 'bug',
+    order: 3,
     getFields: (malware) => {
       return {
         link: {
@@ -64,6 +65,7 @@ const fireEyeTypes = {
   indicator: {
     displayValue: 'Indicators',
     icon: 'bullseye',
+    order: 1,
     getFields: (indicator, entityObj) => {
       return {
         link: {
@@ -101,6 +103,7 @@ const fireEyeTypes = {
   'threat-actor': {
     displayValue: 'Threat Actors',
     icon: 'user-secret',
+    order: 2,
     getFields: (actor) => {
       return {
         link: {
@@ -140,6 +143,7 @@ const fireEyeTypes = {
   report: {
     displayValue: 'Reports',
     icon: 'book',
+    order: 0,
     getFields: (report) => {
       return {
         link: {
@@ -182,6 +186,7 @@ const fireEyeTypes = {
   vulnerability: {
     displayValue: 'Vulnerabilities',
     icon: 'spider',
+    order: 4,
     getFields: (vuln, entityObj) => {
       // Only return the vulnerability if Fireeye has a score for it
       if (Array.isArray(vuln.x_fireeye_com_vulnerability_score)) {
@@ -218,6 +223,7 @@ const fireEyeTypes = {
   file: {
     displayValue: 'Files',
     icon: 'file',
+    order: 5,
     getFields: (file, entityObj) => {
       return {
         link: {
@@ -244,6 +250,7 @@ const fireEyeTypes = {
   'email-addr': {
     displayValue: 'Email',
     icon: 'email',
+    order: 6,
     getFields: (email, entityObj) => {
       return {
         link: {
@@ -266,6 +273,7 @@ const fireEyeTypes = {
   'x-fireeye-com-remedy-action': {
     displayValue: 'Remedies',
     icon: 'prescription-bottle-alt',
+    order: 7,
     getFields: (remedy) => {
       return {
         link: null,
@@ -325,7 +333,7 @@ function entityTypeToIndicatorType(entityObj) {
  */
 function getResultObjectDataFields(collections, entityObj) {
   const summary = [];
-  const details = {};
+  const details = [];
   const counts = {};
   // used to ensure we don't return duplicate results
   const idSet = new Set();
@@ -342,25 +350,27 @@ function getResultObjectDataFields(collections, entityObj) {
 
       if (formatter && typeof formatter.getFields === 'function') {
         const fields = formatter.getFields(object, entityObj);
+        const order = formatter.order;
         const displayValue = formatter.displayValue;
         const icon = formatter.icon;
 
         // Returned types do not always have all fields.  We don't want to return
         // and object if it has no fields.
         if (fields !== null) {
-          if (!details[displayValue]) {
-            details[displayValue] = {
+          if (!details[order]) {
+            details[order] = {
+              displayValue,
               icon,
               total: 0,
               values: []
             };
           }
 
-          if (details[displayValue].values.length < MAX_RESULTS) {
-            details[displayValue].values.push(fields);
+          if (details[order].values.length < MAX_RESULTS) {
+            details[order].values.push(fields);
           }
 
-          details[displayValue].total += 1;
+          details[order].total += 1;
 
           if (typeof counts[fireEyeType] === 'undefined') {
             counts[fireEyeType] = 1;
@@ -579,7 +589,7 @@ function doLookup(entities, options, cb) {
 }
 
 function _createIndicatorQuery(entityObj, options) {
-  if (entityObj.isIP || entityObj.isHash || entityObj.isDomain || entityObj.isEmail) {
+  if (entityObj.isIP || entityObj.isHash || entityObj.isDomain || entityObj.isEmail || entityObj.type === 'cve') {
     return [
       {
         type: 'indicator',
@@ -677,11 +687,17 @@ function _createQuery(entityObj, options) {
 }
 
 function _searchIndicators(entityObj, options, cb) {
+  const indicatorQuery = _createIndicatorQuery(entityObj, options);
+
+  if(indicatorQuery === null){
+    return cb(null, []);
+  }
+
   let requestOptions = {
     uri: `${options.uri}/collections/search`,
     method: 'POST',
     body: {
-      queries: _createIndicatorQuery(entityObj, options),
+      queries: indicatorQuery,
       include_connected_objects: true,
       // Note that this limit only applies to the number of objects returned that are not being
       // returned because they are a connected object.  There does not appear to be a way
