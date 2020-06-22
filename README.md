@@ -2,7 +2,7 @@
 
 Searches Threat Actors, Malware, Vulnerabilities and Indicators for supported entity types.  
 
-<img src="./assets/overlay.png width="50%"/>
+<img src="./assets/overlay.png" width="50%"/>
 
 ## FireEye Intel API Options
 
