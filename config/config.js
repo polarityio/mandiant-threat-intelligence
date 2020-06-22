@@ -86,7 +86,7 @@ module.exports = {
     {
       key: 'uri',
       name: 'FireEye Intel API REST URL',
-      description: '',
+      description: 'The URL for the FireEye Intel API.  Defaults to `https://api.intelligence.fireeye.com`.',
       default: 'https://api.intelligence.fireeye.com',
       type: 'text',
       userCanEdit: false,
@@ -95,7 +95,7 @@ module.exports = {
     {
       key: 'publicKey',
       name: 'Intel API Public Key',
-      description: 'Your public key',
+      description: 'Your FireEye Intel API public key',
       default: '',
       type: 'text',
       userCanEdit: true,
@@ -104,7 +104,7 @@ module.exports = {
     {
       key: 'privateKey',
       name: 'Intel API Private Key',
-      description: 'Your private key.',
+      description: 'Your FireEye Intel API private key.',
       default: '',
       type: 'password',
       userCanEdit: true,
