@@ -113,7 +113,7 @@ module.exports = {
     {
       key: 'enableIndicatorSearch',
       name: 'Enable Indicator Search',
-      description: 'If checked, the integration will return Indicator results from the FireEye Intel API.  Enabling this option requires the integration to issue an extra REST API lookup request per entity.',
+      description: 'If checked, the integration will return Indicator results from the FireEye Intel API. Enabling this option requires the integration to issue an extra REST API lookup request per entity.  When disabled, the integration will only return results if an entity is associated with Malware, a Threat Actor or Vulnerability.',
       default: true,
       type: 'boolean',
       userCanEdit: false,

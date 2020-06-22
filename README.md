@@ -1,6 +1,8 @@
 # Polarity FireEye Intel API Integration
 
-Searches Threat Actors, Malware, Vulnerabilities and Indicators for supported entity types.  
+Returns information about entities that are associated with Malware, a Threat Actor, or Vulnerability.  The integration can also be configured to return entities that are tracked as indicators within the FireEye Intel API platform.
+
+> Due to the way collection searches work, when Indicator searching is enabled, the integration requires two lookups per entity.
 
 <img src="./assets/overlay.png" width="50%"/>
 
@@ -20,7 +22,7 @@ Your FireEye Intel API private key.
 
 ### Enable Indicator Search
 
-If checked, the integration will return Indicator results from the FireEye Intel API. Enabling this option requires the integration to issue an extra REST API lookup request per entity.
+If checked, the integration will return Indicator results from the FireEye Intel API. Enabling this option requires the integration to issue an extra REST API lookup request per entity.  When disabled, the integration will only return results if an entity is associated with Malware, a Threat Actor or Vulnerability.
 
 ### Blocklisted Entities
 
