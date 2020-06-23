@@ -98,8 +98,8 @@ module.exports = {
       description: 'Your FireEye Intel API public key',
       default: '',
       type: 'text',
-      userCanEdit: true,
-      adminOnly: false
+      userCanEdit: false,
+      adminOnly: true
     },
     {
       key: 'privateKey',
@@ -107,8 +107,8 @@ module.exports = {
       description: 'Your FireEye Intel API private key.',
       default: '',
       type: 'password',
-      userCanEdit: true,
-      adminOnly: false
+      userCanEdit: false,
+      adminOnly: true
     },
     {
       key: 'enableIndicatorSearch',
