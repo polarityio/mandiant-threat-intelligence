@@ -760,6 +760,10 @@ function _lookupEntity(entityObj, options, cb) {
       }
     },
     (err, results) => {
+      if(err){
+        return cb(err);
+      }
+
       Logger.trace({ results }, 'Search Results');
 
       if (results.indicator.length === 0 && results.collection.length === 0) {
