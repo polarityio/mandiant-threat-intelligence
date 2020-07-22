@@ -5,7 +5,7 @@ module.exports = {
    * @type String
    * @required
    */
-  name: 'FireEye Intel API',
+  name: 'Mandiant Threat Intelligence',
   /**
    * The acronym that appears in the notification window when information from this integration
    * is displayed.  Note that the acronym is included as part of each "tag" in the summary information
@@ -15,14 +15,15 @@ module.exports = {
    * @type String
    * @required
    */
-  acronym: 'FEINT',
+  acronym: 'MTI',
   /**
    * Description for this integration which is displayed in the Polarity integrations user interface
    *
    * @type String
    * @optional
    */
-  description: 'Query incidents within the IBM Resilient Incident Response Platform',
+  description:
+    'Provides automated access to indicators of compromise (IOCs), CVE information, as well as information on the adversary from the Mandiant Threat Intelligence API.',
   entityTypes: ['IPv4', 'domain', 'email', 'hash', 'cve'],
   /**
    * An array of style files (css or less) that will be included for your integration. Any styles specified in
@@ -72,9 +73,9 @@ module.exports = {
     rejectUnauthorized: true
   },
   logging: {
-    level: 'trace' //trace, debug, info, warn, error, fatal
+    level: 'info' //trace, debug, info, warn, error, fatal
   },
-  onDemandOnly: true,
+  onDemandOnly: false,
   /**
    * Options that are displayed to the user/admin in the Polarity integration user-interface.  Should be structured
    * as an array of option objects.
@@ -85,8 +86,8 @@ module.exports = {
   options: [
     {
       key: 'uri',
-      name: 'FireEye Intel API REST URL',
-      description: 'The URL for the FireEye Intel API.  Defaults to `https://api.intelligence.fireeye.com`.',
+      name: 'Mandiant Threat Intelligence REST URL',
+      description: 'The URL for the Mandiant Threat Intelligence API.  Defaults to `https://api.intelligence.fireeye.com`.',
       default: 'https://api.intelligence.fireeye.com',
       type: 'text',
       userCanEdit: false,
@@ -94,8 +95,8 @@ module.exports = {
     },
     {
       key: 'publicKey',
-      name: 'Intel API Public Key',
-      description: 'Your FireEye Intel API public key',
+      name: 'Mandiant Threat Intelligence Public Key',
+      description: 'Your Mandiant Threat Intelligence API public key',
       default: '',
       type: 'text',
       userCanEdit: false,
@@ -103,8 +104,8 @@ module.exports = {
     },
     {
       key: 'privateKey',
-      name: 'Intel API Private Key',
-      description: 'Your FireEye Intel API private key.',
+      name: 'Mandiant Threat Intelligence Private Key',
+      description: 'Your Mandiant Threat Intelligence API private key.',
       default: '',
       type: 'password',
       userCanEdit: false,
@@ -113,7 +114,8 @@ module.exports = {
     {
       key: 'enableIndicatorSearch',
       name: 'Enable Indicator Search',
-      description: 'If checked, the integration will return Indicator results from the FireEye Intel API. Enabling this option requires the integration to issue an extra REST API lookup request per entity.  When disabled, the integration will only return results if an entity is associated with Malware, a Threat Actor or Vulnerability.',
+      description:
+        'If checked, the integration will return Indicator results from the Mandiant Threat Intelligence API. Enabling this option requires the integration to issue an extra REST API lookup request per entity.  When disabled, the integration will only return results if an entity is associated with Malware, a Threat Actor or Vulnerability.',
       default: true,
       type: 'boolean',
       userCanEdit: false,
@@ -121,8 +123,9 @@ module.exports = {
     },
     {
       key: 'blocklist',
-      name: 'Blocklisted Entities',
-      description: 'Comma separated list of entities that you never want looked up. Should be set to "Only admins can view and edit".',
+      name: 'Ignored Entities',
+      description:
+        'Comma separated list of entities that you never want looked up. Should be set to "Only admins can view and edit".',
       default: '',
       type: 'text',
       userCanEdit: false,
@@ -130,7 +133,7 @@ module.exports = {
     },
     {
       key: 'domainBlocklistRegex',
-      name: 'Domain Blocklist Regex',
+      name: 'Ignored Domains Regex',
       description:
         'Domains that match the given regex will not be looked up (if blank, no domains will be black listed).  Should be set to "Only admins can view and edit".',
       default: '',
