@@ -1,6 +1,6 @@
 {
   "main": "./integration.js",
-  "name": "FireEyeIntelAPI",
+  "name": "MandiantThreatIntel",
   "version": "3.0.1-beta",
   "private": true,
   "dependencies": {
