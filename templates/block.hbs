@@ -21,6 +21,7 @@
                     {{!-- If field.value is an array --}}
                     {{#if field.value.[0]}}
                       {{#each field.value as | nestedObject |}}
+                        <div class="pt-1">
                           {{#each-in nestedObject as | key value |}}
                             {{#if value}}
                               <div>
@@ -29,6 +30,7 @@
                               </div>
                             {{/if}}
                           {{/each-in}}
+                        </div>
                       {{/each}}
                     {{else}}
                     {{!-- Nested Object --}}
