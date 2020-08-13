@@ -52,6 +52,7 @@ const fireEyeTypes = {
           },
           {
             key: 'Associated Detection Names',
+            nested: true,
             value: malware.x_fireeye_com_associated_detection_names
           },
           {
@@ -936,7 +937,43 @@ function validateOptions(userOptions, cb) {
   cb(null, errors);
 }
 
+function validateOptions(userOptions, cb) {
+  let errors = [];
+  if (
+    typeof userOptions.uri.value !== 'string' ||
+    (typeof userOptions.uri.value === 'string' && userOptions.uri.value.length === 0)
+  ) {
+    errors.push({
+      key: 'uri',
+      message: 'You must provide a valid REST Url'
+    });
+  }
+
+  if (
+    typeof userOptions.publicKey.value !== 'string' ||
+    (typeof userOptions.publicKey.value === 'string' && userOptions.publicKey.value.length === 0)
+  ) {
+    errors.push({
+      key: 'publicKey',
+      message: 'You must provide a valid Mandiant Threat Intelligence API public key'
+    });
+  }
+
+  if (
+    typeof userOptions.privateKey.value !== 'string' ||
+    (typeof userOptions.privateKey.value === 'string' && userOptions.privateKey.value.length === 0)
+  ) {
+    errors.push({
+      key: 'privateKey',
+      message: 'You must provide a valid Mandiant Threat Intelligence API private key'
+    });
+  }
+
+  cb(null, errors);
+}
+
 module.exports = {
   doLookup,
-  startup
+  startup,
+  validateOptions
 };
