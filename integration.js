@@ -52,6 +52,7 @@ const fireEyeTypes = {
           },
           {
             key: 'Associated Detection Names',
+            nested: true,
             value: malware.x_fireeye_com_associated_detection_names
           },
           {
