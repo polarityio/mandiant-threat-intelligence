@@ -49,6 +49,7 @@ module.exports = {
       file: './templates/block.hbs'
     }
   },
+  defaultColor: 'dark-pink',
   request: {
     // Provide the path to your certFile. Leave an empty string to ignore this option.
     // Relative paths are relative to the integration's root directory
@@ -87,7 +88,8 @@ module.exports = {
     {
       key: 'uri',
       name: 'Mandiant Threat Intelligence REST URL',
-      description: 'The URL for the Mandiant Threat Intelligence API.  Defaults to `https://api.intelligence.fireeye.com`.',
+      description:
+        'The URL for the Mandiant Threat Intelligence API.  Defaults to `https://api.intelligence.fireeye.com`.',
       default: 'https://api.intelligence.fireeye.com',
       type: 'text',
       userCanEdit: false,
@@ -112,14 +114,13 @@ module.exports = {
       adminOnly: true
     },
     {
-      key: 'enableIndicatorSearch',
-      name: 'Enable Indicator Search',
-      description:
-        'If checked, the integration will return Indicator results from the Mandiant Threat Intelligence API. Enabling this option requires the integration to issue an extra REST API lookup request per entity.  When disabled, the integration will only return results if an entity is associated with Malware, a Threat Actor or Vulnerability.',
-      default: true,
-      type: 'boolean',
+      key: 'minimumMScore',
+      name: 'Minimum MScore to Display',
+      description: 'The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 50 are considered suspicious and/or malicious.',
+      default: 51,
+      type: 'number',
       userCanEdit: false,
-      adminOnly: true
+      adminOnly: false
     },
     {
       key: 'blocklist',

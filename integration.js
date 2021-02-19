@@ -5,6 +5,7 @@ const config = require('./config/config');
 const async = require('async');
 const fs = require('fs');
 const _ = require('lodash');
+const { legacyTypes } = require('./src/indicator-types');
 
 const tokenCache = new Map();
 const MAX_AUTH_RETRIES = 2;
@@ -16,315 +17,28 @@ let authenticatedRequest;
 let previousDomainRegexAsString = '';
 let domainBlocklistRegex = null;
 
-const BASE_WEB_URL = 'https://intelligence.fireeye.com';
+const MAX_ENTITIES_PER_LOOKUP = 100;
+const MAX_PARALLEL_CVES = 5;
 
-const fireEyeTypes = {
-  malware: {
-    displayValue: 'Malware',
-    icon: 'bug',
-    order: 3,
-    getFields: (malware) => {
-      return {
-        link: {
-          display: 'Search in FireEye Intel',
-          url: `${BASE_WEB_URL}/search?search=malware%20is%20${malware.name}`
-        },
-        fields: [
-          {
-            key: 'Name',
-            value: malware.name
-          },
-          {
-            key: 'Labels',
-            value: Array.isArray(malware.labels) ? malware.labels : []
-          },
-          {
-            key: 'Malware Types',
-            value: Array.isArray(malware.malware_types) ? malware.malware_types : []
-          },
-          {
-            key: 'Is Family',
-            value: malware.is_family
-          },
-          {
-            key: 'OS Execution Envs',
-            value: Array.isArray(malware.os_execution_envs) ? malware.os_execution_envs : []
-          },
-          {
-            key: 'Associated Detection Names',
-            nested: true,
-            value: malware.x_fireeye_com_associated_detection_names
-          },
-          {
-            key: 'Description',
-            value: malware.description
-          }
-        ]
-      };
-    }
-  },
-  indicator: {
-    displayValue: 'Indicators',
-    icon: 'bullseye',
-    order: 1,
-    getFields: (indicator, entityObj) => {
-      return {
-        link: {
-          display: 'Search in FireEye Intel',
-          url: `${BASE_WEB_URL}/search?search=indicator%20${entityTypeToIndicatorType(entityObj)}%20is${
-            entityObj.value
-          }`
-        },
-        fields: [
-          {
-            key: 'Types',
-            value: indicator.indicator_types
-          },
-          {
-            key: 'Confidence',
-            value: indicator.confidence
-          },
-          {
-            key: 'Pattern',
-            value: indicator.pattern
-          },
-          {
-            key: 'Labels',
-            value: indicator.labels
-          },
-          {
-            key: 'Metadata',
-            nested: true,
-            value: indicator.x_fireeye_com_metadata
-          }
-        ]
-      };
-    }
-  },
-  'threat-actor': {
-    displayValue: 'Threat Actors',
-    icon: 'user-secret',
-    order: 2,
-    getFields: (actor) => {
-      return {
-        link: {
-          display: 'Search in FireEye Intel',
-          url: `${BASE_WEB_URL}/search?search=actor%20is%20${actor.name}&exclude_indicator_reports=false`
-        },
-        fields: [
-          {
-            key: 'Name',
-            value: actor.name
-          },
-
-          {
-            key: 'id',
-            value: actor.id
-          },
-          {
-            key: 'Labels',
-            value: Array.isArray(actor.labels) ? actor.labels : []
-          },
-          {
-            key: 'Aliases',
-            value: Array.isArray(actor.aliases) ? actor.aliases : []
-          },
-          {
-            key: 'Threat Actor Types',
-            value: Array.isArray(actor.threatActorTypes) ? actor.threatActorTypes : []
-          },
-          {
-            key: 'Description',
-            value: actor.description
-          }
-        ]
-      };
-    }
-  },
-  report: {
-    displayValue: 'Reports',
-    icon: 'book',
-    order: 0,
-    getFields: (report) => {
-      return {
-        link: {
-          display: 'View Report in FireEye Intel',
-          url:
-            report && report.x_fireeye_com_tracking_info && report.x_fireeye_com_tracking_info.document_id
-              ? `${BASE_WEB_URL}/reports/${report.x_fireeye_com_tracking_info.document_id}`
-              : null
-        },
-        fields: [
-          {
-            key: 'Name',
-            value: report.name
-          },
-          {
-            key: 'id',
-            value: report.id
-          },
-          {
-            key: 'Labels',
-            value: report.labels
-          },
-          {
-            key: 'Published',
-            value: report.published
-          },
-          {
-            key: 'Fireeye Metadata',
-            nested: true,
-            value: report.x_fireeye_com_metadata
-          },
-          {
-            key: 'Description',
-            value: report.description
-          }
-        ]
-      };
-    }
-  },
-  vulnerability: {
-    displayValue: 'Vulnerabilities',
-    icon: 'spider',
-    order: 4,
-    getFields: (vuln, entityObj) => {
-      // Only return the vulnerability if Fireeye has a score for it
-      if (Array.isArray(vuln.x_fireeye_com_vulnerability_score)) {
-        return {
-          link: {
-            display: 'Search in FireEye Intel',
-            url: `${BASE_WEB_URL}/search?search=${entityObj.value}`
-          },
-          fields: [
-            {
-              key: 'id',
-              value: vuln.id
-            },
-            {
-              key: 'Scores',
-              nested: true,
-              value: Array.isArray(vuln.x_fireeye_com_vulnerability_score)
-                ? vuln.x_fireeye_com_vulnerability_score.map((vuln) => {
-                    return {
-                      Vector: _.get(vuln, 'vector'),
-                      'Temporal Score': _.get(vuln, 'temporal_metrics.temporal_score'),
-                      'Base Score': _.get(vuln, 'base_metrics.base_score')
-                    };
-                  })
-                : []
-            }
-          ]
-        };
-      } else {
-        return null;
-      }
-    }
-  },
-  file: {
-    displayValue: 'Files',
-    icon: 'file',
-    order: 5,
-    getFields: (file, entityObj) => {
-      return {
-        link: {
-          display: 'Search in FireEye Intel',
-          url: `${BASE_WEB_URL}/search?search=${entityObj.value}`
-        },
-        fields: [
-          {
-            key: 'Name',
-            value: file.name
-          },
-          {
-            key: 'id',
-            value: file.id
-          },
-          {
-            key: 'Size',
-            value: file.size
-          }
-        ]
-      };
-    }
-  },
-  'email-addr': {
-    displayValue: 'Email',
-    icon: 'email',
-    order: 6,
-    getFields: (email, entityObj) => {
-      return {
-        link: {
-          display: 'Search in FireEye Intel',
-          url: `${BASE_WEB_URL}/search?search=${entityObj.value}`
-        },
-        fields: [
-          {
-            key: 'id',
-            value: email.id
-          },
-          {
-            key: 'Modified',
-            value: email.modified
-          }
-        ]
-      };
-    }
-  },
-  'x-fireeye-com-remedy-action': {
-    displayValue: 'Remedies',
-    icon: 'prescription-bottle-alt',
-    order: 7,
-    getFields: (remedy) => {
-      return {
-        link: null,
-        fields: [
-          {
-            key: 'Type',
-            value: remedy.remedy_type
-          },
-          {
-            key: 'id',
-            value: remedy.id
-          },
-          {
-            key: 'References',
-            nested: true,
-            value: Array.isArray(remedy.external_references) ? remedy.external_references : []
-          },
-          {
-            key: 'Description',
-            value: remedy.description
-          }
-        ]
-      };
-    }
-  }
-};
-
+/**
+ * Converts Polarity entity types to their respective Mandiant Threat Intel types
+ * @param entityObj
+ * @returns {string|null}
+ */
 function entityTypeToIndicatorType(entityObj) {
   if (entityObj.isIP) {
-    return 'IP';
+    return 'ip-address';
   }
-  if (entityObj.isMD5) {
-    return 'MD5';
-  }
-  if (entityObj.isSHA1) {
-    return 'SHA1';
-  }
-  if (entityObj.isSHA256) {
-    return 'SHA256';
+  if (entityObj.isHash) {
+    return 'hash';
   }
   if (entityObj.isEmail) {
-    return 'Email Sender';
+    return 'email';
   }
   if (entityObj.isDomain) {
-    return 'Domain';
+    return 'fqdn';
   }
-  if (entityObj.type === 'cve') {
-    return 'CVE';
-  }
-  return '';
+  return null;
 }
 
 /**
@@ -336,18 +50,26 @@ function getResultObjectDataFields(collections, entityObj) {
   const summary = [];
   const details = [];
   const counts = {};
+  let ttps = [];
+  const ttpsSet = new Set();
+  const intendedEffectsSet = new Set();
+  let intendedEffects = [];
+  const targetedInformationSet = new Set();
+  let targetedInformation = [];
+  const MAX_SUMMARY_LIST_SIZE = 3;
+
   // used to ensure we don't return duplicate results
   const idSet = new Set();
 
   collections.forEach((collection) => {
     collection.forEach((object) => {
-      if(idSet.has(object.id)){
+      if (idSet.has(object.id)) {
         return;
       }
       idSet.add(object.id);
 
       const fireEyeType = object.type;
-      const formatter = fireEyeTypes[fireEyeType];
+      const formatter = legacyTypes[fireEyeType];
 
       if (formatter && typeof formatter.getFields === 'function') {
         const fields = formatter.getFields(object, entityObj);
@@ -380,12 +102,84 @@ function getResultObjectDataFields(collections, entityObj) {
           }
         }
       }
+
+      // Pluck out data for TTP summary tags
+      const objectTtps = _.get(object, 'x_fireeye_com_metadata.ttp');
+      if (objectTtps) {
+        for (let i = 0; i < objectTtps.length; i++) {
+          let ttp = objectTtps[i];
+          // The API will return empty strings that we need to filter out.  Also test for strings
+          // in case the API returns random data.
+          if (typeof ttp == 'string' && ttp.length > 0) {
+            ttpsSet.add(ttp);
+          }
+        }
+        ttps = [...ttpsSet];
+      }
+
+      // Pluck out data for intended effect summary tags
+      const objectIntendedEffects = _.get(object, 'x_fireeye_com_metadata.intended_effect');
+      if (objectIntendedEffects) {
+        for (let i = 0; i < objectIntendedEffects.length; i++) {
+          let effect = objectIntendedEffects[i];
+          // The API will return empty strings that we need to filter out.  Also test for strings
+          // in case the API returns random data.
+          if (typeof effect == 'string' && effect.length > 0) {
+            intendedEffectsSet.add(effect);
+          }
+        }
+        intendedEffects = [...intendedEffectsSet];
+      }
+
+      // Pluck out data for targeted information summary tags
+      const objectTargetedInformation = _.get(object, 'x_fireeye_com_metadata.targeted_information');
+      if (objectTargetedInformation) {
+        for (let i = 0; i < objectTargetedInformation.length; i++) {
+          let effect = objectTargetedInformation[i];
+          // The API will return empty strings that we need to filter out.  Also test for strings
+          // in case the API returns random data.
+          if (typeof effect == 'string' && effect.length > 0) {
+            targetedInformationSet.add(effect);
+          }
+        }
+        targetedInformation = [...targetedInformationSet];
+      }
     });
   });
 
   Object.keys(counts).forEach((type) => {
-    summary.push(`${fireEyeTypes[type].displayValue}: ${counts[type]}`);
+    // Only show reports count if there is more than 1
+    if (type === 'report' && counts[type] === 1) {
+      return;
+    }
+    summary.push(`${legacyTypes[type].displayValue}: ${counts[type]}`);
   });
+
+  if (ttps.length > 0) {
+    summary.push(
+      `TTP: ${ttps.slice(0, MAX_SUMMARY_LIST_SIZE).join(', ')}${
+        ttps.length > MAX_SUMMARY_LIST_SIZE ? ' +' + (ttps.length - MAX_SUMMARY_LIST_SIZE) : ''
+      }`
+    );
+  }
+
+  if (intendedEffects.length > 0) {
+    summary.push(
+      `Intended Effect: ${intendedEffects.slice(0, MAX_SUMMARY_LIST_SIZE).join(', ')}${
+        intendedEffects.length > MAX_SUMMARY_LIST_SIZE ? ' +' + (intendedEffects.length - MAX_SUMMARY_LIST_SIZE) : ''
+      }`
+    );
+  }
+
+  if (targetedInformation.length > 0) {
+    summary.push(
+      `Targeted Info: ${targetedInformation.slice(0, MAX_SUMMARY_LIST_SIZE).join(', ')}${
+        targetedInformation.length > MAX_SUMMARY_LIST_SIZE
+          ? ' +' + (targetedInformation.length - MAX_SUMMARY_LIST_SIZE)
+          : ''
+      }`
+    );
+  }
 
   if (Object.keys(details).length > 0) {
     return { summary, details };
@@ -545,60 +339,212 @@ function createToken(options, cb) {
   }
 }
 
-function doLookup(entities, options, cb) {
-  _setupRegexBlocklists(options);
-
-  let lookupResults = [];
-
-  async.each(
-    entities,
-    (entityObj, next) => {
-      if (options.blocklist.toLowerCase().includes(entityObj.value.toLowerCase())) {
-        Logger.debug({ entity: entityObj.value }, 'Ignored BlockListed Entity Lookup');
-        lookupResults.push({
-          entity: entityObj,
-          data: null
-        });
-        return next(null);
-      } else if (entityObj.isDomain) {
-        if (domainBlocklistRegex !== null) {
-          if (domainBlocklistRegex.test(entityObj.value)) {
-            Logger.debug({ domain: entityObj.value }, 'Ignored BlockListed Domain Lookup');
-            lookupResults.push({
-              entity: entityObj,
-              data: null
-            });
-            return next(null);
-          }
-        }
-      }
-
-      _lookupEntity(entityObj, options, function (err, result) {
-        if (err) {
-          next(err);
-        } else {
-          Logger.debug({ results: result }, 'Logging results');
-          lookupResults.push(result);
-          next(null);
-        }
+/**
+ * Takes a "chunk" of entity objects and converts them into an array of request objects which are used to
+ * query the FireEye API.
+ * @param lookupChunk
+ * @returns {[]}
+ */
+function getChunkQuery(lookupChunk) {
+  const queries = [];
+  const searchedEntities = new Map();
+  for (let i = 0; i < lookupChunk.length; i++) {
+    const entityObj = lookupChunk[i];
+    searchedEntities.set(entityObj.value.toLowerCase(), entityObj);
+    const object_type = entityTypeToIndicatorType(entityObj);
+    if (object_type !== null) {
+      queries.push({
+        object_type,
+        value: [entityObj.value],
+        extended: true
       });
-    },
-    (err) => {
-      cb(err, lookupResults);
     }
-  );
+  }
+  return {
+    searchedEntities,
+    query: {
+      requests: queries
+    }
+  };
 }
 
-function _createIndicatorQuery(entityObj, options) {
-  if (entityObj.isIP || entityObj.isHash || entityObj.isDomain || entityObj.isEmail || entityObj.type === 'cve') {
-    return [
-      {
-        type: 'indicator',
-        query: `pattern LIKE '%${entityObj.value}%'`
+async function doLookup(entities, options, cb) {
+  _setupRegexBlocklists(options);
+  let { lookupResults, filteredEntities, cveEntities } = getFilteredEntities(entities, options);
+  const lookupChunks = _.chunk(filteredEntities, MAX_ENTITIES_PER_LOOKUP);
+
+  try {
+    for await (let lookupChunk of lookupChunks) {
+      const { searchedEntities, query } = getChunkQuery(lookupChunk);
+      Logger.info({ query }, 'QUERY');
+      if (query.length === 0) {
+        return;
       }
-    ];
+      const results = await _searchBulkIndicators(query, options);
+      const foundEntities = Object.keys(results);
+      Logger.info({ foundEntities }, 'Found Entities');
+      foundEntities.forEach((entity) => {
+        const entityLower = entity.toLowerCase();
+        const entityObj = searchedEntities.get(entityLower);
+        const indicator = results[entityLower];
+        const mScore = getMScore(indicator);
+        if (mScore >= options.minimumMScore) {
+          lookupResults.push({
+            entity: entityObj,
+            data: {
+              summary: _getSummaryTags(indicator),
+              details: indicator
+            }
+          });
+          // Remove the entity that had a result so we can figure out which entities
+          // did not have any hits.
+          searchedEntities.delete(entityLower);
+        }
+      });
+
+      for (let noResultEntity of searchedEntities.values()) {
+        lookupResults.push({
+          entity: noResultEntity,
+          data: null
+        });
+      }
+    }
+
+    if (cveEntities.length > 0) {
+      const cveResults = await lookupCveEntities(cveEntities, options);
+      for (let i = 0; i < cveResults.length; i++) {
+        lookupResults.push(cveResults[i]);
+      }
+    }
+
+    cb(null, lookupResults);
+  } catch (lookupError) {
+    Logger.error(lookupError, 'doLookup Error');
+    cb(lookupError);
   }
-  return null;
+}
+
+/**
+ * CVE entities have to be looked up
+ *
+ * @param cveEntities
+ * @param options
+ * @returns {Promise<unknown>}
+ */
+async function lookupCveEntities(cveEntities, options) {
+  let cveResults = [];
+  let tasks = [];
+  cveEntities.forEach((entityObj) => {
+    tasks.push((done) => {
+      _searchCollections(entityObj, options, (err, objects) => {
+        done(err, {
+          entity: entityObj,
+          objects
+        });
+      });
+    });
+  });
+
+  return new Promise((resolve, reject) => {
+    async.parallelLimit(tasks, MAX_PARALLEL_CVES, (err, results) => {
+      if (err) {
+        return reject(err);
+      }
+
+      results.forEach((result) => {
+        if (result.length === 0) {
+          cveResults.push({
+            entity: result.entity,
+            data: null
+          });
+        } else {
+          cveResults.push({
+            entity: result.entity,
+            data: getResultObjectDataFields([result.objects], result.entity)
+          });
+        }
+      });
+
+      resolve(cveResults);
+    });
+  });
+}
+
+/**
+ * Removes any entities that should be filtered out based on blocklists and also adds a
+ * lookup miss for those entities to improve caching.
+ *
+ * @param entities {Array} array of entity objects to be looked up
+ * @param options
+ * @returns {{filteredEntities: [], cveEntities: [], lookupResults: []}}
+ * filteredEntities: non-cve entities for lookup (has blocklisted entities removed)
+ * lookupResults: lookup result objects for misses (i.e., blocked entities)
+ * cveEntities: cve entities for lookup (we need these separate as they have to be looked up via a different endpoint)
+ */
+function getFilteredEntities(entities, options) {
+  let lookupResults = [];
+  let filteredEntities = [];
+  let cveEntities = [];
+  const blockList = options.blocklist.toLowerCase();
+  for (let i = 0; i < entities.length; i++) {
+    const entityObj = entities[i];
+    if (blockList.includes(entityObj.value.toLowerCase())) {
+      Logger.debug({ entity: entityObj.value }, 'Ignored BlockListed Entity Lookup');
+      lookupResults.push({
+        entity: entityObj,
+        data: null
+      });
+    } else if (entityObj.isDomain && domainBlocklistRegex !== null && domainBlocklistRegex.test(entityObj.value)) {
+      Logger.debug({ domain: entityObj.value }, 'Ignored BlockListed Domain Lookup');
+      lookupResults.push({
+        entity: entityObj,
+        data: null
+      });
+    } else if (entityObj.type === 'cve') {
+      cveEntities.push(entityObj);
+    } else {
+      filteredEntities.push(entityObj);
+    }
+  }
+
+  return { lookupResults, filteredEntities, cveEntities };
+}
+
+function getMScore(indicator) {
+  if (indicator.indicator_verdict && typeof indicator.indicator_verdict.mscore !== 'undefined') {
+    return indicator.indicator_verdict.mscore;
+  } else {
+    Logger.warn({ indicator }, 'Could not find valid MScore for indicator');
+    return 0;
+  }
+}
+
+function _getSummaryTags(indicator) {
+  let tags = [];
+  if (indicator.indicator_verdict && indicator.indicator_verdict.mscore) {
+    let mscore = indicator.indicator_verdict.mscore;
+    // Adds the conclusion which is typically one of "malicious", "indeterminate", or "benign"
+    if (indicator.analysis_conclusion) {
+      mscore += ` (${indicator.analysis_conclusion})`;
+    }
+    tags.push(`MScore: ${mscore}`);
+  }
+
+  let threatActor = _.get(indicator, 'attributed_associations.threat_actors.0.name');
+  if (threatActor) {
+    tags.push(`Actor: ${threatActor}`);
+  }
+
+  let malware = _.get(indicator, 'attributed_associations.malware_families.0.name.value');
+  if (malware) {
+    tags.push(`Malware: ${malware}`);
+  }
+
+  if (indicator.external_references && indicator.external_references.length) {
+    tags.push(`Reports: ${indicator.external_references.length}`);
+  }
+
+  return tags;
 }
 
 function _createQuery(entityObj, options) {
@@ -671,47 +617,54 @@ function _createQuery(entityObj, options) {
   }
 }
 
-function _searchIndicators(entityObj, options, cb) {
-  const indicatorQuery = _createIndicatorQuery(entityObj, options);
+/**
+ * Returns an object where the top level keys are the entity values that have results (lowercased)
+ * {
+ *   "8.8.8.8": {
+ *     // data on entity
+ *   },
+ *   "sample.com": {
+ *     // data on entity
+ *   }
+ * }
+ * @param chunkQuery
+ * @param options
+ * @returns {Promise<unknown>}
+ * @private
+ */
+async function _searchBulkIndicators(chunkQuery, options) {
+  return new Promise((resolve, reject) => {
+    let requestOptions = {
+      uri: `${options.uri}/collections/indicators/objects`,
+      method: 'POST',
+      body: chunkQuery
+    };
 
-  if(indicatorQuery === null){
-    return cb(null, []);
-  }
+    Logger.trace({ request: requestOptions }, 'collection indicator search bulk request options');
 
-  let requestOptions = {
-    uri: `${options.uri}/collections/search`,
-    method: 'POST',
-    body: {
-      queries: indicatorQuery,
-      include_connected_objects: true,
-      // Note that this limit only applies to the number of objects returned that are not being
-      // returned because they are a connected object.  There does not appear to be a way
-      // to limit the number of connected objects returned.  We limit the number of connected
-      // objects we return to the Overlay Window in post processing.
-      limit: MAX_RESULTS,
-      offset: 0
-    }
-  };
+    authenticatedRequest(options, requestOptions, function (err, response, body) {
+      if (err) {
+        Logger.trace({ err: err, response: response }, 'Error running collection indicator bulk search');
+        return reject(err);
+      }
 
-  Logger.trace({ request: requestOptions }, 'incident search request options');
-
-  authenticatedRequest(options, requestOptions, function (err, response, body) {
-    if (err) {
-      Logger.trace({ err: err, response: response }, 'Error running incident search');
-      return cb(err);
-    }
-
-    Logger.trace({ data: body }, 'Incident Search Body');
-
-    if (!body || !Array.isArray(body.objects) || body.objects.length === 0) {
-      // this is a miss
-      return cb(null, []);
-    }
-
-    cb(null, body.objects);
+      Logger.trace({ data: body }, 'Collection Indicator Bulk Search Body');
+      // body.data contains an object keyed on values. If there are no results body.data will be an empty
+      // object.
+      resolve(body.data);
+    });
   });
 }
 
+/**
+ * Used specifically to search for CVEs which cannot use the bulk endpoint.  Returns a completely different
+ * format than the bulk endpoint which needs custom handling.  We refer to this as the "legacy" endpoint in
+ * this code base.
+ * @param entityObj
+ * @param options
+ * @param cb
+ * @private
+ */
 function _searchCollections(entityObj, options, cb) {
   let requestOptions = {
     uri: `${options.uri}/collections/search`,
@@ -719,6 +672,20 @@ function _searchCollections(entityObj, options, cb) {
     body: {
       queries: _createQuery(entityObj, options),
       include_connected_objects: true,
+      connected_objects: [
+        {
+          connection_type: 'relationship',
+          object_type: 'malware'
+        },
+        {
+          connection_type: 'relationship',
+          object_type: 'threat-actor'
+        },
+        {
+          connection_type: 'reference',
+          object_type: 'report'
+        }
+      ],
       // Note that this limit only applies to the number of objects returned that are not being
       // returned because they are a connected object.  There does not appear to be a way
       // to limit the number of connected objects returned.  We limit the number of connected
@@ -745,42 +712,6 @@ function _searchCollections(entityObj, options, cb) {
 
     cb(null, body.objects);
   });
-}
-
-function _lookupEntity(entityObj, options, cb) {
-  async.parallel(
-    {
-      indicator: (done) => {
-        if (!options.enableIndicatorSearch) {
-          return done(null, []);
-        }
-        _searchIndicators(entityObj, options, done);
-      },
-      collection: (done) => {
-        _searchCollections(entityObj, options, done);
-      }
-    },
-    (err, results) => {
-      if(err){
-        return cb(err);
-      }
-
-      Logger.trace({ results }, 'Search Results');
-
-      if (results.indicator.length === 0 && results.collection.length === 0) {
-        cb(null, {
-          entity: entityObj,
-          data: null
-        });
-        return;
-      }
-
-      cb(null, {
-        entity: entityObj,
-        data: getResultObjectDataFields([results.indicator, results.collection], entityObj)
-      });
-    }
-  );
 }
 
 function _handleRestErrors(response, body) {
@@ -816,33 +747,33 @@ function _handleRestErrors(response, body) {
       );
     case 502:
       return _createJsonErrorPayload(
-        'Gateway Error -- We had a problem with the FireEye gateway server, please let us know.\t',
+        'Gateway Error -- We had a problem with the Mandiant gateway server, please let us know.\t',
         null,
         '502',
         '4',
-        'FireEye Service Unavailable',
+        'Mandiant Service Unavailable',
         {
           body: body
         }
       );
     case 504:
       return _createJsonErrorPayload(
-        'Gateway Error -- We had a problem with the FireEye gateway server, please let us know.\t',
+        'Gateway Error -- We had a problem with the Mandiant gateway server, please let us know.\t',
         null,
         '504',
         '5',
-        'FireEye Service Unavailable',
+        'Mandiant Service Unavailable',
         {
           body: body
         }
       );
     case 500:
       return _createJsonErrorPayload(
-        'Internal Server Error -- We had a problem with the FireEye application server, please let us know.',
+        'Internal Server Error -- We had a problem with the Mandiant application server, please let us know.',
         null,
         '500',
         '6',
-        'Internal FireEye Server Error',
+        'Internal Mandiant Service Error',
         {
           body: body
         }
@@ -890,54 +821,6 @@ function _createJsonErrorObject(msg, pointer, httpCode, code, title, meta) {
 }
 
 function validateOptions(userOptions, cb) {
-  Logger.trace(userOptions, 'User Options to Validate');
-  let errors = [];
-  if (
-    typeof userOptions.url.value !== 'string' ||
-    (typeof userOptions.url.value === 'string' && userOptions.url.value.length === 0)
-  ) {
-    errors.push({
-      key: 'url',
-      message: 'You must provide a Resilient URl'
-    });
-  }
-
-  if (
-    typeof userOptions.orgId.value !== 'string' ||
-    (typeof userOptions.orgId.value === 'string' && userOptions.orgId.value.length === 0)
-  ) {
-    errors.push({
-      key: 'orgId',
-      message: 'You must provide a Resilient Org ID'
-    });
-  }
-
-  if (
-    typeof userOptions.username.value !== 'string' ||
-    (typeof userOptions.username.value === 'string' && userOptions.username.value.length === 0)
-  ) {
-    errors.push({
-      key: 'username',
-      message: 'You must provide a Resilient Username'
-    });
-  }
-
-  if (
-    typeof userOptions.password.value !== 'string' ||
-    (typeof userOptions.password.value === 'string' && userOptions.password.value.length === 0)
-  ) {
-    errors.push({
-      key: 'password',
-      message: 'You must provide a Resilient Password'
-    });
-  }
-
-  Logger.trace(errors, 'Validated Options');
-
-  cb(null, errors);
-}
-
-function validateOptions(userOptions, cb) {
   let errors = [];
   if (
     typeof userOptions.uri.value !== 'string' ||
@@ -966,6 +849,13 @@ function validateOptions(userOptions, cb) {
     errors.push({
       key: 'privateKey',
       message: 'You must provide a valid Mandiant Threat Intelligence API private key'
+    });
+  }
+
+  if (userOptions.minimumMScore.value < 0 || userOptions.minimumMScore.value > 100) {
+    errors.push({
+      key: 'minimumMScore',
+      message: 'The Minimum MScore must be between 0 and 100'
     });
   }
 
