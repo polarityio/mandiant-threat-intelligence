@@ -8,8 +8,6 @@ The Mandiant Threat Intelligence API provides machine-to-machine-integration wit
 
 For more information please see www.FireEye.com/intel
 
-> Due to the way collection searches work, when Indicator searching is enabled, the integration requires two lookups per entity.
-
 | ![overlay window hash result](assets/hash.png) | ![overlay window ip result](assets/ip.png) | ![overlay window cve result](assets/cve.png) |
 |---|--|--|
 |*Hash Result* | *IP Result* | *CVE Result*|
