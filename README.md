@@ -10,7 +10,9 @@ For more information please see www.FireEye.com/intel
 
 > Due to the way collection searches work, when Indicator searching is enabled, the integration requires two lookups per entity.
 
-<img src="./assets/overlay.png" width="50%"/>
+| ![overlay window hash result](assets/hash.png) | ![overlay window ip result](assets/ip.png) | ![overlay window cve result](assets/cve.png) |
+|---|--|--|
+|*Hash Result* | *IP Result* | *CVE Result*|
 
 ## Mandiant Threat Intelligence Options
 
@@ -26,9 +28,9 @@ Your Mandiant Threat Intelligence API public key
 
 Your Mandiant Threat Intelligence API private key.
 
-### Enable Indicator Search
+### Minimum MScore to Display
 
-If checked, the integration will return Indicator results from the Mandiant Threat Intelligence API. Enabling this option requires the integration to issue an extra REST API lookup request per entity. When disabled, the integration will only return results if an entity is associated with Malware, a Threat Actor or Vulnerability.
+The minimum MScore (0-100) required for indicators to be displayed [default is 51]. Indicators with a MScore above 50 are considered suspicious and/or malicious.
 
 ### Ignored Entities
 
