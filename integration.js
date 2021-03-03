@@ -376,13 +376,11 @@ async function doLookup(entities, options, cb) {
   try {
     for await (let lookupChunk of lookupChunks) {
       const { searchedEntities, query } = getChunkQuery(lookupChunk);
-      Logger.info({ query }, 'QUERY');
       if (query.length === 0) {
         return;
       }
       const results = await _searchBulkIndicators(query, options);
       const foundEntities = Object.keys(results);
-      Logger.info({ foundEntities }, 'Found Entities');
       foundEntities.forEach((entity) => {
         const entityLower = entity.toLowerCase();
         const entityObj = searchedEntities.get(entityLower);
