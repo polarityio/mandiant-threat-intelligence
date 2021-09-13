@@ -2,23 +2,33 @@
 
 const request = require('request');
 const config = require('./config/config');
-const async = require('async');
 const fs = require('fs');
 const _ = require('lodash');
+const { map, flow, chunk, keys, get } = require('lodash/fp');
 const { legacyTypes } = require('./src/indicator-types');
+const Bottleneck = require('bottleneck');
 
 const tokenCache = new Map();
 const MAX_AUTH_RETRIES = 2;
 const MAX_RESULTS = 10;
+const MAX_ENTITIES_PER_LOOKUP = 100;
+const MAX_PARALLEL_CVES = 5;
 
 let Logger;
 let requestWithDefaults;
 let authenticatedRequest;
 let previousDomainRegexAsString = '';
 let domainBlocklistRegex = null;
+let limiter;
 
-const MAX_ENTITIES_PER_LOOKUP = 100;
-const MAX_PARALLEL_CVES = 5;
+function _setupLimiter(options) {
+  limiter = new Bottleneck({
+    maxConcurrent: Number.parseInt(options.maxConcurrent, 10), // no more than 5 lookups can be running at single time
+    highWater: 50, // no more than 50 lookups can be queued up
+    strategy: Bottleneck.strategy.OVERFLOW,
+    minTime: Number.parseInt(options.minTime, 10) // don't run lookups faster than 1 every 200 ms
+  });
+}
 
 /**
  * Converts Polarity entity types to their respective Mandiant Threat Intel types
@@ -46,7 +56,7 @@ function entityTypeToIndicatorType(entityObj) {
  * @param collections (array of arrays)
  * @returns {null|{summary: [], details: {}}}
  */
-function getResultObjectDataFields(collections, entityObj) {
+function getResultObjectDataFields(collections = [], entityObj) {
   const summary = [];
   const details = [];
   const counts = {};
@@ -62,89 +72,88 @@ function getResultObjectDataFields(collections, entityObj) {
   const idSet = new Set();
 
   collections.forEach((collection) => {
-    collection.forEach((object) => {
-      if (idSet.has(object.id)) {
-        return;
-      }
-      idSet.add(object.id);
+    collection &&
+      collection.forEach((object) => {
+        if (idSet.has(object.id)) return;
+        idSet.add(object.id);
 
-      const fireEyeType = object.type;
-      const formatter = legacyTypes[fireEyeType];
+        const fireEyeType = object.type;
+        const formatter = legacyTypes[fireEyeType];
 
-      if (formatter && typeof formatter.getFields === 'function') {
-        const fields = formatter.getFields(object, entityObj);
-        const order = formatter.order;
-        const displayValue = formatter.displayValue;
-        const icon = formatter.icon;
+        if (formatter && typeof formatter.getFields === 'function') {
+          const fields = formatter.getFields(object, entityObj);
+          const order = formatter.order;
+          const displayValue = formatter.displayValue;
+          const icon = formatter.icon;
 
-        // Returned types do not always have all fields.  We don't want to return
-        // and object if it has no fields.
-        if (fields !== null) {
-          if (!details[order]) {
-            details[order] = {
-              displayValue,
-              icon,
-              total: 0,
-              values: []
-            };
-          }
+          // Returned types do not always have all fields.  We don't want to return
+          // and object if it has no fields.
+          if (fields !== null) {
+            if (!details[order]) {
+              details[order] = {
+                displayValue,
+                icon,
+                total: 0,
+                values: []
+              };
+            }
 
-          if (details[order].values.length < MAX_RESULTS) {
-            details[order].values.push(fields);
-          }
+            if (details[order].values.length < MAX_RESULTS) {
+              details[order].values.push(fields);
+            }
 
-          details[order].total += 1;
+            details[order].total += 1;
 
-          if (typeof counts[fireEyeType] === 'undefined') {
-            counts[fireEyeType] = 1;
-          } else {
-            counts[fireEyeType]++;
-          }
-        }
-      }
-
-      // Pluck out data for TTP summary tags
-      const objectTtps = _.get(object, 'x_fireeye_com_metadata.ttp');
-      if (objectTtps) {
-        for (let i = 0; i < objectTtps.length; i++) {
-          let ttp = objectTtps[i];
-          // The API will return empty strings that we need to filter out.  Also test for strings
-          // in case the API returns random data.
-          if (typeof ttp == 'string' && ttp.length > 0) {
-            ttpsSet.add(ttp);
+            if (typeof counts[fireEyeType] === 'undefined') {
+              counts[fireEyeType] = 1;
+            } else {
+              counts[fireEyeType]++;
+            }
           }
         }
-        ttps = [...ttpsSet];
-      }
 
-      // Pluck out data for intended effect summary tags
-      const objectIntendedEffects = _.get(object, 'x_fireeye_com_metadata.intended_effect');
-      if (objectIntendedEffects) {
-        for (let i = 0; i < objectIntendedEffects.length; i++) {
-          let effect = objectIntendedEffects[i];
-          // The API will return empty strings that we need to filter out.  Also test for strings
-          // in case the API returns random data.
-          if (typeof effect == 'string' && effect.length > 0) {
-            intendedEffectsSet.add(effect);
+        // Pluck out data for TTP summary tags
+        const objectTtps = _.get(object, 'x_fireeye_com_metadata.ttp');
+        if (objectTtps) {
+          for (let i = 0; i < objectTtps.length; i++) {
+            let ttp = objectTtps[i];
+            // The API will return empty strings that we need to filter out.  Also test for strings
+            // in case the API returns random data.
+            if (typeof ttp == 'string' && ttp.length > 0) {
+              ttpsSet.add(ttp);
+            }
           }
+          ttps = [...ttpsSet];
         }
-        intendedEffects = [...intendedEffectsSet];
-      }
 
-      // Pluck out data for targeted information summary tags
-      const objectTargetedInformation = _.get(object, 'x_fireeye_com_metadata.targeted_information');
-      if (objectTargetedInformation) {
-        for (let i = 0; i < objectTargetedInformation.length; i++) {
-          let effect = objectTargetedInformation[i];
-          // The API will return empty strings that we need to filter out.  Also test for strings
-          // in case the API returns random data.
-          if (typeof effect == 'string' && effect.length > 0) {
-            targetedInformationSet.add(effect);
+        // Pluck out data for intended effect summary tags
+        const objectIntendedEffects = _.get(object, 'x_fireeye_com_metadata.intended_effect');
+        if (objectIntendedEffects) {
+          for (let i = 0; i < objectIntendedEffects.length; i++) {
+            let effect = objectIntendedEffects[i];
+            // The API will return empty strings that we need to filter out.  Also test for strings
+            // in case the API returns random data.
+            if (typeof effect == 'string' && effect.length > 0) {
+              intendedEffectsSet.add(effect);
+            }
           }
+          intendedEffects = [...intendedEffectsSet];
         }
-        targetedInformation = [...targetedInformationSet];
-      }
-    });
+
+        // Pluck out data for targeted information summary tags
+        const objectTargetedInformation = _.get(object, 'x_fireeye_com_metadata.targeted_information');
+        if (objectTargetedInformation) {
+          for (let i = 0; i < objectTargetedInformation.length; i++) {
+            let effect = objectTargetedInformation[i];
+            // The API will return empty strings that we need to filter out.  Also test for strings
+            // in case the API returns random data.
+            if (typeof effect == 'string' && effect.length > 0) {
+              targetedInformationSet.add(effect);
+            }
+          }
+          targetedInformation = [...targetedInformationSet];
+        }
+      });
   });
 
   Object.keys(counts).forEach((type) => {
@@ -369,56 +378,31 @@ function getChunkQuery(lookupChunk) {
 }
 
 async function doLookup(entities, options, cb) {
+  if (!limiter) _setupLimiter(options);
+
   _setupRegexBlocklists(options);
   let { lookupResults, filteredEntities, cveEntities } = getFilteredEntities(entities, options);
-  const lookupChunks = _.chunk(filteredEntities, MAX_ENTITIES_PER_LOOKUP);
+  const searchBulkIndicators = limiter.wrap(_searchBulkIndicators);
+  const lookupCveEntities = _lookupCveEntities(limiter);
 
   try {
-    for await (let lookupChunk of lookupChunks) {
-      const { searchedEntities, query } = getChunkQuery(lookupChunk);
-      if (query.length === 0) {
-        return;
-      }
-      const results = await _searchBulkIndicators(query, options);
-      const foundEntities = Object.keys(results);
-      foundEntities.forEach((entity) => {
-        const entityLower = entity.toLowerCase();
-        const entityObj = searchedEntities.get(entityLower);
-        const indicator = results[entityLower];
-        const mScore = getMScore(indicator);
-        if (mScore >= options.minimumMScore) {
-          lookupResults.push({
-            entity: entityObj,
-            data: {
-              summary: _getSummaryTags(indicator),
-              details: indicator
-            }
-          });
-          // Remove the entity that had a result so we can figure out which entities
-          // did not have any hits.
-          searchedEntities.delete(entityLower);
-        }
-      });
-
-      for (let noResultEntity of searchedEntities.values()) {
-        lookupResults.push({
-          entity: noResultEntity,
-          data: null
-        });
-      }
-    }
-
-    if (cveEntities.length > 0) {
-      const cveResults = await lookupCveEntities(cveEntities, options);
-      for (let i = 0; i < cveResults.length; i++) {
-        lookupResults.push(cveResults[i]);
-      }
-    }
-
-    cb(null, lookupResults);
+    const indicatorLookupResults = await flow(
+      chunk(MAX_ENTITIES_PER_LOOKUP),
+      getIndicatorsOneChunkAtATime(options, searchBulkIndicators)
+    )(filteredEntities);
+    
+    const cveLookupResults = await lookupCveEntities(cveEntities, options);
+Logger.trace({ test: 111111111, asdf: lookupResults.concat(indicatorLookupResults).concat(cveLookupResults) });
+    cb(null, lookupResults.concat(indicatorLookupResults).concat(cveLookupResults));
   } catch (lookupError) {
-    Logger.error(lookupError, 'doLookup Error');
-    cb(lookupError);
+    const error = {
+      ...lookupError,
+      detail: lookupError.message || 'Command Failed',
+      err: JSON.parse(JSON.stringify(lookupError, Object.getOwnPropertyNames(lookupError)))
+    };
+
+    Logger.error(error, 'doLookup Error');
+    cb(error);
   }
 }
 
@@ -429,44 +413,96 @@ async function doLookup(entities, options, cb) {
  * @param options
  * @returns {Promise<unknown>}
  */
-async function lookupCveEntities(cveEntities, options) {
-  let cveResults = [];
-  let tasks = [];
-  cveEntities.forEach((entityObj) => {
-    tasks.push((done) => {
-      _searchCollections(entityObj, options, (err, objects) => {
-        done(err, {
-          entity: entityObj,
-          objects
-        });
-      });
-    });
-  });
+const _lookupCveEntities = (limiter) => async (cveEntities, options) => {
+  const searchCollections = limiter.wrap(_searchCollections);
 
-  return new Promise((resolve, reject) => {
-    async.parallelLimit(tasks, MAX_PARALLEL_CVES, (err, results) => {
-      if (err) {
-        return reject(err);
-      }
-
-      results.forEach((result) => {
-        if (result.length === 0) {
-          cveResults.push({
-            entity: result.entity,
-            data: null
-          });
-        } else {
-          cveResults.push({
-            entity: result.entity,
-            data: getResultObjectDataFields([result.objects], result.entity)
-          });
+  return await Promise.all(
+    map(async (entityObj) => {
+      try {
+        const result = await searchCollections(entityObj, options);
+  
+        return result.length === 0
+          ? {
+              entity: entityObj,
+              data: null
+            }
+          : {
+              entity: entityObj,
+              data: getResultObjectDataFields([result.objects], entityObj)
+            };
+      } catch (error) {
+        if (Math.round(error.status / 100) * 100 === 500) {
+          return {
+            entity: entityObj,
+            isVolatile: true,
+            data: {
+              summary: ['Search Returned Error'],
+              details: { errorMessage: error.detail }
+            }
+          };
         }
-      });
+        throw error;
+      }
+    }, cveEntities)
+  );
+};
 
-      resolve(cveResults);
-    });
-  });
-}
+
+const getIndicatorsOneChunkAtATime =
+  (options, searchBulkIndicators) =>
+  async ([lookupChunk, ...lookupChunks], ongoingLookupResults = []) => {
+    const { searchedEntities, query } = lookupChunk ? getChunkQuery(lookupChunk) : { query: { requests: [] } };
+    if (query.requests.length === 0) return ongoingLookupResults;
+
+    let results, chunkLookupResults;
+    try {
+      results = await searchBulkIndicators(query, options);
+    } catch (error) {
+      if (Math.round(parseInt(get('errors.0.status', error)) / 100) * 100 === 500) {
+        chunkLookupResults = map(
+          (entity) => ({
+            entity,
+            isVolatile: true,
+            data: {
+              summary: ['Search Returned Error'],
+              details: { errorMessage: get('errors.0.detail', error) }
+            }
+          }),
+          lookupChunk
+        );
+      } else {
+        throw error;
+      }
+    }
+
+    chunkLookupResults = chunkLookupResults || flow(
+      keys,
+      map((entity) => {
+        const entityLower = entity.toLowerCase();
+        const entityObj = searchedEntities.get(entityLower);
+        const indicator = results[entityLower];
+        const mScore = getMScore(indicator);
+
+        return mScore >= options.minimumMScore
+          ? {
+              entity: entityObj,
+              data: {
+                summary: _getSummaryTags(indicator),
+                details: indicator
+              }
+            }
+          : {
+              entity: entityObj,
+              data: null
+            };
+      })
+    )(results);
+
+    return await getIndicatorsOneChunkAtATime(options, searchBulkIndicators)(
+      lookupChunks,
+      ongoingLookupResults.concat(chunkLookupResults)
+    );
+  };
 
 /**
  * Removes any entities that should be filtered out based on blocklists and also adds a
@@ -630,8 +666,8 @@ function _createQuery(entityObj, options) {
  * @returns {Promise<unknown>}
  * @private
  */
-async function _searchBulkIndicators(chunkQuery, options) {
-  return new Promise((resolve, reject) => {
+const _searchBulkIndicators = async (chunkQuery, options) =>
+  new Promise((resolve, reject) => {
     let requestOptions = {
       uri: `${options.uri}/collections/indicators/objects`,
       method: 'POST',
@@ -652,7 +688,6 @@ async function _searchBulkIndicators(chunkQuery, options) {
       resolve(body.data);
     });
   });
-}
 
 /**
  * Used specifically to search for CVEs which cannot use the bulk endpoint.  Returns a completely different
@@ -663,54 +698,52 @@ async function _searchBulkIndicators(chunkQuery, options) {
  * @param cb
  * @private
  */
-function _searchCollections(entityObj, options, cb) {
-  let requestOptions = {
-    uri: `${options.uri}/collections/search`,
-    method: 'POST',
-    body: {
-      queries: _createQuery(entityObj, options),
-      include_connected_objects: true,
-      connected_objects: [
-        {
-          connection_type: 'relationship',
-          object_type: 'malware'
-        },
-        {
-          connection_type: 'relationship',
-          object_type: 'threat-actor'
-        },
-        {
-          connection_type: 'reference',
-          object_type: 'report'
-        }
-      ],
-      // Note that this limit only applies to the number of objects returned that are not being
-      // returned because they are a connected object.  There does not appear to be a way
-      // to limit the number of connected objects returned.  We limit the number of connected
-      // objects we return to the Overlay Window in post processing.
-      limit: MAX_RESULTS,
-      offset: 0
-    }
-  };
+const _searchCollections = async (entityObj, options) =>
+  new Promise((resolve, reject) => {
+    let requestOptions = {
+      uri: `${options.uri}/collections/search`,
+      method: 'POST',
+      body: {
+        queries: _createQuery(entityObj, options),
+        include_connected_objects: true,
+        connected_objects: [
+          {
+            connection_type: 'relationship',
+            object_type: 'malware'
+          },
+          {
+            connection_type: 'relationship',
+            object_type: 'threat-actor'
+          },
+          {
+            connection_type: 'reference',
+            object_type: 'report'
+          }
+        ],
+        // Note that this limit only applies to the number of objects returned that are not being
+        // returned because they are a connected object.  There does not appear to be a way
+        // to limit the number of connected objects returned.  We limit the number of connected
+        // objects we return to the Overlay Window in post processing.
+        limit: MAX_RESULTS,
+        offset: 0
+      }
+    };
 
-  Logger.trace({ request: requestOptions }, 'collection search request options');
+    Logger.trace({ request: requestOptions }, 'collection search request options');
 
-  authenticatedRequest(options, requestOptions, function (err, response, body) {
-    if (err) {
-      Logger.trace({ err: err, response: response }, 'Error running collection search');
-      return cb(err);
-    }
+    authenticatedRequest(options, requestOptions, function (err, response, body) {
+      if (err) {
+        Logger.trace({ err: err, response: response }, 'Error running collection search');
+        return reject(err);
+      }
 
-    Logger.trace({ data: body }, 'Collection Search Body');
+      Logger.trace({ data: body }, 'Collection Search Body');
 
-    if (!body || !Array.isArray(body.objects) || body.objects.length === 0) {
-      // this is a miss
-      return cb(null, []);
-    }
+      if (!body || !Array.isArray(body.objects) || body.objects.length === 0) return resolve([]);
 
-    cb(null, body.objects);
+      resolve(body.objects);
+    });
   });
-}
 
 function _handleRestErrors(response, body) {
   switch (response.statusCode) {
@@ -857,11 +890,48 @@ function validateOptions(userOptions, cb) {
     });
   }
 
+  if (userOptions.maxConcurrent.value < 1) {
+    errors = errors.concat({
+      key: 'maxConcurrent',
+      message: 'Max Concurrent Requests must be 1 or higher'
+    });
+  }
+
+  if (userOptions.minTime.value < 1) {
+    errors = errors.concat({
+      key: 'minTime',
+      message: 'Minimum Time Between Lookups must be 1 or higher'
+    });
+  }
+
   cb(null, errors);
+}
+
+
+function onMessage(payload, options, cb) {
+  switch (payload.action) {
+    case 'RETRY_LOOKUP':
+      doLookup([payload.entity], options, (err, lookupResults) => {
+        if (err) {
+          Logger.error({ err }, 'Error retrying lookup');
+          cb(err);
+        } else {
+          cb(
+            null,
+            // OR fp.get('[0].data', lookupResults) === null
+            lookupResults && lookupResults[0] && lookupResults[0].data === null
+              ? { data: { summary: ['No Results Found on Retry'] } }
+              : lookupResults[0]
+          );
+        }
+      });
+      break;
+  }
 }
 
 module.exports = {
   doLookup,
   startup,
-  validateOptions
+  validateOptions,
+  onMessage
 };
