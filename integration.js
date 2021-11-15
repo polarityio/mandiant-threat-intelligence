@@ -12,7 +12,6 @@ const tokenCache = new Map();
 const MAX_AUTH_RETRIES = 2;
 const MAX_RESULTS = 10;
 const MAX_ENTITIES_PER_LOOKUP = 100;
-const MAX_PARALLEL_CVES = 5;
 
 let Logger;
 let requestWithDefaults;
@@ -392,7 +391,6 @@ async function doLookup(entities, options, cb) {
     )(filteredEntities);
     
     const cveLookupResults = await lookupCveEntities(cveEntities, options);
-Logger.trace({ test: 111111111, asdf: lookupResults.concat(indicatorLookupResults).concat(cveLookupResults) });
     cb(null, lookupResults.concat(indicatorLookupResults).concat(cveLookupResults));
   } catch (lookupError) {
     const error = {
