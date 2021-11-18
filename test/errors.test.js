@@ -1,5 +1,6 @@
 const nock = require('nock');
 const { doLookup, startup } = require('../integration');
+
 const options = {
   uri: 'https://api.intelligence.fireeye.com',
   publicKey: 'publicKey',
@@ -8,15 +9,7 @@ const options = {
   blocklist: '',
   domainBlocklistRegex: '',
   maxConcurrent: 20,
-  minTime: 100,
-
-  apiKey: '12345',
-  minimumScore: 0,
-  domainBlocklistRegex: '',
-  ipBlocklistRegex: '',
-  blocklist: '',
-  maxConcurrent: 10,
-  minTime: 1
+  minTime: 100
 };
 
 const ip = {
@@ -26,6 +19,7 @@ const ip = {
   isIPv4: true,
   isIP: true
 };
+
 const cve = {
   type: 'cve',
   value: 'CVE-2008-4250'
@@ -48,6 +42,7 @@ const Logger = {
     console.info(msg, args);
   }
 };
+
 const emptyLogger = {
   trace: () => {},
   info: () => {},
@@ -57,31 +52,10 @@ const emptyLogger = {
 };
 
 let scope;
-
 const useInternalLogger = false;
 beforeAll(() => {
-  if (useInternalLogger) {
-    startup(Logger);
-  } else {
-    startup(emptyLogger);
-  }
+  startup(useInternalLogger ? Logger : emptyLogger);
 });
-
-
-const testForRetryError = (err, lookupResults, messageContainsString) => {
-  expect(lookupResults.length).toBe(1);
-  const data = lookupResults[0].data;
-  const errorMessage = data.details.errorMessage;
-  expect(data.summary[0]).toBe('Search Returned Error');
-  expect(errorMessage).toBeDefined();
-  expect(errorMessage).toEqual(expect.stringContaining(messageContainsString));
-};
-
-const testForError = (err, lookupResults, messageContainsString) => {
-  expect(err.errors.length).toBe(1);
-  expect(err.errors[0].detail).toBeDefined();
-  expect(err.errors[0].detail).toEqual(expect.stringContaining(messageContainsString));
-};
 
 const buildErrorTest = (describeMessage, route, entity, defaultSuccessRoutes = []) =>
   describe(describeMessage, () => {
@@ -89,14 +63,14 @@ const buildErrorTest = (describeMessage, route, entity, defaultSuccessRoutes = [
       scope = nock(options.uri).post('/token').reply(200, 'Nock token');
       defaultSuccessRoutes.forEach((successRoute) => scope.post(successRoute).reply(200, {}));
     });
-    
+
     const testDoLookup = (testMethod, errorMessageString, done) => {
       doLookup([entity], options, (err, lookupResults) => {
         // console.info(JSON.stringify({ err, lookupResults }, null, 4));
         testMethod(err, lookupResults, errorMessageString);
         done();
       });
-    }
+    };
     test('502 response should result in `isGatewayTimeout`', (done) => {
       scope.post(route).reply(502);
 
@@ -121,8 +95,23 @@ const buildErrorTest = (describeMessage, route, entity, defaultSuccessRoutes = [
       scope.post(route).reply(400);
 
       testDoLookup(testForError, 'Bad Request', done);
-    }); 
+    });
   });
+
+const testForRetryError = (err, lookupResults, messageContainsString) => {
+  expect(lookupResults.length).toBe(1);
+  const data = lookupResults[0].data;
+  const errorMessage = data.details.errorMessage;
+  expect(data.summary[0]).toBe('Search Returned Error');
+  expect(errorMessage).toBeDefined();
+  expect(errorMessage).toEqual(expect.stringContaining(messageContainsString));
+};
+
+const testForError = (err, lookupResults, messageContainsString) => {
+  expect(err.errors.length).toBe(1);
+  expect(err.errors[0].detail).toBeDefined();
+  expect(err.errors[0].detail).toEqual(expect.stringContaining(messageContainsString));
+};
 
 buildErrorTest('When searching for Indicators:', '/collections/indicators/objects', ip);
 buildErrorTest('When searching for Collections:', '/collections/search', cve, ['/collections/indicators/objects']);
