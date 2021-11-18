@@ -255,7 +255,13 @@ function startup(logger) {
       Logger.trace({ requestOptions }, 'Request');
       requestWithDefaults(requestOptions, (err, resp, body) => {
         if (err) {
-          return cb(err, resp, body);
+          if (err.code === 'ECONNRESET') {
+            return cb(_handleRestErrors({ ...resp, statusCode: 'ECONNRESET' }, body));
+          } else if (err.code === 'ECONNRESET') {
+            return cb(_handleRestErrors({ ...resp, statusCode: 'ECONNRESET' }, body));
+          } else {
+            return cb(err, resp, body);
+          }
         }
 
         if (resp.statusCode === 403) {
@@ -392,7 +398,7 @@ async function doLookup(entities, options, cb) {
     )(filteredEntities);
     
     const cveLookupResults = await lookupCveEntities(cveEntities, options);
-Logger.trace({ test: 111111111, asdf: lookupResults.concat(indicatorLookupResults).concat(cveLookupResults) });
+    
     cb(null, lookupResults.concat(indicatorLookupResults).concat(cveLookupResults));
   } catch (lookupError) {
     const error = {
@@ -431,13 +437,13 @@ const _lookupCveEntities = (limiter) => async (cveEntities, options) => {
               data: getResultObjectDataFields([result.objects], entityObj)
             };
       } catch (error) {
-        if (Math.round(error.status / 100) * 100 === 500) {
+        if (Math.floor(parseInt(get('errors.0.status', error)) / 100) * 100 === 500) {
           return {
             entity: entityObj,
             isVolatile: true,
             data: {
               summary: ['Search Returned Error'],
-              details: { errorMessage: error.detail }
+              details: { errorMessage: get('errors.0.detail', error) }
             }
           };
         }
@@ -458,7 +464,7 @@ const getIndicatorsOneChunkAtATime =
     try {
       results = await searchBulkIndicators(query, options);
     } catch (error) {
-      if (Math.round(parseInt(get('errors.0.status', error)) / 100) * 100 === 500) {
+      if (Math.floor(parseInt(get('errors.0.status', error)) / 100) * 100 === 500) {
         chunkLookupResults = map(
           (entity) => ({
             entity,
@@ -682,7 +688,7 @@ const _searchBulkIndicators = async (chunkQuery, options) =>
         return reject(err);
       }
 
-      Logger.trace({ data: body }, 'Collection Indicator Bulk Search Body');
+      Logger.trace({ adding: true, data: body }, 'Collection Indicator Bulk Search Body');
       // body.data contains an object keyed on values. If there are no results body.data will be an empty
       // object.
       resolve(body.data);
@@ -778,7 +784,7 @@ function _handleRestErrors(response, body) {
       );
     case 502:
       return _createJsonErrorPayload(
-        'Gateway Error -- We had a problem with the Mandiant gateway server, please let us know.\t',
+        'Gateway Error -- We had a problem with the Mandiant gateway server.\t',
         null,
         '502',
         '4',
@@ -789,7 +795,7 @@ function _handleRestErrors(response, body) {
       );
     case 504:
       return _createJsonErrorPayload(
-        'Gateway Error -- We had a problem with the Mandiant gateway server, please let us know.\t',
+        'Gateway Error -- We had a problem with the Mandiant gateway server.\t',
         null,
         '504',
         '5',
@@ -800,10 +806,21 @@ function _handleRestErrors(response, body) {
       );
     case 500:
       return _createJsonErrorPayload(
-        'Internal Server Error -- We had a problem with the Mandiant application server, please let us know.',
+        'Internal Server Error -- We had a problem with the Mandiant application server.',
         null,
         '500',
         '6',
+        'Internal Mandiant Service Error',
+        {
+          body: body
+        }
+      );
+    case 'ECONNRESET':
+      return _createJsonErrorPayload(
+        'Connection Reset -- We had a problem with the Mandiant application server.',
+        null,
+        '599',
+        '7',
         'Internal Mandiant Service Error',
         {
           body: body
