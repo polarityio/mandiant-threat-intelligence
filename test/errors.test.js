@@ -68,78 +68,61 @@ beforeAll(() => {
 });
 
 
+const testForRetryError = (err, lookupResults, messageContainsString) => {
+  expect(lookupResults.length).toBe(1);
+  const data = lookupResults[0].data;
+  const errorMessage = data.details.errorMessage;
+  expect(data.summary[0]).toBe('Search Returned Error');
+  expect(errorMessage).toBeDefined();
+  expect(errorMessage).toEqual(expect.stringContaining(messageContainsString));
+};
 
-const buildErrorTest = (describeMessage, route, entity = ip, defaultSuccessRoutes = []) =>
+const testForError = (err, lookupResults, messageContainsString) => {
+  expect(err.errors.length).toBe(1);
+  expect(err.errors[0].detail).toBeDefined();
+  expect(err.errors[0].detail).toEqual(expect.stringContaining(messageContainsString));
+};
+
+const buildErrorTest = (describeMessage, route, entity, defaultSuccessRoutes = []) =>
   describe(describeMessage, () => {
     beforeEach(() => {
       scope = nock(options.uri).post('/token').reply(200, 'Nock token');
       defaultSuccessRoutes.forEach((successRoute) => scope.post(successRoute).reply(200, {}));
     });
+    
+    const testDoLookup = (testMethod, errorMessageString, done) => {
+      doLookup([entity], options, (err, lookupResults) => {
+        // console.info(JSON.stringify({ err, lookupResults }, null, 4));
+        testMethod(err, lookupResults, errorMessageString);
+        done();
+      });
+    }
     test('502 response should result in `isGatewayTimeout`', (done) => {
       scope.post(route).reply(502);
 
-      doLookup([entity], options, (err, lookupResults) => {
-        // console.info(JSON.stringify({ err, lookupResults }, null, 4));
-        expect(lookupResults.length).toBe(1);
-        const data = lookupResults[0].data;
-        const errorMessage = data.details.errorMessage;
-        expect(data.summary[0]).toBe('Search Returned Error');
-        expect(errorMessage).toBeDefined();
-        expect(errorMessage).toEqual(expect.stringContaining('Gateway Error'));
-        done();
-      });
+      testDoLookup(testForRetryError, 'Gateway Error', done);
     });
     test('504 response should result in `isGatewayTimeout`', (done) => {
       scope.post(route).reply(504);
 
-      doLookup([entity], options, (err, lookupResults) => {
-        // console.info(JSON.stringify(lookupResults, null, 4));
-        expect(lookupResults.length).toBe(1);
-        const data = lookupResults[0].data;
-        const errorMessage = data.details.errorMessage;
-        expect(data.summary[0]).toBe('Search Returned Error');
-        expect(errorMessage).toBeDefined();
-        expect(errorMessage).toEqual(expect.stringContaining('Gateway Error'));
-        done();
-      });
+      testDoLookup(testForRetryError, 'Gateway Error', done);
     });
     test('ECONNRESET response should result in `isConnectionReset`', (done) => {
       scope.post(route).replyWithError({ code: 'ECONNRESET' });
 
-      doLookup([entity], options, (err, lookupResults) => {
-        // console.info(JSON.stringify({err, lookupResults}, null, 4));
-        expect(lookupResults.length).toBe(1);
-        const data = lookupResults[0].data;
-        const errorMessage = data.details.errorMessage;
-        expect(data.summary[0]).toBe('Search Returned Error');
-        expect(errorMessage).toBeDefined();
-        expect(errorMessage).toEqual(expect.stringContaining('Connection Reset'));
-        done();
-      });
+      testDoLookup(testForRetryError, 'Connection Reset', done);
     });
     test('401 response should result in `Unauthorized` Error', (done) => {
       scope.post(route).reply(401);
 
-      doLookup([entity], options, (err, lookupResults) => {
-        // console.info(JSON.stringify({ err, lookupResults }, null, 4));
-        expect(err.errors.length).toBe(1);
-        expect(err.errors[0].detail).toBeDefined();
-        expect(err.errors[0].detail).toEqual(expect.stringContaining('Unauthorized'));
-        done();
-      });
+      testDoLookup(testForError, 'Unauthorized', done);
     });
     test('400 response should result in `Bad Request` Error', (done) => {
       scope.post(route).reply(400);
 
-      doLookup([entity], options, (err, lookupResults) => {
-        // console.info(JSON.stringify({ err, lookupResults }, null, 4));
-        expect(err.errors.length).toBe(1);
-        expect(err.errors[0].detail).toBeDefined();
-        expect(err.errors[0].detail).toEqual(expect.stringContaining('Bad Request'));
-        done();
-      });
+      testDoLookup(testForError, 'Bad Request', done);
     }); 
   });
 
-buildErrorTest('When searching for Indicators:', '/collections/indicators/objects');
+buildErrorTest('When searching for Indicators:', '/collections/indicators/objects', ip);
 buildErrorTest('When searching for Collections:', '/collections/search', cve, ['/collections/indicators/objects']);
