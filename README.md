@@ -38,6 +38,13 @@ Comma separated list of entities that you never want looked up. Should be set to
 
 Domains that match the given regex will not be looked up (if blank, no domains will be black listed). Should be set to "Only admins can view and edit".
 
+### Max Concurrent Requests
+
+Maximum number of concurrent requests. Integration must be restarted after changing this option. Defaults to 20.
+
+### Minimum Time Between Lookups
+
+Minimum amount of time in milliseconds between lookups. Integration must be restarted after changing this option. Defaults to 100.
 
 ## Polarity
 

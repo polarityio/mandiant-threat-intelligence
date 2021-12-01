@@ -116,7 +116,8 @@ module.exports = {
     {
       key: 'minimumMScore',
       name: 'Minimum MScore to Display',
-      description: 'The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 50 are considered suspicious and/or malicious.',
+      description:
+        'The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 50 are considered suspicious and/or malicious.',
       default: 51,
       type: 'number',
       userCanEdit: false,
@@ -139,6 +140,26 @@ module.exports = {
         'Domains that match the given regex will not be looked up (if blank, no domains will be black listed).  Should be set to "Only admins can view and edit".',
       default: '',
       type: 'text',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'maxConcurrent',
+      name: 'Max Concurrent Requests',
+      description:
+        'Maximum number of concurrent requests.  Integration must be restarted after changing this option. Defaults to 20.',
+      default: 20,
+      type: 'number',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
+      key: 'minTime',
+      name: 'Minimum Time Between Lookups',
+      description:
+        'Minimum amount of time in milliseconds between lookups. Integration must be restarted after changing this option. Defaults to 100.',
+      default: 100,
+      type: 'number',
       userCanEdit: false,
       adminOnly: true
     }
