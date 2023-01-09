@@ -1,0 +1,110 @@
+{
+  "name": "Mandiant Threat Intelligence",
+  "acronym": "MTI",
+  "description": "Provides automated access to indicators of compromise (IOCs), CVE information, as well as information on the adversary from the Mandiant Threat Intelligence API.",
+  "entityTypes": [
+    "IPv4",
+    "domain",
+    "email",
+    "hash",
+    "cve"
+  ],
+  "styles": [
+    "./styles/styles.less"
+  ],
+  "block": {
+    "component": {
+      "file": "./components/block.js"
+    },
+    "template": {
+      "file": "./templates/block.hbs"
+    }
+  },
+  "defaultColor": "dark-pink",
+  "request": {
+    "cert": "",
+    "key": "",
+    "passphrase": "",
+    "ca": "",
+    "proxy": "",
+    "rejectUnauthorized": true
+  },
+  "logging": {
+    "level": "info"
+  },
+  "onDemandOnly": false,
+  "options": [
+    {
+      "key": "uri",
+      "name": "Mandiant Threat Intelligence REST URL",
+      "description": "The URL for the Mandiant Threat Intelligence API.  Defaults to `https://api.intelligence.fireeye.com`.",
+      "default": "https://api.intelligence.fireeye.com",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "publicKey",
+      "name": "Mandiant Threat Intelligence Public Key",
+      "description": "Your Mandiant Threat Intelligence API public key",
+      "default": "",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "privateKey",
+      "name": "Mandiant Threat Intelligence Private Key",
+      "description": "Your Mandiant Threat Intelligence API private key.",
+      "default": "",
+      "type": "password",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "minimumMScore",
+      "name": "Minimum MScore to Display",
+      "description": "The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 50 are considered suspicious and/or malicious.",
+      "default": 51,
+      "type": "number",
+      "userCanEdit": false,
+      "adminOnly": false
+    },
+    {
+      "key": "blocklist",
+      "name": "Ignored Entities",
+      "description": "Comma separated list of entities that you never want looked up. Should be set to \"Only admins can view and edit\".",
+      "default": "",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "domainBlocklistRegex",
+      "name": "Ignored Domains Regex",
+      "description": "Domains that match the given regex will not be looked up (if blank, no domains will be black listed).  Should be set to \"Only admins can view and edit\".",
+      "default": "",
+      "type": "text",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "maxConcurrent",
+      "name": "Max Concurrent Requests",
+      "description": "Maximum number of concurrent requests.  Integration must be restarted after changing this option. Defaults to 20.",
+      "default": 20,
+      "type": "number",
+      "userCanEdit": false,
+      "adminOnly": true
+    },
+    {
+      "key": "minTime",
+      "name": "Minimum Time Between Lookups",
+      "description": "Minimum amount of time in milliseconds between lookups. Integration must be restarted after changing this option. Defaults to 100.",
+      "default": 100,
+      "type": "number",
+      "userCanEdit": false,
+      "adminOnly": true
+    }
+  ]
+}
