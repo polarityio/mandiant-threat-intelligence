@@ -1,7 +1,7 @@
 {
-  "main": "./integration.js",
   "name": "MandiantThreatIntel",
-  "version": "3.2.3-beta",
+  "version": "3.2.4-beta",
+  "main": "./integration.js",
   "private": true,
   "dependencies": {
     "bottleneck": "^2.19.5",
