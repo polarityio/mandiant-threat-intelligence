@@ -1,12 +1,12 @@
 {
-  "main": "./integration.js",
   "name": "MandiantThreatIntel",
-  "version": "3.2.3-beta",
+  "version": "3.2.4-beta",
+  "main": "./integration.js",
   "private": true,
   "dependencies": {
     "bottleneck": "^2.19.5",
     "lodash": "^4.17.21",
-    "request": "^2.88.2"
+    "postman-request": "^2.88.1-postman.31"
   },
   "devDependencies": {
     "jest": "^27.1.0",
