@@ -1,4 +1,5 @@
 {
+  "polarityIntegrationUuid": "dd363aa0-cce1-11ed-aeee-075d3490155d",
   "name": "Mandiant Threat Intelligence",
   "acronym": "MTI",
   "description": "Provides automated access to indicators of compromise (IOCs), CVE information, as well as information on the adversary from the Mandiant Threat Intelligence API.",
