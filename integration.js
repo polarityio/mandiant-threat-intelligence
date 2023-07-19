@@ -4,7 +4,7 @@ const request = require('postman-request');
 const config = require('./config/config');
 const fs = require('fs');
 const _ = require('lodash');
-const { map, flow, chunk, keys, get } = require('lodash/fp');
+const { map, flow, chunk, keys, get, capitalize } = require('lodash/fp');
 const { legacyTypes } = require('./src/indicator-types');
 const Bottleneck = require('bottleneck');
 
@@ -581,6 +581,10 @@ function _getSummaryTags(indicator) {
 
   if (indicator.external_references && indicator.external_references.length) {
     tags.push(`Reports: ${indicator.external_references.length}`);
+  }
+  
+  if (indicator.analysis_conclusion && indicator.analysis_conclusion.length) {
+    tags.push(`Analysis: ${capitalize(indicator.analysis_conclusion)}`);
   }
 
   return tags;
