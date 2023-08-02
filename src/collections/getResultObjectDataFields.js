@@ -1,5 +1,7 @@
 
-const { legacyTypes } = require('./indicatorTypes');
+const { get } = require('lodash/fp');
+const { getLogger } = require('../logging');
+const { legacyTypes, MAX_RESULTS } = require('./indicatorTypes');
 
 /**
  *
@@ -63,7 +65,7 @@ function getResultObjectDataFields(collections = [], entityObj) {
         }
 
         // Pluck out data for TTP summary tags
-        const objectTtps = _.get(object, 'x_fireeye_com_metadata.ttp');
+        const objectTtps = get(object, 'x_fireeye_com_metadata.ttp');
         if (objectTtps) {
           for (let i = 0; i < objectTtps.length; i++) {
             let ttp = objectTtps[i];
@@ -77,7 +79,7 @@ function getResultObjectDataFields(collections = [], entityObj) {
         }
 
         // Pluck out data for intended effect summary tags
-        const objectIntendedEffects = _.get(object, 'x_fireeye_com_metadata.intended_effect');
+        const objectIntendedEffects = get(object, 'x_fireeye_com_metadata.intended_effect');
         if (objectIntendedEffects) {
           for (let i = 0; i < objectIntendedEffects.length; i++) {
             let effect = objectIntendedEffects[i];
@@ -91,7 +93,7 @@ function getResultObjectDataFields(collections = [], entityObj) {
         }
 
         // Pluck out data for targeted information summary tags
-        const objectTargetedInformation = _.get(object, 'x_fireeye_com_metadata.targeted_information');
+        const objectTargetedInformation = get(object, 'x_fireeye_com_metadata.targeted_information');
         if (objectTargetedInformation) {
           for (let i = 0; i < objectTargetedInformation.length; i++) {
             let effect = objectTargetedInformation[i];
@@ -141,7 +143,9 @@ function getResultObjectDataFields(collections = [], entityObj) {
   }
 
   if (Object.keys(details).length > 0) {
-    return { summary, details };
+    return { summary, details: {
+      collections: details
+    } };
   } else {
     return null;
   }

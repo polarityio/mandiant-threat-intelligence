@@ -3,6 +3,7 @@ const { map, get } = require('lodash/fp');
 const getResultObjectDataFields = require('./getResultObjectDataFields');
 const searchCollections = require('./searchCollections');
 const { getLimiter } = require('../request');
+const { getLogger } = require('../logging');
 
 /**
  * CVE entities have to be looked up
@@ -18,16 +19,15 @@ const lookupCollectionsWithCveEntities = async (cveEntities, options) => {
     map(async (entityObj) => {
       try {
         const result = await limitedSearchCollections(entityObj, options);
-
         return result.length === 0
           ? {
-              entity: entityObj,
-              data: null
-            }
+            entity: entityObj,
+            data: null
+          }
           : {
-              entity: entityObj,
-              data: getResultObjectDataFields([result.objects], entityObj)
-            };
+            entity: entityObj,
+            data: getResultObjectDataFields([result], entityObj)
+          };
       } catch (error) {
         if (Math.floor(parseInt(get('errors.0.status', error)) / 100) * 100 === 500) {
           return {
@@ -44,6 +44,5 @@ const lookupCollectionsWithCveEntities = async (cveEntities, options) => {
     }, cveEntities)
   );
 };
-
 
 module.exports = lookupCollectionsWithCveEntities;

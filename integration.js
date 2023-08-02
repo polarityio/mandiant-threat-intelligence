@@ -1,19 +1,19 @@
 'use strict';
 
 const { setLogger, getLogger } = require('./src/logging');
-const validateOptions = require('./src/validateOptions');
+const { validateOptions } = require('./src/userOptions');
 
 const getFilteredEntities = require('./src/getFilteredEntities');
-const { lookupIndicators } = require('./src/indicators');
-const { lookupCollectionsWithCveEntities } = require('./src/collections');
+const lookupNonCveEntities = require('./src/lookupNonCveEntities');
+const lookupCveEntities = require('./src/lookupCveEntities');
 
 async function doLookup(entities, options, cb) {
   let { lookupResults, filteredEntities, cveEntities } = getFilteredEntities(entities, options);
-
+  getLogger().trace({ filteredEntities, cveEntities }, 'Filtered Entities')
   try {
-    const indicatorLookupResults = await lookupIndicators(filteredEntities, options);
+    const indicatorLookupResults = await lookupNonCveEntities(filteredEntities, options);
 
-    const cveLookupResults = await lookupCollectionsWithCveEntities(cveEntities, options);
+    const cveLookupResults = await lookupCveEntities(cveEntities, options);
 
     cb(null, lookupResults.concat(indicatorLookupResults).concat(cveLookupResults));
   } catch (lookupError) {
@@ -38,7 +38,6 @@ function onMessage(payload, options, cb) {
         } else {
           cb(
             null,
-            // OR fp.get('[0].data', lookupResults) === null
             lookupResults && lookupResults[0] && lookupResults[0].data === null
               ? { data: { summary: ['No Results Found on Retry'] } }
               : lookupResults[0]

@@ -20,6 +20,7 @@ const getIndicatorsOneChunkAtATime =
   (options, limitedSearchBulkIndicators) =>
   async ([lookupChunk, ...lookupChunks], ongoingLookupResults = []) => {
     const { searchedEntities, query } = lookupChunk ? getChunkQuery(lookupChunk) : { query: { requests: [] } };
+    
     if (query.requests.length === 0) return ongoingLookupResults;
 
     let results, chunkLookupResults;

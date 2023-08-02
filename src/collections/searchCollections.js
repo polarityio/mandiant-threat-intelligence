@@ -1,8 +1,8 @@
 const { getLogger } = require('../logging');
 
 const { authenticatedRequest } = require('../request');
+const { MAX_RESULTS } = require('./indicatorTypes');
 
-const MAX_RESULTS = 10;
 /**
  * Used specifically to search for CVEs which cannot use the bulk endpoint.  Returns a completely different
  * format than the bulk endpoint which needs custom handling.  We refer to this as the "legacy" endpoint in
@@ -17,7 +17,7 @@ const searchCollections = async (entityObj, options) =>
     const Logger = getLogger();
 
     let requestOptions = {
-      uri: `${options.uri}/collections/search`,
+      url: `${options.urlV3}/collections/search`,
       method: 'POST',
       body: {
         queries: createQuery(entityObj, options),
@@ -53,7 +53,7 @@ const searchCollections = async (entityObj, options) =>
         return reject(err);
       }
 
-      Logger.trace({ data: body }, 'Collection Search Body');
+      Logger.trace({ data: body }, 'Collection Results Body');
 
       if (!body || !Array.isArray(body.objects) || body.objects.length === 0) return resolve([]);
 
