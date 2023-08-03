@@ -5,9 +5,14 @@ const { getLogger } = require('../logging');
 
 const MAX_AUTH_RETRIES = 2;
 
-const tokenCache = new Map();
+const NodeCache = require('node-cache');
+const { encodeBase64 } = require('../dataTransformations');
+const tokenCache = new NodeCache({
+  stdTTL: 39600 // 11 hours
+});
 
 const authenticatedRequest = (options, requestOptions, cb, requestCounter = 0) => {
+  const Logger = getLogger();
   if (requestCounter === MAX_AUTH_RETRIES) {
     // We reached the maximum number of auth retries
     return cb({
@@ -15,28 +20,24 @@ const authenticatedRequest = (options, requestOptions, cb, requestCounter = 0) =
     });
   }
 
-  createToken(options, tokenCache, function (err, token) {
-    const Logger = getLogger();
-    if (err) {
-      Logger.error({ err: err }, 'Error getting token');
-      return cb({
-        err: err,
-        detail: 'Error creating authentication token'
-      });
-    }
-
-    requestOptions.headers = {
-      Accept: 'application/vnd.oasis.stix+json; version=2.1',
-      'X-App-Name': 'Polarity',
-      Authorization: `Bearer ${token}`
+  requestOptions.headers = {
+    ...requestOptions.headers,
+    'X-App-Name': 'Polarity'
+  };
+  if (requestOptions.url.includes(options.urlV4)) {
+    const requestOptionsWithAuth = {
+      ...requestOptions,
+      headers: {
+        ...requestOptions.headers,
+        Authorization: `Basic ${encodeBase64(
+          options.publicKeyV4 + ':' + options.privateKeyV4
+        )}`
+      }
     };
-
-    Logger.trace({ requestOptions }, 'Request');
-    requestWithDefaults(requestOptions, (err, resp, body) => {
+    Logger.trace({ requestOptions: requestOptionsWithAuth }, 'Request Options');
+    requestWithDefaults(requestOptionsWithAuth, (err, resp, body) => {
       if (err) {
         if (err.code === 'ECONNRESET') {
-          return cb(handleRestErrors({ ...resp, statusCode: 'ECONNRESET' }, body));
-        } else if (err.code === 'ECONNRESET') {
           return cb(handleRestErrors({ ...resp, statusCode: 'ECONNRESET' }, body));
         } else {
           return cb(err, resp, body);
@@ -46,7 +47,7 @@ const authenticatedRequest = (options, requestOptions, cb, requestCounter = 0) =
       if (resp.statusCode === 403) {
         // Unable to authenticate so we attempt to get a new token
         Logger.trace('Invalidating Token');
-        tokenCache.delete(options.publicKey + options.privateKey);
+        tokenCache.del(options.publicKeyV3 + options.privateKeyV3);
         authenticatedRequest(options, requestOptions, cb, ++requestCounter);
         return;
       }
@@ -58,8 +59,51 @@ const authenticatedRequest = (options, requestOptions, cb, requestCounter = 0) =
 
       cb(null, resp, body);
     });
-  });
-};
+  } else {
+    createToken(options, tokenCache, function (err, token) {
+      if (err) {
+        Logger.error({ err: err }, 'Error getting token');
+        return cb({
+          err: err,
+          detail: 'Error creating authentication token'
+        });
+      }
 
+      requestOptions.headers = {
+        ...requestOptions.headers,
+        Accept: 'application/vnd.oasis.stix+json; version=2.1',
+        Authorization: `Bearer ${token}`
+      };
+
+      Logger.trace({ requestOptions }, 'Request');
+      requestWithDefaults(requestOptions, (err, resp, body) => {
+        if (err) {
+          if (err.code === 'ECONNRESET') {
+            return cb(handleRestErrors({ ...resp, statusCode: 'ECONNRESET' }, body));
+          } else if (err.code === 'ECONNRESET') {
+            return cb(handleRestErrors({ ...resp, statusCode: 'ECONNRESET' }, body));
+          } else {
+            return cb(err, resp, body);
+          }
+        }
+
+        if (resp.statusCode === 403) {
+          // Unable to authenticate so we attempt to get a new token
+          Logger.trace('Invalidating Token');
+          tokenCache.del(options.publicKeyV3 + options.privateKeyV3);
+          authenticatedRequest(options, requestOptions, cb, ++requestCounter);
+          return;
+        }
+
+        let restError = handleRestErrors(resp, body);
+        if (restError) {
+          return cb(restError);
+        }
+
+        cb(null, resp, body);
+      });
+    });
+  }
+};
 
 module.exports = authenticatedRequest;

@@ -4,6 +4,7 @@ const searchBulkIndicators = require('./searchBulkIndicators');
 const getChunkQuery = require('./getChunkQuery');
 const getSummaryTags = require('./getSummaryTags');
 const { getLimiter } = require('../request');
+const { getLogger } = require('../logging');
 
 const MAX_ENTITIES_PER_LOOKUP = 100;
 
@@ -19,7 +20,10 @@ const lookupIndicators = async (filteredEntities, options) => {
 const getIndicatorsOneChunkAtATime =
   (options, limitedSearchBulkIndicators) =>
   async ([lookupChunk, ...lookupChunks], ongoingLookupResults = []) => {
-    const { searchedEntities, query } = lookupChunk ? getChunkQuery(lookupChunk) : { query: { requests: [] } };
+    const { searchedEntities, query } = lookupChunk
+      ? getChunkQuery(lookupChunk)
+      : { query: { requests: [] } };
+
     if (query.requests.length === 0) return ongoingLookupResults;
 
     let results, chunkLookupResults;
@@ -50,16 +54,18 @@ const getIndicatorsOneChunkAtATime =
         map((entity) => {
           const entityLower = entity.toLowerCase();
           const entityObj = searchedEntities.get(entityLower);
-          const indicator = results[entityLower];
-          const mScore = getOr(0, 'indicator_verdict.mscore', indicator);
+          const indicatorV3 = results[entityLower];
+          const mScore = getOr(0, 'indicator_verdict.mscore', indicatorV3);
 
           return {
             entity: entityObj,
             data:
               mScore >= options.minimumMScore
                 ? {
-                    summary: getSummaryTags(indicator),
-                    details: indicator
+                    summary: getSummaryTags(indicatorV3),
+                    details: {
+                      indicatorV3
+                    }
                   }
                 : null
           };

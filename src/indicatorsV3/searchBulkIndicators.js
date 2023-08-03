@@ -20,7 +20,7 @@ const searchBulkIndicators = async (chunkQuery, options) =>
   new Promise((resolve, reject) => {
     const Logger = getLogger();
     let requestOptions = {
-      uri: `${options.uri}/collections/indicators/objects`,
+      url: `${options.urlV3}/collections/indicators/objects`,
       method: 'POST',
       body: chunkQuery
     };

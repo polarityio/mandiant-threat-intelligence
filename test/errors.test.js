@@ -2,9 +2,9 @@ const nock = require('nock');
 const { doLookup, startup } = require('../integration');
 
 const options = {
-  uri: 'https://api.intelligence.fireeye.com',
-  publicKey: 'publicKey',
-  privateKey: 'privateKey',
+  urlV3: 'https://api.intelligence.fireeye.com',
+  publicKeyV3: 'publicKey',
+  privateKeyV3: 'privateKey',
   minimumMScore: 51,
   blocklist: '',
   domainBlocklistRegex: '',
@@ -60,7 +60,7 @@ beforeAll(() => {
 const buildErrorTest = (describeMessage, route, entity, defaultSuccessRoutes = []) =>
   describe(describeMessage, () => {
     beforeEach(() => {
-      scope = nock(options.uri).post('/token').reply(200, 'Nock token');
+      scope = nock(options.urlV3).post('/token').reply(200, 'Nock token');
       defaultSuccessRoutes.forEach((successRoute) => scope.post(successRoute).reply(200, {}));
     });
 

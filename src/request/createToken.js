@@ -10,7 +10,7 @@ function createToken(options, tokenCache, cb) {
     cb(null, token);
   } else {
     let requestOptions = {
-      uri: options.uri + '/token',
+      url: options.urlV3 + '/token',
       method: 'POST',
       form: {
         grant_type: 'client_credentials'
@@ -19,8 +19,8 @@ function createToken(options, tokenCache, cb) {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       auth: {
-        username: options.publicKey,
-        password: options.privateKey
+        username: options.publicKeyV3,
+        password: options.privateKeyV3
       },
       json: true
     };
@@ -41,7 +41,7 @@ function createToken(options, tokenCache, cb) {
       }
       const token = body.access_token;
       Logger.trace({ token: token }, 'Set Token for Auth');
-      tokenCache.set(options.publicKey + options.privateKey, token);
+      tokenCache.set(options.publicKeyV3 + options.privateKeyV3, token);
 
       cb(null, token);
     });

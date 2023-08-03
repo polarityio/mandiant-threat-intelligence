@@ -1,11 +1,19 @@
 {
   "arrowParens": "always",
   "bracketSpacing": true,
-  "printWidth": 120,
+  "printWidth": 90,
   "proseWrap": "preserve",
   "semi": true,
   "singleQuote": true,
   "tabWidth": 2,
   "trailingComma": "none",
-  "useTabs": false
+  "useTabs": false,
+  "overrides": [
+    {
+      "files": "*.hbs",
+      "options": {
+        "singleQuote": false
+      }
+    }
+  ]
 }

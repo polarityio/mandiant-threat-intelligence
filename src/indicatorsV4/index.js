@@ -1,5 +1,5 @@
 const lookupIndicators = require('./lookupIndicators');
 
 module.exports = {
-  lookupIndicators
+  lookupIndicatorsV4: lookupIndicators
 };
