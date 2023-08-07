@@ -12,7 +12,7 @@ const lookupNonCveEntities = async (entities, options) => {
       : []
   ]);
 
-  return mergeLookupResults(entities, [v3Indicators, v4Indicators]);
+  return mergeLookupResults(entities, v3Indicators, v4Indicators);
 };
 
 module.exports = lookupNonCveEntities;

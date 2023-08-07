@@ -4,7 +4,11 @@
       <pre>{{details.errorMessage}}</pre>
     </div>
     {{#if (not (eq details.allowRetry false))}}
-      <button type="button" class="p-btn btn btn-sm btn-secondary retry-btn mt-2" {{action "retryLookup"}}>
+      <button
+        type="button"
+        class="p-btn btn btn-sm btn-secondary retry-btn mt-2"
+        {{action "retryLookup"}}
+      >
         {{#if running}}
           {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
         {{else}}
@@ -12,449 +16,524 @@
         {{/if}}
       </button>
       <div class="mt-1">
-        <span class="p-footnote"> You can retry your search by pressing the "Retry Search" button.</span>
+        <span class="p-footnote">
+          You can retry your search by pressing the "Retry Search" button.</span>
       </div>
     {{/if}}
   </div>
 {{else}}
   {{#if details}}
-    {{#if (not-eq block.entity.type "cve")}}
-      {{#if details.name}}
-        <h1 class="p-title">{{fa-icon icon="bullseye"}} {{details.name}}</h1>
-      {{/if}}
-      {{#if details.indicator_verdict.mscore}}
-        <div>
-          <span class="p-key">MScore:</span>
-          <span class="p-value">{{details.indicator_verdict.mscore}}</span>
-        </div>
-      {{/if}}
-      {{#if details.analysis_conclusion}}
-        <div>
-          <span class="p-key">Analysis conclusion:</span>
-          <span class="p-value">{{details.analysis_conclusion}}</span>
-        </div>
-      {{/if}}
-      {{#if details.labels}}
-        <div>
-          <span class="p-key">Labels: </span>
-          {{#each details.labels as | label |}}
-            <span class="tag">{{label}}</span>
-          {{/each}}
-        </div>
-      {{/if}}
-      {{#if details.sighting_summary}}
-        <div>
-          <span class="p-key">First Seen: </span>
-          <span class="p-value">{{moment-format details.sighting_summary.first_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-        </div>
-        <div>
-          <span class="p-key">Last Seen: </span>
-          <span class="p-value">{{moment-format details.sighting_summary.last_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-        </div>
-      {{/if}}
-      {{#if details.current_asn}}
-        <div>
-          <span class="p-key">Current ASN:</span>
-          <span class="p-value">{{details.current_asn}}</span>
-        </div>
-      {{/if}}
-      {{#if details.description}}
-        <div>
-          <span class="p-key">Description:</span>
-          <span class="p-value">{{details.description}}</span>
-        </div>
-      {{/if}}
-      {{#if details.summary}}
-        <div>
-          <span class="p-key">Summary:</span>
-          <span class="p-value">{{details.summary}}</span>
-        </div>
-      {{/if}}
-
-      {{#if details.risk_summary}}
-        <div>
-          <span class="p-key">Risk Summary:</span>
-          <span class="p-value">{{details.risk_summary}}</span>
-        </div>
-      {{/if}}
-
-      {{!--
-      -
-      -  MALWARE Presence
-      -
-      --}}
-      {{#if details.malware_presence}}
-        <h1 class="p-title">{{fa-icon icon="bug"}} Malware Presence</h1>
-        <div>
-          <span class="p-key">Status: </span>
-          <span class="p-value">{{details.malware_presence.status}}</span>
-        </div>
-        <div>
-          <span class="p-key">Threat name: </span>
-          <span class="p-value">{{details.malware_presence.threat_name}}</span>
-        </div>
-        <div>
-          <span class="p-key">Threat level: </span>
-          <span class="p-value">{{details.malware_presence.threat_level}}</span>
-        </div>
-        <div>
-          <span class="p-key">Trust factor: </span>
-          <span class="p-value">{{details.malware_presence.trust_factor}}</span>
-        </div>
-        <div>
-          <span class="p-key">Scanner Metrics: </span>
-          <span class="p-value">{{details.malware_presence.scanner_match}} matches out of {{details.malware_presence.scanner_count}} scans</span>
-        </div>
-        <div>
-          <span class="p-key">Type: </span>
-          <span class="p-value">{{details.malware_presence.classification.type}}</span>
-        </div>
-        <div>
-          <span class="p-key">Family name: </span>
-          <span class="p-value">{{details.malware_presence.classification.family_name}}</span>
-        </div>
-        <div>
-          <span class="p-key">Is generic: </span>
-          <span class="p-value">{{details.malware_presence.classification.is_generic}}</span>
-        </div>
-        <div>
-          <span class="p-key">Platform: </span>
-          <span class="p-value">{{details.malware_presence.classification.platform}}</span>
-        </div>
-        <div>
-          <span class="p-key">First Seen: </span>
-          <span class="p-value">{{moment-format details.malware_presence.first_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-        </div>
-        <div>
-          <span class="p-key">Last Seen: </span>
-          <span class="p-value">{{moment-format details.malware_presence.last_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-        </div>
-      {{/if}}
-
-      {{!--
-      -
-      -  MALWARE FAMILIES
-      -
-      --}}
-      {{#if details.attributed_associations.malware_families}}
-        <h1 class="p-title">{{fa-icon icon="viruses"}} Associated Malware Families</h1>
-        {{#each details.attributed_associations.malware_families as | malware |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{malware.name.value}}</h1>
-            {{#if malware.name.source}}
-              <div>
-                <span class="p-key">Source: </span>
-                <span class="p-value">{{malware.name.source}}</span>
-              </div>
-            {{/if}}
-            {{#if malware.description}}
-              <div>
-                <span class="p-key">Description: </span>
-                <span class="p-value">{{malware.description}}</span>
-              </div>
-            {{/if}}
-            {{#if malware.availability}}
-              <div>
-                <span class="p-key">Availability: </span>
-                <span class="p-value">{{malware.availability}}</span>
-              </div>
-            {{/if}}
+    <div class="details">
+      {{#if (not-eq block.entity.type "cve")}}
+        <div class="non-cve-results">
+          {{#if details.name}}
+            <h1 class="p-title">{{fa-icon icon="bullseye"}} {{details.name}}</h1>
+          {{/if}}
+          {{#if details.indicator_verdict.mscore}}
             <div>
-              <span class="p-key">Created: </span>
-              <span class="p-value">{{moment-format malware.created "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
+              <span class="p-key">MScore:</span>
+              <span class="p-value">{{details.indicator_verdict.mscore}}</span>
             </div>
+          {{/if}}
+          {{#if details.analysis_conclusion}}
             <div>
-              <span class="p-key">Modified: </span>
-              <span class="p-value">{{moment-format malware.modified "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
+              <span class="p-key">Analysis conclusion:</span>
+              <span class="p-value">{{details.analysis_conclusion}}</span>
             </div>
-            {{#if malware.aliases}}
-              <div>
-                <span class="p-key">Aliases: </span>
-                {{#each malware.aliases as | alias |}}
-                  <span class="tag">{{alias.value}} ({{alias.source}})</span>
-                {{/each}}
-              </div>
-            {{/if}}
-            {{#if malware.labels}}
-              <div>
-                <span class="p-key">Labels: </span>
-                {{#each malware.labels as | label |}}
-                  <span class="tag">{{label}}</span>
-                {{/each}}
-              </div>
-            {{/if}}
-          </div>
-        {{/each}}
-      {{/if}}
-
-      {{!--
-      -
-      -  Threat Actors
-      -
-      --}}
-      {{#if details.attributed_associations.threat_actors}}
-        <h1 class="p-title">{{fa-icon icon="user-secret"}} Associated Threat Actors</h1>
-        {{#each details.attributed_associations.threat_actors as | actor |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{actor.name}}</h1>
+          {{/if}}
+          {{#if details.labels}}
             <div>
-              <span class="p-key">Description: </span>
-              <span class="p-value">{{actor.description}}</span>
+              <span class="p-key">Labels: </span>
+              {{#each details.labels as |label|}}
+                <span class="tag">{{label}}</span>
+              {{/each}}
             </div>
-            <div>
-              <span class="p-key">Created: </span>
-              <span class="p-value">{{moment-format actor.created "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-            </div>
-            <div>
-              <span class="p-key">Modified: </span>
-              <span class="p-value">{{moment-format actor.modified "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
-
-
-      {{!--
-      -
-      -  Threat Details -- Signatures
-      -
-      --}}
-      {{#if details.threat_details.signatures}}
-        <h1 class="p-title">{{fa-icon icon="books"}} Signatures</h1>
-        {{#each details.threat_details.signatures as | sig |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{sig.name}}</h1>
-            <div>
-              <span class="p-key">Signature type: </span>
-              <span class="p-value">{{sig.signature_type}}</span>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
-
-      {{!--
-      -
-      -  Threat Details -- Attack Patterns
-      -
-      --}}
-      {{#if details.threat_details.attack_patterns}}
-        <h1 class="p-title">{{fa-icon icon="sword"}} Attack Patterns</h1>
-        {{#each details.threat_details.attack_patterns as | pattern |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{pattern.name}}</h1>
-            <div>
-              <span class="p-key">Title: </span>
-              <span class="p-value">{{pattern.name}}</span>
-            </div>
-            <div>
-              <span class="p-key">Description: </span>
-              <span class="p-value">{{pattern.description}}</span>
-            </div>
-            <div>
-              <span class="p-key">Type: </span>
-              <span class="p-value">{{pattern.type}}</span>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
-
-      {{!--
-      -
-      -  Threat Details -- AV Classification
-      -
-      --}}
-      {{#if details.threat_details.av_classifications}}
-        <h1 class="p-title">{{fa-icon icon="shield-virus"}} AV Classification</h1>
-        {{#each details.threat_details.av_classifications as | av |}}
-          <div class="sub-object-container">
-            <div>
-              <span class="p-key">AV Vendor: </span>
-              <span class="p-value">{{av.av_vendor}}</span>
-            </div>
-            <div>
-              <span class="p-key">AV Product: </span>
-              <span class="p-value">{{av.av_product}}</span>
-            </div>
-            <div>
-              <span class="p-key">Scans: </span>
-              <span class="p-value">{{av.total_malicious}} malicious out of {{av.total_scanned}} total scans</span>
-            </div>
+          {{/if}}
+          {{#if details.sighting_summary}}
             <div>
               <span class="p-key">First Seen: </span>
-              <span class="p-value">{{moment-format av.first_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
-
-
-      {{!--
-      -
-      -  Indicator Verdict -- Sources
-      -
-      --}}
-      {{#if details.indicator_verdict.sources}}
-        <h1 class="p-title">{{fa-icon icon="newspaper"}} Sources</h1>
-        {{#each details.indicator_verdict.sources as | source |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{source.source_name}}</h1>
-            <div>
-              <span class="p-key">OSInt: </span>
-              <span class="p-value">{{source.osint}}</span>
-            </div>
-            {{#if (gt source.category.length 0)}}
-              <div>
-                <span class="p-key">Labels: </span>
-                {{#each source.category as | category |}}
-                  <span class="tag">{{category}}</span>
-                {{/each}}
-              </div>
-            {{/if}}
-            <div>
-              <span class="p-key">First Seen: </span>
-              <span class="p-value">{{moment-format source.first_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
+              <span class="p-value">{{moment-format
+                  details.sighting_summary.first_seen
+                  "YYYY-MM-DD HH:mm:ss z"
+                  timeZone=timezone
+                }}</span>
             </div>
             <div>
               <span class="p-key">Last Seen: </span>
-              <span class="p-value">{{moment-format source.last_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
+              <span class="p-value">{{moment-format
+                  details.sighting_summary.last_seen
+                  "YYYY-MM-DD HH:mm:ss z"
+                  timeZone=timezone
+                }}</span>
             </div>
-          </div>
-        {{/each}}
-      {{/if}}
+          {{/if}}
+          {{#if details.current_asn}}
+            <div>
+              <span class="p-key">Current ASN:</span>
+              <span class="p-value">{{details.current_asn}}</span>
+            </div>
+          {{/if}}
+          {{#if details.description}}
+            <div>
+              <span class="p-key">Description:</span>
+              <span class="p-value">{{details.description}}</span>
+            </div>
+          {{/if}}
+          {{#if details.summary}}
+            <div>
+              <span class="p-key">Summary:</span>
+              <span class="p-value">{{details.summary}}</span>
+            </div>
+          {{/if}}
 
-      {{!--
+          {{#if details.risk_summary}}
+            <div>
+              <span class="p-key">Risk Summary:</span>
+              <span class="p-value">{{details.risk_summary}}</span>
+            </div>
+          {{/if}}
+
+          {{!
+      -
+      -  MALWARE Presence
+      -
+      }}
+          {{#if details.malware_presence}}
+            <h1 class="p-title">{{fa-icon icon="bug"}} Malware Presence</h1>
+            <div>
+              <span class="p-key">Status: </span>
+              <span class="p-value">{{details.malware_presence.status}}</span>
+            </div>
+            <div>
+              <span class="p-key">Threat name: </span>
+              <span class="p-value">{{details.malware_presence.threat_name}}</span>
+            </div>
+            <div>
+              <span class="p-key">Threat level: </span>
+              <span class="p-value">{{details.malware_presence.threat_level}}</span>
+            </div>
+            <div>
+              <span class="p-key">Trust factor: </span>
+              <span class="p-value">{{details.malware_presence.trust_factor}}</span>
+            </div>
+            <div>
+              <span class="p-key">Scanner Metrics: </span>
+              <span class="p-value">{{details.malware_presence.scanner_match}}
+                matches out of
+                {{details.malware_presence.scanner_count}}
+                scans</span>
+            </div>
+            <div>
+              <span class="p-key">Type: </span>
+              <span
+                class="p-value"
+              >{{details.malware_presence.classification.type}}</span>
+            </div>
+            <div>
+              <span class="p-key">Family name: </span>
+              <span
+                class="p-value"
+              >{{details.malware_presence.classification.family_name}}</span>
+            </div>
+            <div>
+              <span class="p-key">Is generic: </span>
+              <span
+                class="p-value"
+              >{{details.malware_presence.classification.is_generic}}</span>
+            </div>
+            <div>
+              <span class="p-key">Platform: </span>
+              <span
+                class="p-value"
+              >{{details.malware_presence.classification.platform}}</span>
+            </div>
+            <div>
+              <span class="p-key">First Seen: </span>
+              <span class="p-value">{{moment-format
+                  details.malware_presence.first_seen
+                  "YYYY-MM-DD HH:mm:ss z"
+                  timeZone=timezone
+                }}</span>
+            </div>
+            <div>
+              <span class="p-key">Last Seen: </span>
+              <span class="p-value">{{moment-format
+                  details.malware_presence.last_seen
+                  "YYYY-MM-DD HH:mm:ss z"
+                  timeZone=timezone
+                }}</span>
+            </div>
+          {{/if}}
+
+          {{!
+      -
+      -  MALWARE FAMILIES
+      -
+      }}
+          {{#if details.attributed_associations.malware_families}}
+            <h1 class="p-title">{{fa-icon icon="viruses"}}
+              Associated Malware Families</h1>
+            {{#each details.attributed_associations.malware_families as |malware|}}
+              <div class="sub-object-container">
+                <h1 class="p-title">{{malware.name.value}}</h1>
+                {{#if malware.name.source}}
+                  <div>
+                    <span class="p-key">Source: </span>
+                    <span class="p-value">{{malware.name.source}}</span>
+                  </div>
+                {{/if}}
+                {{#if malware.description}}
+                  <div>
+                    <span class="p-key">Description: </span>
+                    <span class="p-value">{{malware.description}}</span>
+                  </div>
+                {{/if}}
+                {{#if malware.availability}}
+                  <div>
+                    <span class="p-key">Availability: </span>
+                    <span class="p-value">{{malware.availability}}</span>
+                  </div>
+                {{/if}}
+                <div>
+                  <span class="p-key">Created: </span>
+                  <span class="p-value">{{moment-format
+                      malware.created
+                      "YYYY-MM-DD HH:mm:ss z"
+                      timeZone=timezone
+                    }}</span>
+                </div>
+                <div>
+                  <span class="p-key">Modified: </span>
+                  <span class="p-value">{{moment-format
+                      malware.modified
+                      "YYYY-MM-DD HH:mm:ss z"
+                      timeZone=timezone
+                    }}</span>
+                </div>
+                {{#if malware.aliases}}
+                  <div>
+                    <span class="p-key">Aliases: </span>
+                    {{#each malware.aliases as |alias|}}
+                      <span class="tag">{{alias.value}} ({{alias.source}})</span>
+                    {{/each}}
+                  </div>
+                {{/if}}
+                {{#if malware.labels}}
+                  <div>
+                    <span class="p-key">Labels: </span>
+                    {{#each malware.labels as |label|}}
+                      <span class="tag">{{label}}</span>
+                    {{/each}}
+                  </div>
+                {{/if}}
+              </div>
+            {{/each}}
+          {{/if}}
+
+          {{!
+      -
+      -  Threat Actors
+      -
+      }}
+          {{#if details.attributed_associations.threat_actors}}
+            <h1 class="p-title">{{fa-icon icon="user-secret"}}
+              Associated Threat Actors</h1>
+            {{#each details.attributed_associations.threat_actors as |actor|}}
+              <div class="sub-object-container">
+                <h1 class="p-title">{{actor.name}}</h1>
+                <div>
+                  <span class="p-key">Description: </span>
+                  <span class="p-value">{{actor.description}}</span>
+                </div>
+                <div>
+                  <span class="p-key">Created: </span>
+                  <span class="p-value">{{moment-format
+                      actor.created
+                      "YYYY-MM-DD HH:mm:ss z"
+                      timeZone=timezone
+                    }}</span>
+                </div>
+                <div>
+                  <span class="p-key">Modified: </span>
+                  <span class="p-value">{{moment-format
+                      actor.modified
+                      "YYYY-MM-DD HH:mm:ss z"
+                      timeZone=timezone
+                    }}</span>
+                </div>
+              </div>
+            {{/each}}
+          {{/if}}
+
+          {{!
+      -
+      -  Threat Details -- Signatures
+      -
+      }}
+          {{#if details.threat_details.signatures}}
+            <h1 class="p-title">{{fa-icon icon="books"}} Signatures</h1>
+            {{#each details.threat_details.signatures as |sig|}}
+              <div class="sub-object-container">
+                <h1 class="p-title">{{sig.name}}</h1>
+                <div>
+                  <span class="p-key">Signature type: </span>
+                  <span class="p-value">{{sig.signature_type}}</span>
+                </div>
+              </div>
+            {{/each}}
+          {{/if}}
+
+          {{!
+      -
+      -  Threat Details -- Attack Patterns
+      -
+      }}
+          {{#if details.threat_details.attack_patterns}}
+            <h1 class="p-title">{{fa-icon icon="sword"}} Attack Patterns</h1>
+            {{#each details.threat_details.attack_patterns as |pattern|}}
+              <div class="sub-object-container">
+                <h1 class="p-title">{{pattern.name}}</h1>
+                <div>
+                  <span class="p-key">Title: </span>
+                  <span class="p-value">{{pattern.name}}</span>
+                </div>
+                <div>
+                  <span class="p-key">Description: </span>
+                  <span class="p-value">{{pattern.description}}</span>
+                </div>
+                <div>
+                  <span class="p-key">Type: </span>
+                  <span class="p-value">{{pattern.type}}</span>
+                </div>
+              </div>
+            {{/each}}
+          {{/if}}
+
+          {{!
+      -
+      -  Threat Details -- AV Classification
+      -
+      }}
+          {{#if details.threat_details.av_classifications}}
+            <h1 class="p-title">{{fa-icon icon="shield-virus"}} AV Classification</h1>
+            {{#each details.threat_details.av_classifications as |av|}}
+              <div class="sub-object-container">
+                <div>
+                  <span class="p-key">AV Vendor: </span>
+                  <span class="p-value">{{av.av_vendor}}</span>
+                </div>
+                <div>
+                  <span class="p-key">AV Product: </span>
+                  <span class="p-value">{{av.av_product}}</span>
+                </div>
+                <div>
+                  <span class="p-key">Scans: </span>
+                  <span class="p-value">{{av.total_malicious}}
+                    malicious out of
+                    {{av.total_scanned}}
+                    total scans</span>
+                </div>
+                <div>
+                  <span class="p-key">First Seen: </span>
+                  <span class="p-value">{{moment-format
+                      av.first_seen
+                      "YYYY-MM-DD HH:mm:ss z"
+                      timeZone=timezone
+                    }}</span>
+                </div>
+              </div>
+            {{/each}}
+          {{/if}}
+
+          {{!
+      -
+      -  Indicator Verdict -- Sources
+      -
+      }}
+          {{#if details.indicator_verdict.sources}}
+            <h1 class="p-title">{{fa-icon icon="newspaper"}} Sources</h1>
+            {{#each details.indicator_verdict.sources as |source|}}
+              <div class="sub-object-container">
+                <h1 class="p-title">{{source.source_name}}</h1>
+                <div>
+                  <span class="p-key">OSInt: </span>
+                  <span class="p-value">{{source.osint}}</span>
+                </div>
+                {{#if (gt source.category.length 0)}}
+                  <div>
+                    <span class="p-key">Labels: </span>
+                    {{#each source.category as |category|}}
+                      <span class="tag">{{category}}</span>
+                    {{/each}}
+                  </div>
+                {{/if}}
+                <div>
+                  <span class="p-key">First Seen: </span>
+                  <span class="p-value">{{moment-format
+                      source.first_seen
+                      "YYYY-MM-DD HH:mm:ss z"
+                      timeZone=timezone
+                    }}</span>
+                </div>
+                <div>
+                  <span class="p-key">Last Seen: </span>
+                  <span class="p-value">{{moment-format
+                      source.last_seen
+                      "YYYY-MM-DD HH:mm:ss z"
+                      timeZone=timezone
+                    }}</span>
+                </div>
+              </div>
+            {{/each}}
+          {{/if}}
+
+          {{!
       -
       -  Asertions
       -
-      --}}
-      {{#if details.assertions}}
-        <h1 class="p-title">{{fa-icon icon="info-square"}} Assertions</h1>
-        {{#each details.assertions as | assertion |}}
-          <div class="sub-object-container">
-            <div>
-              <span class="p-key">Description: </span>
-              <span class="p-value">{{assertion.description}}</span>
-            </div>
-            <div>
-              <span class="p-key">Statement: </span>
-              <span class="p-value">{{assertion.statement}}</span>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
+      }}
+          {{#if details.assertions}}
+            <h1 class="p-title">{{fa-icon icon="info-square"}} Assertions</h1>
+            {{#each details.assertions as |assertion|}}
+              <div class="sub-object-container">
+                <div>
+                  <span class="p-key">Description: </span>
+                  <span class="p-value">{{assertion.description}}</span>
+                </div>
+                <div>
+                  <span class="p-key">Statement: </span>
+                  <span class="p-value">{{assertion.statement}}</span>
+                </div>
+              </div>
+            {{/each}}
+          {{/if}}
 
-      {{!--
+          {{!
       -
       -  External References
       -
-      --}}
-      {{#if details.external_references}}
-        <h1 class="p-title">{{fa-icon icon="books"}} External References</h1>
-        {{#each details.external_references as | reference |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{reference.title}}</h1>
-            <div>
-              <span class="p-key">Source: </span>
-              <span class="p-value">{{humanize reference.source}}</span>
-            </div>
-            <div>
-              <span class="p-key">Link: </span>
-              <a href="{{reference.url}}" class="p-link">{{reference.url}}</a>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
-    {{/if}}
-
-    {{!--
-    -
-    - Legacy CVE Search Template
-    -
-    --}}
-    {{#if (eq block.entity.type "cve")}}
-      {{#each details as | collectionType|}}
-        {{#if collectionType}}
-          <h1 class="p-title">{{fa-icon collectionType.icon fixedWidth=true}} {{collectionType.displayValue}}</h1>
-          {{#each collectionType.values as | collection |}}
-            <div class="result-container">
-              <h1 class="p-title">{{fa-icon "th-list" fixedWidth=true}} {{collection.fields.[0].key}}: {{collection.fields.[0].value}}</h1>
-              {{#if (and collection.link collection.link.url)}}
+      }}
+          {{#if details.external_references}}
+            <h1 class="p-title">{{fa-icon icon="books"}} External References</h1>
+            {{#each details.external_references as |reference|}}
+              <div class="sub-object-container">
+                <h1 class="p-title">{{reference.title}}</h1>
+                <div>
+                  <span class="p-key">Source: </span>
+                  <span class="p-value">{{humanize reference.source}}</span>
+                </div>
                 <div>
                   <span class="p-key">Link: </span>
-                  <a class="p-link" href="{{collection.link.url}}">{{collection.link.display}} {{fa-icon "external-link" class="external-icon"}}</a>
+                  <a href="{{reference.url}}" class="p-link">{{reference.url}}</a>
                 </div>
-              {{/if}}
-              {{#each collection.fields as | field index|}}
-                {{#if field.value}}
-                  {{#if (not-eq index 0)}}
+              </div>
+            {{/each}}
+          {{/if}}
+        </div>
+      {{/if}}
+
+      {{!
+      -
+      - Legacy CVE Search Template
+      -
+      }}
+      {{#if (eq block.entity.type "cve")}}
+        <div class="cve-results">
+          {{#each details as |collectionType|}}
+            {{#if collectionType}}
+              <h1 class="p-title">{{fa-icon collectionType.icon fixedWidth=true}}
+                {{collectionType.displayValue}}</h1>
+              {{#each collectionType.values as |collection|}}
+                <div class="result-container">
+                  <h1 class="p-title">{{fa-icon "th-list" fixedWidth=true}}
+                    {{collection.fields.0.key}}:
+                    {{collection.fields.0.value}}</h1>
+                  {{#if (and collection.link collection.link.url)}}
                     <div>
-                      {{#if field.nested}}
-                        <span class="p-key">{{field.key}}</span>
-                        {{!-- Nested List --}}
-                        <div class="sub-object-container">
-                          {{!-- If field.value is an array --}}
-                          {{#if field.value.[0]}}
-                            {{#each field.value as | nestedObject |}}
-                              <div class="pt-1">
-                                {{#each-in nestedObject as | key value |}}
-                                  {{#if value}}
-                                    <div>
-                                      <span class="p-key">{{key}}: </span>
-                                      <span class="p-value">{{value}}</span>
-                                    </div>
-                                  {{/if}}
-                                {{/each-in}}
-                              </div>
-                            {{/each}}
-                          {{else}}
-                          {{!-- Nested Object --}}
-                            {{#each-in field.value as | nestedKey nestedValue |}}
-                              <div>
-                                <span class="p-key">{{humanize nestedKey}}: </span>
-                                {{!-- Nested Object where nestedValue is an array --}}
-                                {{#if nestedValue.[0]}}
-                                  <div>
-                                    {{#each nestedValue as | listValue |}}
-                                      {{#if listValue}}
-                                        <span class="tag">{{listValue}}</span>
-                                      {{/if}}
-                                    {{/each}}
-                                  </div>
-                                {{else}}
-                                  <span class="p-value">{{nestedValue}}</span>
-                                {{/if}}
-                              </div>
-                            {{/each-in}}
-                          {{/if}}
-                        </div>
-                      {{else if field.value.[0]}}
-                      {{!-- Basic list value --}}
-                        <span class="p-key">{{field.key}}: </span>
-                        {{#each field.value as | listValue |}}
-                          <span class="tag">{{listValue}}</span>
-                        {{/each}}
-                      {{else}}
-                      {{!-- Plain string value --}}
-                        <span class="p-key">{{field.key}}: </span>
-                        <span class="p-value">{{field.value}}</span>
-                      {{/if}}
+                      <span class="p-key">Link: </span>
+                      <a
+                        class="p-link"
+                        href="{{collection.link.url}}"
+                      >{{collection.link.display}}
+                        {{fa-icon "external-link" class="external-icon"}}</a>
                     </div>
                   {{/if}}
-                {{/if}}
+                  {{#each collection.fields as |field index|}}
+                    {{#if field.value}}
+                      {{#if (not-eq index 0)}}
+                        <div>
+                          {{#if field.nested}}
+                            <span class="p-key">{{field.key}}</span>
+                            {{! Nested List }}
+                            <div class="sub-object-container">
+                              {{! If field.value is an array }}
+                              {{#if field.value.0}}
+                                {{#each field.value as |nestedObject|}}
+                                  <div class="pt-1">
+                                    {{#each-in nestedObject as |key value|}}
+                                      {{#if value}}
+                                        <div>
+                                          <span class="p-key">{{key}}: </span>
+                                          <span class="p-value">{{value}}</span>
+                                        </div>
+                                      {{/if}}
+                                    {{/each-in}}
+                                  </div>
+                                {{/each}}
+                              {{else}}
+                                {{! Nested Object }}
+                                {{#each-in field.value as |nestedKey nestedValue|}}
+                                  <div>
+                                    <span class="p-key">{{humanize nestedKey}}: </span>
+                                    {{! Nested Object where nestedValue is an array }}
+                                    {{#if nestedValue.0}}
+                                      <div>
+                                        {{#each nestedValue as |listValue|}}
+                                          {{#if listValue}}
+                                            <span class="tag">{{listValue}}</span>
+                                          {{/if}}
+                                        {{/each}}
+                                      </div>
+                                    {{else}}
+                                      <span class="p-value">{{nestedValue}}</span>
+                                    {{/if}}
+                                  </div>
+                                {{/each-in}}
+                              {{/if}}
+                            </div>
+                          {{else if field.value.0}}
+                            {{! Basic list value }}
+                            <span class="p-key">{{field.key}}: </span>
+                            {{#each field.value as |listValue|}}
+                              <span class="tag">{{listValue}}</span>
+                            {{/each}}
+                          {{else}}
+                            {{! Plain string value }}
+                            <span class="p-key">{{field.key}}: </span>
+                            <span class="p-value">{{field.value}}</span>
+                          {{/if}}
+                        </div>
+                      {{/if}}
+                    {{/if}}
+                  {{/each}}
+                </div>
               {{/each}}
-            </div>
+              {{#if (lt collectionType.values.length collectionType.total)}}
+                <div>
+                  +{{sub collectionType.total collectionType.values.length}}
+                  more
+                  {{lowercase collectionType.displayValue}}.
+                </div>
+              {{/if}}
+            {{/if}}
           {{/each}}
-          {{#if (lt collectionType.values.length collectionType.total)}}
-            <div>
-              +{{sub collectionType.total collectionType.values.length}} more {{lowercase collectionType.displayValue}}.
-            </div>
-          {{/if}}
-        {{/if}}
-      {{/each}}
-    {{/if}}
+        </div>
+      {{/if}}
+    </div>
+
   {{else}}
-    No Results Found in {{block.name}} for this entity
+    No Results Found in
+    {{block.name}}
+    for this entity
   {{/if}}
 {{/if}}
-
-  

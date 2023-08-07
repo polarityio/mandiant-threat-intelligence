@@ -110,7 +110,7 @@ const parseErrorToReadableJson = (error) =>
 const findResultsForThisEntity = (thisEntity, resultsWithEntities) =>
   find(({ entity }) => entity.value === thisEntity.value, resultsWithEntities);
 
-const mergeLookupResults = (entities, resultsWithEntities) =>
+const mergeLookupResults = (entities, ...resultsWithEntities) =>
   map((entity) => {
     const resultsForThisEntity = map(
       (resultWithEntity) => findResultsForThisEntity(entity, resultWithEntity),

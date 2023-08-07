@@ -6,19 +6,34 @@ const { validateOptions } = require('./src/userOptions');
 const getFilteredEntities = require('./src/getFilteredEntities');
 const lookupNonCveEntities = require('./src/lookupNonCveEntities');
 const lookupCveEntities = require('./src/lookupCveEntities');
+const { lookupWithSearch } = require('./src/search');
+const { mergeLookupResults } = require('./src/dataTransformations');
 
 async function doLookup(entities, options, cb) {
   try {
-    let { lookupResults, filteredEntities, cveEntities } = getFilteredEntities(
+    let { lookupResults, filteredEntities, cveEntities, customEntities } = getFilteredEntities(
       entities,
       options
     );
-    
+
     const indicatorLookupResults = await lookupNonCveEntities(filteredEntities, options);
 
     const cveLookupResults = await lookupCveEntities(cveEntities, options);
 
-    cb(null, lookupResults.concat(indicatorLookupResults).concat(cveLookupResults));
+    const searchLookupResults = await lookupWithSearch(
+      filteredEntities,
+      cveEntities,
+      customEntities,
+      options
+    );
+
+    const searchAndOtherLookupResults = mergeLookupResults(
+      filteredEntities.concat(cveEntities).concat(customEntities),
+      searchLookupResults,
+      indicatorLookupResults.concat(cveLookupResults)
+    );
+
+    cb(null, lookupResults.concat(searchAndOtherLookupResults));
   } catch (lookupError) {
     const error = {
       ...lookupError,

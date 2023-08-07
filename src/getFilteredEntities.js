@@ -16,6 +16,7 @@ function getFilteredEntities(entities, options) {
   let lookupResults = [];
   let filteredEntities = [];
   let cveEntities = [];
+  let customEntities = [];
 
   const domainBlocklistRegex = _setupRegexBlocklists(options);
 
@@ -28,12 +29,18 @@ function getFilteredEntities(entities, options) {
         entity: entityObj,
         data: null
       });
-    } else if (entityObj.isDomain && domainBlocklistRegex && domainBlocklistRegex.test(entityObj.value)) {
+    } else if (
+      entityObj.isDomain &&
+      domainBlocklistRegex &&
+      domainBlocklistRegex.test(entityObj.value)
+    ) {
       Logger.debug({ domain: entityObj.value }, 'Ignored BlockListed Domain Lookup');
       lookupResults.push({
         entity: entityObj,
         data: null
       });
+    } else if (entityObj.type.includes('custom')) {
+      customEntities.push(entityObj);
     } else if (entityObj.type === 'cve') {
       cveEntities.push(entityObj);
     } else {
@@ -41,10 +48,12 @@ function getFilteredEntities(entities, options) {
     }
   }
 
-  return { lookupResults, filteredEntities, cveEntities };
+  return { lookupResults, filteredEntities, cveEntities, customEntities };
 }
 
 const _setupRegexBlocklists = (options) =>
-  options.domainBlocklistRegex.length === 0 ? null : new RegExp(options.domainBlocklistRegex, 'i');
+  options.domainBlocklistRegex.length === 0
+    ? null
+    : new RegExp(options.domainBlocklistRegex, 'i');
 
 module.exports = getFilteredEntities;

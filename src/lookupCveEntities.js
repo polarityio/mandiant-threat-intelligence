@@ -12,10 +12,11 @@ const lookupCveEntities = async (cveEntities, options) => {
       : []
   ]);
 
-  return mergeLookupResults(cveEntities, [
+  return mergeLookupResults(
+    cveEntities,
     collectionLookupResults,
     vulnerabilitiesLookupResults
-  ]);
+  );
 };
 
 module.exports = lookupCveEntities;

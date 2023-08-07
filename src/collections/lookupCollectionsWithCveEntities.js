@@ -3,15 +3,8 @@ const { map, get } = require('lodash/fp');
 const getResultObjectDataFields = require('./getResultObjectDataFields');
 const searchCollections = require('./searchCollections');
 const { getLimiter } = require('../request');
-const { getLogger } = require('../logging');
 
-/**
- * CVE entities have to be looked up
- *
- * @param cveEntities
- * @param options
- * @returns {Promise<unknown>}
- */
+
 const lookupCollectionsWithCveEntities = async (cveEntities, options) => {
   const limitedSearchCollections = getLimiter(options).wrap(searchCollections);
 

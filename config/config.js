@@ -25,6 +25,12 @@ module.exports = {
   description:
     'Provides automated access to indicators of compromise (IOCs), CVE information, as well as information on the adversary from the Mandiant Threat Intelligence API.',
   entityTypes: ['IPv4', 'domain', 'email', 'hash', 'cve'],
+  customTypes: [
+    {
+      key: 'allText',
+      regex: /^[\s\S]{3,30}$/
+    }
+  ],
   /**
    * An array of style files (css or less) that will be included for your integration. Any styles specified in
    * the below files can be used in your custom template.

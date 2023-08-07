@@ -1,5 +1,5 @@
-const lookupVulnerabilitiesWithCveEntities = require('./lookupVulnerabilitiesWithCveEntities');
+const lookupWithSearch = require('./lookupWithSearch');
 
 module.exports = {
-  lookupVulnerabilitiesWithCveEntities
+  lookupWithSearch
 };

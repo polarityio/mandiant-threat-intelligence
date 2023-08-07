@@ -2,6 +2,7 @@ const { map, get, size } = require('lodash/fp');
 const { getLogger } = require('../logging');
 
 const { authenticatedRequest } = require('../request');
+const { MAX_RESULTS } = require('../collections/indicatorTypes');
 
 /**
  * Used specifically to search for CVEs which cannot use the bulk endpoint.  Returns a completely different
@@ -12,15 +13,16 @@ const { authenticatedRequest } = require('../request');
  * @param cb
  * @private
  */
-const searchVulnerabilities = async (entityChunk, options) =>
+const doSearch = async (entity, options) =>
   new Promise((resolve, reject) => {
     const Logger = getLogger();
 
     let requestOptions = {
       method: 'POST',
-      url: `${options.urlV4}/v4/vulnerability`,
+      url: `${options.urlV4}/v4/search`,
       body: {
-        requests: [{ values: map(get('value'), entityChunk) }]
+        search: entity.value,
+        limit: MAX_RESULTS
       },
       headers: {
         'Content-Type': 'application/json'
@@ -30,16 +32,16 @@ const searchVulnerabilities = async (entityChunk, options) =>
 
     authenticatedRequest(options, requestOptions, function (err, response, body) {
       if (err) {
-        Logger.trace({ err: err, response: response }, 'Error running Vulnerabilities search');
+        Logger.trace({ err: err, response: response }, 'Error running General search');
         return reject(err);
       }
 
-      Logger.trace({ data: body }, 'Vulnerabilities Search Body');
-      const vulnerabilities = get('vulnerabilities', body);
-      if (!size(vulnerabilities)) return resolve([]);
+      Logger.trace({ data: body }, 'General Search Body');
+      const searchResults = get('objects', body);
+      if (!size(searchResults)) return resolve([]);
 
-      resolve(vulnerabilities);
+      resolve(searchResults);
     });
   });
 
-module.exports = searchVulnerabilities;
+module.exports = doSearch;
