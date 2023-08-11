@@ -12,39 +12,46 @@ For more information please see www.FireEye.com/intel
 |---|--|--|
 |*Hash Result* | *IP Result* | *CVE Result*|
 
-## Mandiant Threat Intelligence Options
+
+
+## Mandiant Threat Intelligence Integration Options
+
+### API Query Version
+Which Version of the API(s) to query: V3, V4, or both.
 
 ### Mandiant Threat Intelligence REST URL
+The URL for the Mandiant Threat Intelligence V3 API.  Defaults to `https://api.intelligence.fireeye.com`.
 
-The URL for the Mandiant Threat Intelligence API. Defaults to `https://api.intelligence.fireeye.com`.
+### V3 Public Key
+Your Mandiant Threat Intelligence V3 API public key
 
-### Mandiant Threat Intelligence Public Key
+### V3 Private Key
+Your Mandiant Threat Intelligence V3 API private key.
 
-Your Mandiant Threat Intelligence API public key
+### Mandiant Threat Intelligence REST URL
+The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`.
 
-### Mandiant Threat Intelligence Private Key
+### V4 Public Key
+Your Mandiant Threat Intelligence V4 API public key
 
-Your Mandiant Threat Intelligence API private key.
+### V4 Private Key
+Your Mandiant Threat Intelligence V4 API private key.
 
 ### Minimum MScore to Display
-
-The minimum MScore (0-100) required for indicators to be displayed [default is 51]. Indicators with a MScore above 50 are considered suspicious and/or malicious.
+The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 50 are considered suspicious and/or malicious.
 
 ### Ignored Entities
-
 Comma separated list of entities that you never want looked up. Should be set to "Only admins can view and edit".
 
 ### Ignored Domains Regex
-
-Domains that match the given regex will not be looked up (if blank, no domains will be black listed). Should be set to "Only admins can view and edit".
+Domains that match the given regex will not be looked up (if blank, no domains will be black listed).  Should be set to "Only admins can view and edit".
 
 ### Max Concurrent Requests
-
-Maximum number of concurrent requests. Integration must be restarted after changing this option. Defaults to 20.
+Maximum number of concurrent requests.  Integration must be restarted after changing this option. Defaults to 20.
 
 ### Minimum Time Between Lookups
-
 Minimum amount of time in milliseconds between lookups. Integration must be restarted after changing this option. Defaults to 100.
+
 
 ## Polarity
 
