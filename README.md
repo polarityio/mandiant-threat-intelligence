@@ -19,7 +19,7 @@ For more information please see www.FireEye.com/intel
 ### API Query Version
 Which Version of the API(s) to query: V3, V4, or both.
 
-### Mandiant Threat Intelligence REST URL
+### Mandiant V3 URL
 The URL for the Mandiant Threat Intelligence V3 API.  Defaults to `https://api.intelligence.fireeye.com`.
 
 ### V3 Public Key
@@ -28,7 +28,7 @@ Your Mandiant Threat Intelligence V3 API public key
 ### V3 Private Key
 Your Mandiant Threat Intelligence V3 API private key.
 
-### Mandiant Threat Intelligence REST URL
+### Mandiant V4 URL
 The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`.
 
 ### V4 Public Key

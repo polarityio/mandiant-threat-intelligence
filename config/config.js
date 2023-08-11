@@ -28,7 +28,7 @@ module.exports = {
   customTypes: [
     {
       key: 'allText',
-      regex: /^[\s\S]{3,30}$/
+      regex: /\S[\s\S]{3,30}\S/
     }
   ],
   /**
@@ -114,7 +114,7 @@ module.exports = {
     },
     {
       key: 'urlV3',
-      name: 'Mandiant Threat Intelligence REST URL',
+      name: 'Mandiant V3 URL',
       description:
         'The URL for the Mandiant Threat Intelligence V3 API.  Defaults to `https://api.intelligence.fireeye.com`.',
       default: 'https://api.intelligence.fireeye.com',
@@ -144,7 +144,7 @@ module.exports = {
 
     {
       key: 'urlV4',
-      name: 'Mandiant Threat Intelligence REST URL',
+      name: 'Mandiant V4 URL',
       description:
         'The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`.',
       default: 'https://api.intelligence.mandiant.com',
