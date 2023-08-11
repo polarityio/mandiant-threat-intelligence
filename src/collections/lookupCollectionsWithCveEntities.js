@@ -3,6 +3,7 @@ const { map, get } = require('lodash/fp');
 const getResultObjectDataFields = require('./getResultObjectDataFields');
 const searchCollections = require('./searchCollections');
 const { getLimiter } = require('../request');
+const { getLogger } = require('../logging');
 
 
 const lookupCollectionsWithCveEntities = async (cveEntities, options) => {
