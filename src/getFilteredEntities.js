@@ -1,3 +1,4 @@
+const { size } = require('lodash/fp');
 const { getLogger } = require('./logging');
 
 /**
@@ -39,9 +40,9 @@ function getFilteredEntities(entities, options) {
         entity: entityObj,
         data: null
       });
-    } else if (entityObj.type.includes('custom')) {
+    } else if (entityObj.type.includes('custom') && size(entityObj.types) === 1) {
       customEntities.push(entityObj);
-    } else if (entityObj.type === 'cve') {
+    } else if (entityObj.types.includes('cve')) {
       cveEntities.push(entityObj);
     } else {
       filteredEntities.push(entityObj);

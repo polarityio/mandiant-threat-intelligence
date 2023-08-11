@@ -6,34 +6,32 @@ const { validateOptions } = require('./src/userOptions');
 const getFilteredEntities = require('./src/getFilteredEntities');
 const lookupNonCveEntities = require('./src/lookupNonCveEntities');
 const lookupCveEntities = require('./src/lookupCveEntities');
-const { lookupWithSearch } = require('./src/search');
-const { mergeLookupResults } = require('./src/dataTransformations');
+const lookupEntities = require('./src/lookupEntities');
 
 async function doLookup(entities, options, cb) {
+  const Logger = getLogger();
+  Logger.trace({ entities, options }, 'Lookup Entities & Options')
+  
   try {
-    let { lookupResults, filteredEntities, cveEntities, customEntities } = getFilteredEntities(
-      entities,
-      options
-    );
+    let { lookupResults, filteredEntities, cveEntities, customEntities } =
+      getFilteredEntities(entities, options);
 
     const indicatorLookupResults = await lookupNonCveEntities(filteredEntities, options);
 
     const cveLookupResults = await lookupCveEntities(cveEntities, options);
 
-    const searchLookupResults = await lookupWithSearch(
+    const allSearchLookupResults = await lookupEntities(
       filteredEntities,
       cveEntities,
       customEntities,
+      indicatorLookupResults,
+      cveLookupResults,
       options
     );
 
-    const searchAndOtherLookupResults = mergeLookupResults(
-      filteredEntities.concat(cveEntities).concat(customEntities),
-      searchLookupResults,
-      indicatorLookupResults.concat(cveLookupResults)
-    );
+    Logger.trace({ lookupResults, allSearchLookupResults }, 'Lookup Results');
 
-    cb(null, lookupResults.concat(searchAndOtherLookupResults));
+    cb(null, lookupResults.concat(allSearchLookupResults));
   } catch (lookupError) {
     const error = {
       ...lookupError,
@@ -43,7 +41,7 @@ async function doLookup(entities, options, cb) {
       )
     };
 
-    getLogger().error(error, 'doLookup Error');
+    Logger.error(error, 'doLookup Error');
     cb(error);
   }
 }

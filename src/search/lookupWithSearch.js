@@ -41,7 +41,9 @@ const associateEntitiesWithSearchResults = (entity, searchResults) => ({
   data: !size(searchResults)
     ? null
     : {
-        summary: [`Search: ${size(searchResults)}`],
+        summary: [
+          `Search: ${size(searchResults)}${size(searchResults) === 10 ? '+' : ''}`
+        ],
         details: { searchResults }
       }
 });
