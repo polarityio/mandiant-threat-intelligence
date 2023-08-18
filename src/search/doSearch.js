@@ -1,4 +1,4 @@
-const { map, get, size } = require('lodash/fp');
+const { get, size } = require('lodash/fp');
 const { getLogger } = require('../logging');
 
 const { authenticatedRequest } = require('../request');
@@ -28,7 +28,6 @@ const doSearch = async (entity, options) =>
         'Content-Type': 'application/json'
       }
     };
-
 
     authenticatedRequest(options, requestOptions, function (err, response, body) {
       if (err) {

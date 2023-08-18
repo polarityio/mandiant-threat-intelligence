@@ -4,7 +4,6 @@ const searchBulkIndicators = require('./searchBulkIndicators');
 const getChunkQuery = require('./getChunkQuery');
 const getSummaryTags = require('./getSummaryTags');
 const { getLimiter } = require('../request');
-const { getLogger } = require('../logging');
 
 const MAX_ENTITIES_PER_LOOKUP = 100;
 

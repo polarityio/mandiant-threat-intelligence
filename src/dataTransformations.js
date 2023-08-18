@@ -16,7 +16,6 @@ const {
   get,
   join,
   split,
-  groupBy,
   find,
   getOr
 } = require('lodash/fp');

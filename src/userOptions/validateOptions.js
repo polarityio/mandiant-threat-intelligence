@@ -1,5 +1,4 @@
 const { size } = require('lodash/fp');
-const { getLogger } = require('../logging');
 const { validateStringOptions } = require('./utils');
 
 const apiQueryVersionByRequiredFields = {
