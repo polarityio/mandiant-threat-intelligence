@@ -30,7 +30,7 @@ const authenticatedRequest = (options, requestOptions, cb, requestCounter = 0) =
       headers: {
         ...requestOptions.headers,
         Authorization: `Basic ${encodeBase64(
-          options.publicKeyV4 + ':' + options.privateKeyV4
+          options.publicKey + ':' + options.privateKey
         )}`
       }
     };
@@ -47,15 +47,13 @@ const authenticatedRequest = (options, requestOptions, cb, requestCounter = 0) =
       if (resp.statusCode === 403) {
         // Unable to authenticate so we attempt to get a new token
         Logger.trace('Invalidating Token');
-        tokenCache.del(options.publicKeyV3 + options.privateKeyV3);
+        tokenCache.del(options.publicKey + options.privateKey);
         authenticatedRequest(options, requestOptions, cb, ++requestCounter);
         return;
       }
 
       let restError = handleRestErrors(resp, body);
-      if (restError) {
-        return cb(restError);
-      }
+      if (restError) return cb(restError);
 
       cb(null, resp, body);
     });
@@ -90,7 +88,7 @@ const authenticatedRequest = (options, requestOptions, cb, requestCounter = 0) =
         if (resp.statusCode === 403) {
           // Unable to authenticate so we attempt to get a new token
           Logger.trace('Invalidating Token');
-          tokenCache.del(options.publicKeyV3 + options.privateKeyV3);
+          tokenCache.del(options.publicKey + options.privateKey);
           authenticatedRequest(options, requestOptions, cb, ++requestCounter);
           return;
         }

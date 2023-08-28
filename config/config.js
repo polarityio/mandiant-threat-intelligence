@@ -86,33 +86,6 @@ module.exports = {
    */
   options: [
     {
-      key: 'apiQueryVersion',
-      name: 'API Query Version',
-      description: 'Which Version of the API(s) to query: V3, V4, or both.',
-      default: {
-        value: 'v3',
-        display: 'V3'
-      },
-      type: 'select',
-      options: [
-        {
-          value: 'v3',
-          display: 'V3'
-        },
-        {
-          value: 'v4',
-          display: 'V4'
-        },
-        {
-          value: 'v3v4',
-          display: 'V3 & V4'
-        }
-      ],
-      multiple: false,
-      userCanEdit: true,
-      adminOnly: false
-    },
-    {
       key: 'urlV3',
       name: 'Mandiant V3 URL',
       description:
@@ -122,26 +95,6 @@ module.exports = {
       userCanEdit: false,
       adminOnly: true
     },
-
-    {
-      key: 'publicKeyV3',
-      name: 'V3 Public Key',
-      description: 'Your Mandiant Threat Intelligence V3 API public key',
-      default: '',
-      type: 'text',
-      userCanEdit: false,
-      adminOnly: true
-    },
-    {
-      key: 'privateKeyV3',
-      name: 'V3 Private Key',
-      description: 'Your Mandiant Threat Intelligence V3 API private key.',
-      default: '',
-      type: 'password',
-      userCanEdit: false,
-      adminOnly: true
-    },
-
     {
       key: 'urlV4',
       name: 'Mandiant V4 URL',
@@ -153,18 +106,18 @@ module.exports = {
       adminOnly: true
     },
     {
-      key: 'publicKeyV4',
-      name: 'V4 Public Key',
-      description: 'Your Mandiant Threat Intelligence V4 API public key',
+      key: 'publicKey',
+      name: 'Public Key',
+      description: 'Your Mandiant Threat Intelligence API public key',
       default: '',
       type: 'text',
       userCanEdit: false,
       adminOnly: true
     },
     {
-      key: 'privateKeyV4',
-      name: 'V4 Private Key',
-      description: 'Your Mandiant Threat Intelligence V4 API private key.',
+      key: 'privateKey',
+      name: 'Private Key',
+      description: 'Your Mandiant Threat Intelligence API private key.',
       default: '',
       type: 'password',
       userCanEdit: false,
@@ -174,8 +127,8 @@ module.exports = {
       key: 'minimumMScore',
       name: 'Minimum MScore to Display',
       description:
-        'The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 50 are considered suspicious and/or malicious.',
-      default: 51,
+        'The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 80 are considered malicious.',
+      default: 80,
       type: 'number',
       userCanEdit: false,
       adminOnly: false

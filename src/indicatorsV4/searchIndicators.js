@@ -20,6 +20,8 @@ const searchIndicators = async (entityChunk, options) =>
       method: 'POST',
       url: `${options.urlV4}/v4/indicator`,
       body: {
+        include_reports: true,
+        include_campaigns: true,
         requests: [{ values: map(get('value'), entityChunk) }]
       },
       headers: {

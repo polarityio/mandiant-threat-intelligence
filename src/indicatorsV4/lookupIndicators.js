@@ -51,15 +51,11 @@ const associateEntitiesWithIndicators = (entities, indicators, options) =>
       data: !size(indicatorV4)
         ? null
         : {
-            summary: [
-              options.apiQueryVersion.value.includes('v3')
-                ? 'V4 Ind Found'
-                : 'Indicator Found'
-            ],
+            summary: ['Indicator Found'],
             details: { indicatorV4 }
           }
     };
-    
+
     return entityWithIndicator;
   }, entities);
 

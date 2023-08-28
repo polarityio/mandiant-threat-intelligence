@@ -18,7 +18,8 @@ const {
   split,
   groupBy,
   find,
-  getOr
+  getOr,
+  uniq
 } = require('lodash/fp');
 
 /** JSON Transformations */
@@ -124,11 +125,11 @@ const mergeLookupResults = (entities, ...resultsWithEntities) =>
       ? {
           entity,
           data: {
-            summary: reduce(
+            summary: uniq(reduce(
               (agg, result) => [...agg, ...getOr([], 'data.summary', result)],
               [],
               resultsForThisEntity
-            ),
+            )),
 
             details: reduce(
               (agg, result) => ({ ...agg, ...getOr({}, 'data.details', result) }),

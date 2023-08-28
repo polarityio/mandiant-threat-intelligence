@@ -19,8 +19,8 @@ function createToken(options, tokenCache, cb) {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       auth: {
-        username: options.publicKeyV3,
-        password: options.privateKeyV3
+        username: options.publicKey,
+        password: options.privateKey
       },
       json: true
     };
@@ -41,7 +41,7 @@ function createToken(options, tokenCache, cb) {
       }
       const token = body.access_token;
       Logger.trace({ token: token }, 'Set Token for Auth');
-      tokenCache.set(options.publicKeyV3 + options.privateKeyV3, token);
+      tokenCache.set(options.publicKey + options.privateKey, token);
 
       cb(null, token);
     });

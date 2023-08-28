@@ -671,6 +671,126 @@
             </div>
           {{/if}}
 
+          {{#if indicatorV4.reports}}
+            <div class="indicator-reports">
+              {{#if (get expandableTitleStates (concat "indicatorReports" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "indicatorReports" 0)}}
+                >
+                  <span class="text">Reports</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 indicator-reports-content">
+                  {{#each indicatorV4.reports as |report|}}
+                    <div class="mb-2 indicator-report">
+                      {{#if report.title}}
+                        <div>
+                          <span class="p-key">Title:</span>
+                          <span class="p-value">{{report.title}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if report.published_date}}
+                        <div>
+                          <span class="p-key">Published Date:</span>
+                          <span class="p-value">{{moment-format
+                              report.published_date
+                              "MM/DD/YYYY HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if report.type}}
+                        <div>
+                          <span class="p-key">Type:</span>
+                          <span class="p-value">{{report.type}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if report.report_id}}
+                        <div class="p-link">
+                          <a
+                            href="https://advantage.mandiant.com/reports/{{report.report_id}}"
+                          >
+                            View Report in Mandiant
+                            {{fa-icon
+                              icon="external-link-square"
+                              class="external-link-icon"
+                            }}
+                          </a>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "indicatorReports" 0)}}
+                >
+                  <span class="text">Reports</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+
+          {{#if indicatorV4.campaigns}}
+            <div class="indicator-campaigns">
+              {{#if (get expandableTitleStates (concat "indicatorCampaigns" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "indicatorCampaigns" 0)}}
+                >
+                  <span class="text">Campaigns</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 indicator-campaigns-content">
+                  {{#each indicatorV4.campaigns as |campaign|}}
+                    <div class="mb-2 indicator-report">
+                      {{#if campaign.title}}
+                        <div>
+                          <span class="p-key">Title:</span>
+                          <span class="p-value">{{campaign.title}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if campaign.name}}
+                        <div>
+                          <span class="p-key">Name:</span>
+                          <span class="p-value">{{campaign.name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if campaign.id}}
+                        <div class="p-link">
+                          <a
+                            href="https://advantage.mandiant.com/campaigns/{{campaign.id}}"
+                          >
+                            View Campaign in Mandiant
+                            {{fa-icon
+                              icon="external-link-square"
+                              class="external-link-icon"
+                            }}
+                          </a>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "indicatorCampaigns" 0)}}
+                >
+                  <span class="text">Campaigns</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+
           {{#if indicatorV4.sources}}
             <div class="sources">
               {{#if (get expandableTitleStates (concat "sources" 0))}}
@@ -859,7 +979,9 @@
               {{vulnerability.cve_id}}
             </h1>
             <div class="p-link">
-              <a href="https://advantage.mandiant.com/vulnerabilities/{{vulnerability.id}}">
+              <a
+                href="https://advantage.mandiant.com/vulnerabilities/{{vulnerability.id}}"
+              >
                 View in Mandiant
                 {{fa-icon icon="external-link-square" class="external-link-icon"}}
               </a>

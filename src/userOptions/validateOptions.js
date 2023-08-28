@@ -1,48 +1,17 @@
-const { size } = require('lodash/fp');
-const { getLogger } = require('../logging');
 const { validateStringOptions } = require('./utils');
 
-const apiQueryVersionByRequiredFields = {
-  v3: {
-    urlV3: '* Required',
-    publicKeyV3: '* Required',
-    privateKeyV3: '* Required'
-  },
-  v4: {
-    urlV4: '* Required',
-    publicKeyV4: '* Required',
-    privateKeyV4: '* Required'
-  },
-  v3v4: {
-    urlV3: '* Required',
-    publicKeyV3: '* Required',
-    privateKeyV3: '* Required',
-    urlV4: '* Required',
-    publicKeyV4: '* Required',
-    privateKeyV4: '* Required'
-  }
-};
-
-const apiQueryVersionError = {
-  v3: 'With V3 API selected here, V3 Public & Private Key must be set.',
-  v4: 'With V4 API selected here, V4 Public & Private Key must be set.',
-  v3v4: 'With V3 & V4 API selected here, V3 & V4 Public & Private Key must be set.'
-};
-
 const validateOptions = (options, callback) => {
-  const stringOptionsErrorMessages =
-    apiQueryVersionByRequiredFields[options.apiQueryVersion.value.value];
+  const stringOptionsErrorMessages = {
+    urlV3: '* Required',
+    urlV4: '* Required',
+    publicKey: '* Required',
+    privateKey: '* Required'
+  };
 
   const stringValidationErrors = validateStringOptions(
     stringOptionsErrorMessages,
     options
   );
-
-  if (size(stringValidationErrors))
-    stringValidationErrors.push({
-      key: 'apiQueryVersion',
-      message: apiQueryVersionError[options.apiQueryVersion.value.value]
-    });
 
   const minScoreError =
     options.minimumMScore.value < 0 || options.minimumMScore.value > 100

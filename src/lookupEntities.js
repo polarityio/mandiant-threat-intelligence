@@ -9,9 +9,12 @@ const lookupEntities = async (
   cveLookupResults,
   options
 ) => {
-  const searchLookupResults = options.apiQueryVersion.value.includes('v4')
-    ? await lookupWithSearch(filteredEntities, cveEntities, customEntities, options)
-    : [];
+  const searchLookupResults = await lookupWithSearch(
+    filteredEntities,
+    cveEntities,
+    customEntities,
+    options
+  );
 
   const searchAndOtherLookupResults = mergeLookupResults(
     filteredEntities.concat(cveEntities).concat(customEntities),
