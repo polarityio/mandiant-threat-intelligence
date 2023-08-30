@@ -24,7 +24,7 @@ module.exports = {
    */
   description:
     'Provides automated access to indicators of compromise (IOCs), CVE information, as well as information on the adversary from the Mandiant Threat Intelligence API.',
-  entityTypes: ['IPv4', 'domain', 'email', 'hash', 'cve'],
+  entityTypes: ['IPv4', 'domain', 'email', 'hash', 'cve', 'url'],
   customTypes: [
     {
       key: 'allText',

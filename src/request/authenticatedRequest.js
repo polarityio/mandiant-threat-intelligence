@@ -53,7 +53,7 @@ const authenticatedRequest = (options, requestOptions, cb, requestCounter = 0) =
       }
 
       let restError = handleRestErrors(resp, body);
-      if (restError) return cb(restError);
+      if (restError) return cb(restError, resp, body);
 
       cb(null, resp, body);
     });

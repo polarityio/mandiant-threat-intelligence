@@ -1,4 +1,4 @@
-const { get, size } = require('lodash/fp');
+const { get, size, map } = require('lodash/fp');
 const { getLogger } = require('../logging');
 
 const { authenticatedRequest } = require('../request');
@@ -39,7 +39,15 @@ const doSearch = async (entity, options) =>
       const searchResults = get('objects', body);
       if (!size(searchResults)) return resolve([]);
 
-      resolve(searchResults);
+      resolve(
+        map(
+          (searchResult) => ({
+            ...searchResult,
+            audience: map(JSON.stringify, searchResult.audience)
+          }),
+          searchResults
+        )
+      );
     });
   });
 

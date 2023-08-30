@@ -107,7 +107,7 @@ function createQuery(entityObj, options) {
     ];
   }
 
-  if (entityObj.isDomain) {
+  if (entityObj.isDomain || entityObj.isURL || entityObj.type === 'custom') {
     let query = `value = '${entityObj.value}'`;
     if (!entityObj.value.startsWith('www')) {
       query += ` OR value = 'www.${entityObj.value}'`;

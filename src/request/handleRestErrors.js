@@ -17,9 +17,16 @@ function handleRestErrors(response, body) {
         }
       );
     case 400:
-      return _createJsonErrorPayload('Bad Request -- Your request is invalid.', null, '400', '2', 'Bad Request', {
-        body: body
-      });
+      return _createJsonErrorPayload(
+        'Bad Request -- Your request is invalid.',
+        null,
+        '400',
+        '2',
+        'Bad Request',
+        {
+          body: body
+        }
+      );
     case 401:
       return _createJsonErrorPayload(
         'Unauthorized -- Your account is expired or the dates are wrong.',

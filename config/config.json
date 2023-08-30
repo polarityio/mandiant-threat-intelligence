@@ -3,69 +3,24 @@
   "name": "Mandiant Threat Intelligence",
   "acronym": "MTI",
   "description": "Provides automated access to indicators of compromise (IOCs), CVE information, as well as information on the adversary from the Mandiant Threat Intelligence API.",
-  "entityTypes": ["IPv4", "domain", "email", "hash", "cve"],
+  "entityTypes": ["IPv4", "domain", "email", "hash", "cve", "url"],
   "customTypes": [{ "key": "allText", "regex": "\\S[\\s\\S]{2,2048}\\S" }],
   "styles": ["./styles/styles.less"],
   "block": {
-    "component": {
-      "file": "./components/block.js"
-    },
-    "template": {
-      "file": "./templates/block.hbs"
-    }
+    "component": { "file": "./components/block.js" },
+    "template": { "file": "./templates/block.hbs" }
   },
   "defaultColor": "dark-pink",
-  "request": {
-    "cert": "",
-    "key": "",
-    "passphrase": "",
-    "ca": "",
-    "proxy": ""
-  },
-  "logging": {
-    "level": "info"
-  },
+  "request": { "cert": "", "key": "", "passphrase": "", "ca": "", "proxy": "" },
+  "logging": { "level": "info" },
   "onDemandOnly": false,
   "options": [
-    {
-      "key": "apiQueryVersion",
-      "name": "API Query Version",
-      "description": "Which Version of the API(s) to query: V3, V4, or both.",
-      "default": { "value": "v3", "display": "V3" },
-      "type": "select",
-      "options": [
-        { "value": "v3", "display": "V3" },
-        { "value": "v4", "display": "V4" },
-        { "value": "v3v4", "display": "V3 & V4" }
-      ],
-      "multiple": false,
-      "userCanEdit": true,
-      "adminOnly": false
-    },
     {
       "key": "urlV3",
       "name": "Mandiant V3 URL",
       "description": "The URL for the Mandiant Threat Intelligence V3 API.  Defaults to `https://api.intelligence.fireeye.com`.",
       "default": "https://api.intelligence.fireeye.com",
       "type": "text",
-      "userCanEdit": false,
-      "adminOnly": true
-    },
-    {
-      "key": "publicKeyV3",
-      "name": "V3 Public Key",
-      "description": "Your Mandiant Threat Intelligence V3 API public key",
-      "default": "",
-      "type": "text",
-      "userCanEdit": false,
-      "adminOnly": true
-    },
-    {
-      "key": "privateKeyV3",
-      "name": "V3 Private Key",
-      "description": "Your Mandiant Threat Intelligence V3 API private key.",
-      "default": "",
-      "type": "password",
       "userCanEdit": false,
       "adminOnly": true
     },
@@ -79,18 +34,18 @@
       "adminOnly": true
     },
     {
-      "key": "publicKeyV4",
-      "name": "V4 Public Key",
-      "description": "Your Mandiant Threat Intelligence V4 API public key",
+      "key": "publicKey",
+      "name": "Public Key",
+      "description": "Your Mandiant Threat Intelligence API public key",
       "default": "",
       "type": "text",
       "userCanEdit": false,
       "adminOnly": true
     },
     {
-      "key": "privateKeyV4",
-      "name": "V4 Private Key",
-      "description": "Your Mandiant Threat Intelligence V4 API private key.",
+      "key": "privateKey",
+      "name": "Private Key",
+      "description": "Your Mandiant Threat Intelligence API private key.",
       "default": "",
       "type": "password",
       "userCanEdit": false,
@@ -99,8 +54,8 @@
     {
       "key": "minimumMScore",
       "name": "Minimum MScore to Display",
-      "description": "The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 50 are considered suspicious and/or malicious.",
-      "default": 51,
+      "description": "The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 80 are considered malicious.",
+      "default": 80,
       "type": "number",
       "userCanEdit": false,
       "adminOnly": false
