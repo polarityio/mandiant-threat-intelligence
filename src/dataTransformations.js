@@ -120,22 +120,28 @@ const mergeLookupResults = (entities, ...resultsWithEntities) =>
 
     const [result1ForThisEntity, result2ForThisEntity] = resultsForThisEntity;
 
+    const summary = uniq(
+      reduce(
+        (agg, result) => [...agg, ...getOr([], 'data.summary', result)],
+        [],
+        resultsForThisEntity
+      )
+    );
+    const details = reduce(
+      (agg, result) => ({ ...agg, ...getOr({}, 'data.details', result) }),
+      {},
+      resultsForThisEntity
+    );
     return result1ForThisEntity && result2ForThisEntity
       ? {
           entity,
-          data: {
-            summary: uniq(reduce(
-              (agg, result) => [...agg, ...getOr([], 'data.summary', result)],
-              [],
-              resultsForThisEntity
-            )),
-
-            details: reduce(
-              (agg, result) => ({ ...agg, ...getOr({}, 'data.details', result) }),
-              {},
-              resultsForThisEntity
-            )
-          },
+          data:
+            isEmpty(summary) && isEmpty(details)
+              ? null
+              : {
+                  summary,
+                  details
+                },
           ...reduce(
             (agg, result) => ({ ...agg, ...omit('data', result) }),
             {},

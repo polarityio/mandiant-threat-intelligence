@@ -13,6 +13,7 @@ polarity.export = PolarityComponent.extend({
     collections: 'Collections',
     indicatorV4: 'Indicator',
     vulnerabilities: 'Vulnerabilities',
+    threatActorResults: 'Threat Actors',
     searchResults: 'Search Results'
   },
   expandableTitleStates: Ember.computed.alias('block._state.expandableTitleStates'),
@@ -27,6 +28,8 @@ polarity.export = PolarityComponent.extend({
         ? 'collections'
         : details.indicatorV4
         ? 'indicatorV4'
+        : details.threatActorResults
+        ? 'threatActorResults'
         : details.vulnerabilities && details.vulnerabilities.length
         ? 'vulnerabilities'
         : 'searchResults'

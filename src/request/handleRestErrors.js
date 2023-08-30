@@ -3,6 +3,8 @@ function handleRestErrors(response, body) {
     case 200:
     case 204: //no content (i.e., a miss)
       return;
+    case 404: //no content (i.e., a miss)
+      return;
     case 403:
       return _createJsonErrorPayload(
         'Forbidden -- User is not authorized to access this resource with an explicit deny.',

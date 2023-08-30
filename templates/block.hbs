@@ -69,6 +69,17 @@
             </a>
           </li>
         {{/if}}
+        {{#if details.threatActorResults}}
+          <li class="nav-item">
+            <a
+              {{action "changeTab" "threatActorResults"}}
+              class="nav-link {{if (eq activeTab 'threatActorResults') 'active'}}"
+              href="#"
+            >
+              {{get displayTabNames "threatActorResults"}}
+            </a>
+          </li>
+        {{/if}}
         {{#if details.searchResults.length}}
           <li class="nav-item">
             <a
@@ -2103,6 +2114,655 @@
       </div>
     {{/if}}
 
+    {{#if (eq activeTab "threatActorResults")}}
+      <div class="threat-actor-results">
+        {{#with details.threatActorResults as |threatActorResults|}}
+          <div class="p-link">
+            <a href="https://advantage.mandiant.com/actors/{{threatActorResults.id}}">
+              View in Mandiant
+              {{fa-icon icon="external-link-square" class="external-link-icon"}}
+            </a>
+          </div>
+          {{#if threatActorResults.name}}
+            <div>
+              <span class="p-key">Name:</span>
+              <span class="p-value">{{threatActorResults.name}}</span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.description}}
+            <div>
+              <span class="p-key">Description:</span>
+              <span class="p-value">{{threatActorResults.description}}</span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.type}}
+            <div>
+              <span class="p-key">Type:</span>
+              <span class="p-value">{{threatActorResults.type}}</span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.last_activity_time}}
+            <div>
+              <span class="p-key">Last Activity Time:</span>
+              <span class="p-value">{{moment-format
+                  threatActorResults.last_activity_time
+                  "MM/DD/YYYY HH:mm:ss z"
+                  timeZone=timezone
+                }}</span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.last_updated}}
+            <div>
+              <span class="p-key">Last Updated:</span>
+              <span class="p-value">{{moment-format
+                  threatActorResults.last_updated
+                  "MM/DD/YYYY HH:mm:ss z"
+                  timeZone=timezone
+                }}</span>
+            </div>
+          {{/if}}
+          {{#if
+            (or
+              (eq threatActorResults.is_publishable true)
+              (eq threatActorResults.is_publishable false)
+            )
+          }}
+            <div>
+              <span class="p-key">Is Publishable:</span>
+              <span class="p-value">{{threatActorResults.is_publishable}}</span>
+            </div>
+          {{/if}}
+          {{#if
+            (or
+              (eq threatActorResults.intel_free true)
+              (eq threatActorResults.intel_free false)
+            )
+          }}
+            <div>
+              <span class="p-key">Intel Free:</span>
+              <span class="p-value">{{threatActorResults.intel_free}}</span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.audience.length}}
+            <div>
+              <span class="p-key">Audiences:</span>
+              <span class="p-value">
+                {{#each threatActorResults.audience as |audience index|}}
+                  {{audience.name}}
+                  ({{audience.license}}){{#if
+                    (not (eq (sub hreatActorResults.audience.length 1) index))
+                  }}, {{/if}}
+                {{/each}}
+              </span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.tools.length}}
+            <div>
+              <span class="p-key">Tools:</span>
+              <span class="p-value">
+                {{#each threatActorResults.tools as |tool index|}}
+                  {{tool.name}}{{#if
+                    (not (eq (sub threatActorResults.tools.length 1) index))
+                  }}, {{/if}}
+                {{/each}}
+              </span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.motivations.length}}
+            <div>
+              <span class="p-key">Motivations:</span>
+              <span class="p-value">
+                {{#each threatActorResults.motivations as |motivation index|}}
+                  {{motivation.name}}{{#if
+                    (not (eq (sub threatActorResults.motivations.length 1) index))
+                  }}, {{/if}}
+                {{/each}}
+              </span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.cve.length}}
+            <div>
+              <span class="p-key">CVEs:</span>
+              <span class="p-value">
+                {{#each threatActorResults.cve as |cve index|}}
+                  {{cve.cve_id}}{{#if
+                    (not (eq (sub threatActorResults.cve.length 1) index))
+                  }}, {{/if}}
+                {{/each}}
+              </span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.associated_uncs.length}}
+            <div>
+              <span class="p-key">Associated UNCs:</span>
+              <span class="p-value">
+                {{#each threatActorResults.associated_uncs as |associated_unc index|}}
+                  {{associated_unc.name}}{{#if
+                    (not (eq (sub threatActorResults.associated_uncs.length 1) index))
+                  }}, {{/if}}
+                {{/each}}
+              </span>
+            </div>
+          {{/if}}
+
+          {{#if threatActorResults.counts}}
+            <div class="threat-actor-counts">
+              {{#if (get expandableTitleStates (concat "threatActorCounts" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorCounts" 0)}}
+                >
+                  <span class="text">Count</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-counts-content">
+                  {{#each-in threatActorResults.counts as |countKey countValue|}}
+                    <div>
+                      <span class="p-key">{{titleize (humanize (dasherize countKey))}}:</span>
+                      <span class="p-value">{{countValue}}</span>
+                    </div>
+                  {{/each-in}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorCounts" 0)}}
+                >
+                  <span class="text">Count</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#if threatActorResults.suspected_attribution}}
+            <div class="threat-actor-suspected-attribution">
+              {{#if
+                (get expandableTitleStates (concat "threatActorSuspectedAttribution" 0))
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorSuspectedAttribution" 0)
+                  }}
+                >
+                  <span class="text">Suspected Attributions</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-suspected-attribution-content">
+                  {{#each threatActorResults.suspected_attribution as |suspectedAttribution|}}
+                    <div class="mb-2">
+                      {{#if suspectedAttribution.name}}
+                        <div>
+                          <span class="p-key">Name: </span>
+                          <span class="p-value">{{suspectedAttribution.name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if suspectedAttribution.suspected_date}}
+                        <div>
+                          <span class="p-key">Suspected Date: </span>
+                          <span class="p-value">{{moment-format
+                              suspectedAttribution.suspected_date
+                              "YYYY-MM-DD HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorSuspectedAttribution" 0)
+                  }}
+                >
+                  <span class="text">Suspected Attributions</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#if threatActorResults.aliases}}
+            <div class="threat-actor-aliases">
+              {{#if
+                (get expandableTitleStates (concat "threatActorAliases" 0))
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorAliases" 0)
+                  }}
+                >
+                  <span class="text">Aliases</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-aliases-content">
+                  {{#each threatActorResults.aliases as |alias|}}
+                    <div class="mb-2">
+                      {{#if alias.name}}
+                        <div>
+                          <span class="p-key">Name: </span>
+                          <span class="p-value">{{alias.name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if alias.alias}}
+                        <div>
+                          <span class="p-key">Alias: </span>
+                          <span class="p-value">{{alias.alias}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if alias.company}}
+                        <div>
+                          <span class="p-key">Company: </span>
+                          <span class="p-value">{{alias.company}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if alias.attribution_scope}}
+                        <div>
+                          <span class="p-key">Attribution Scope: </span>
+                          <span class="p-value">{{titleize alias.attribution_scope}}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorAliases" 0)
+                  }}
+                >
+                  <span class="text">Aliases</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#if threatActorResults.observed}}
+            <div class="threat-actor-observations">
+              {{#if (get expandableTitleStates (concat "threatActorObservations" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorObservations" 0)
+                  }}
+                >
+                  <span class="text">Observation Dates</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-observations-content">
+                  {{#each threatActorResults.observed as |observationDate|}}
+                    <div class="mb-2">
+                      {{#if observationDate.earliest}}
+                        <div>
+                          <span class="p-key">Earliest: </span>
+                          <span class="p-value">{{moment-format
+                              observationDate.earliest
+                              "YYYY-MM-DD HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if observationDate.recent}}
+                        <div>
+                          <span class="p-key">Most Recent: </span>
+                          <span class="p-value">{{moment-format
+                              observationDate.recent
+                              "YYYY-MM-DD HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if observationDate.attribution_scope}}
+                        <div>
+                          <span class="p-key">Attribution Scope:</span>
+                          <span class="p-value">{{titleize
+                              observationDate.attribution_scope
+                            }}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorObservations" 0)
+                  }}
+                >
+                  <span class="text">Observation Dates</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#if threatActorResults.locations}}
+            <div class="threat-actor-location">
+              {{#if (get expandableTitleStates (concat "threatActorLocations" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorLocations" 0)}}
+                >
+                  <span class="text">Locations</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-location-source-content">
+                  {{#if threatActorResults.locations.target_region.length}}
+                    <div>
+                      <span class="p-key">Target Regions:</span>
+                      <span class="p-value">
+                        {{#each
+                          threatActorResults.locations.target_region
+                          as |targetRegion index|
+                        }}
+                          {{targetRegion.name}}{{#if
+                            (not
+                              (eq
+                                (sub threatActorResults.locations.target_region.length 1)
+                                index
+                              )
+                            )
+                          }}, {{/if}}
+                        {{/each}}
+                      </span>
+                    </div>
+                  {{/if}}
+                  {{#if threatActorResults.locations.target_sub_region.length}}
+                    <div>
+                      <span class="p-key">Target Sub Regions:</span>
+                      <span class="p-value">
+                        {{#each
+                          threatActorResults.locations.target_sub_region
+                          as |targetRegion index|
+                        }}
+                          {{targetRegion.name}}
+                          ({{targetRegion.region}}){{#if
+                            (not
+                              (eq
+                                (sub threatActorResults.locations.target_sub_region.length 1)
+                                index
+                              )
+                            )
+                          }}, {{/if}}
+                        {{/each}}
+                      </span>
+                    </div>
+                  {{/if}}
+                  {{#if threatActorResults.locations.source}}
+                    <div class="threat-actor-location-source">
+                      {{#if
+                        (get
+                          expandableTitleStates (concat "threatActorLocationSources" 0)
+                        )
+                      }}
+                        <a
+                          href="#"
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle" "threatActorLocationSources" 0
+                            )
+                          }}
+                        >
+                          <span class="text">Sources</span>
+                          {{fa-icon "angle-up"}}
+                        </a>
+                        <div class="ml-2 threat-actor-location-source-content">
+                          {{#each
+                            threatActorResults.locations.source
+                            as |locationSource|
+                          }}
+                            <div class="mb-2">
+                              {{#if locationSource.region.name}}
+                                <div>
+                                  <span class="p-key">Region Name:</span>
+                                  <span class="p-value">{{titleize
+                                      locationSource.region.name
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationSource.region.attribution_scope}}
+                                <div>
+                                  <span class="p-key">Region Attribution Scope:</span>
+                                  <span class="p-value">{{titleize
+                                      locationSource.region.attribution_scope
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationSource.country.name}}
+                                <div>
+                                  <span class="p-key">Country Name:</span>
+                                  <span class="p-value">{{titleize
+                                      locationSource.country.name
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationSource.country.iso2}}
+                                <div>
+                                  <span class="p-key">Country ISO2:</span>
+                                  <span class="p-value">{{titleize
+                                      locationSource.country.iso2
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationSource.country.attribution_scope}}
+                                <div>
+                                  <span class="p-key">Country Attribution Scope:</span>
+                                  <span class="p-value">{{titleize
+                                      locationSource.country.attribution_scope
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                            </div>
+                          {{/each}}
+                        </div>
+                      {{else}}
+                        <a
+                          href="#"
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle" "threatActorLocationSources" 0
+                            )
+                          }}
+                        >
+                          <span class="text">Sources</span>
+                          {{fa-icon "angle-down"}}
+                        </a>
+                      {{/if}}
+                    </div>
+                  {{/if}}
+                  {{#if threatActorResults.locations.target}}
+                    <div class="threat-actor-location-target">
+                      {{#if
+                        (get
+                          expandableTitleStates (concat "threatActorLocationTargets" 0)
+                        )
+                      }}
+                        <a
+                          href="#"
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle" "threatActorLocationTargets" 0
+                            )
+                          }}
+                        >
+                          <span class="text">Targets</span>
+                          {{fa-icon "angle-up"}}
+                        </a>
+                        <div class="ml-2 threat-actor-location-target-content">
+                          {{#each
+                            threatActorResults.locations.target
+                            as |locationTarget|
+                          }}
+                            <div class="mb-2">
+                              {{#if locationTarget.name}}
+                                <div>
+                                  <span class="p-key">Name:</span>
+                                  <span class="p-value">{{titleize
+                                      locationTarget.name
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationTarget.region}}
+                                <div>
+                                  <span class="p-key">Region:</span>
+                                  <span class="p-value">{{titleize
+                                      locationTarget.region
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if (get locationTarget "sub-region")}}
+                                <div>
+                                  <span class="p-key">Sub Region:</span>
+                                  <span class="p-value">{{titleize
+                                      (get locationTarget "sub-region")
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationTarget.iso2}}
+                                <div>
+                                  <span class="p-key">ISO2:</span>
+                                  <span class="p-value">{{titleize
+                                      locationTarget.iso2
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationTarget.attribution_scope}}
+                                <div>
+                                  <span class="p-key">Attribution Scope:</span>
+                                  <span class="p-value">{{titleize
+                                      locationTarget.attribution_scope
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                            </div>
+                          {{/each}}
+                        </div>
+                      {{else}}
+                        <a
+                          href="#"
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle" "threatActorLocationTargets" 0
+                            )
+                          }}
+                        >
+                          <span class="text">Targets</span>
+                          {{fa-icon "angle-down"}}
+                        </a>
+                      {{/if}}
+                    </div>
+                  {{/if}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorLocations" 0)}}
+                >
+                  <span class="text">Locations</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#if threatActorResults.industries}}
+            <div class="threat-actor-industries">
+              {{#if (get expandableTitleStates (concat "threatActorIndustries" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorIndustries" 0)
+                  }}
+                >
+                  <span class="text">Industries</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-industries-content">
+                  {{#each threatActorResults.industries as |industry|}}
+                    <div class="mb-2">
+                      {{#if industry.name}}
+                        <div>
+                          <span class="p-key">Region Name:</span>
+                          <span class="p-value">{{titleize industry.name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if industry.attribution_scope}}
+                        <div>
+                          <span class="p-key">Region Attribution Scope:</span>
+                          <span class="p-value">{{titleize
+                              industry.attribution_scope
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if industry.first_seen}}
+                        <div>
+                          <span class="p-key">First Seen: </span>
+                          <span class="p-value">{{moment-format
+                              industry.first_seen
+                              "YYYY-MM-DD HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if industry.last_seen}}
+                        <div>
+                          <span class="p-key">Last Seen: </span>
+                          <span class="p-value">{{moment-format
+                              industry.last_seen
+                              "YYYY-MM-DD HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorIndustries" 0)
+                  }}
+                >
+                  <span class="text">Industries</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+        {{/with}}
+      </div>
+    {{/if}}
     {{#if (eq activeTab "searchResults")}}
       <div class="search-results">
         <div class="p-link">
