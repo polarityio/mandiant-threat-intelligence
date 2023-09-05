@@ -126,7 +126,7 @@ const sanitizeHtmlString = (htmlString) => {
 
 const makeHtmlStringWithDisplayedLinkUrls = (htmlString = '') => {
   const firstAnchorStartingTag = first(
-    Array.from(htmlString.matchAll(/<a href="([^"]+)">/))
+    Array.from(htmlString.matchAll(/<a href="([^"]+)">/g))
   );
 
   if (!firstAnchorStartingTag) {
