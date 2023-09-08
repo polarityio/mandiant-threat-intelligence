@@ -16,29 +16,20 @@ For more information please see www.FireEye.com/intel
 
 ## Mandiant Threat Intelligence Integration Options
 
-### API Query Version
-Which Version of the API(s) to query: V3, V4, or both.
-
 ### Mandiant V3 URL
-The URL for the Mandiant Threat Intelligence V3 API.  Defaults to `https://api.intelligence.fireeye.com`.
-
-### V3 Public Key
-Your Mandiant Threat Intelligence V3 API public key
-
-### V3 Private Key
-Your Mandiant Threat Intelligence V3 API private key.
+The URL for the Mandiant Threat Intelligence V3 API.  Defaults to `https://api.intelligence.fireeye.com`. Leave empty if your keys are not compatible with this API version.
 
 ### Mandiant V4 URL
-The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`.
+The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`. Leave empty if your keys are not compatible with this API version.
 
-### V4 Public Key
-Your Mandiant Threat Intelligence V4 API public key
+### Public Key
+Your Mandiant Threat Intelligence API public key
 
-### V4 Private Key
-Your Mandiant Threat Intelligence V4 API private key.
+### Private Key
+Your Mandiant Threat Intelligence API private key.
 
 ### Minimum MScore to Display
-The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 50 are considered suspicious and/or malicious.
+The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 80 are considered malicious.
 
 ### Ignored Entities
 Comma separated list of entities that you never want looked up. Should be set to "Only admins can view and edit".

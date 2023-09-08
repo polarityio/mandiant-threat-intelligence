@@ -4,8 +4,8 @@ const { mergeLookupResults } = require('./dataTransformations');
 
 const lookupCveEntities = async (cveEntities, options) => {
   const [collectionLookupResults, vulnerabilitiesLookupResults] = await Promise.all([
-    await lookupCollectionsWithCveEntities(cveEntities, options),
-    await lookupVulnerabilitiesWithCveEntities(cveEntities, options)
+    options.urlV3 ? await lookupCollectionsWithCveEntities(cveEntities, options) : [],
+    options.urlV4 ? await lookupVulnerabilitiesWithCveEntities(cveEntities, options) : []
   ]);
 
   return mergeLookupResults(

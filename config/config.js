@@ -89,7 +89,7 @@ module.exports = {
       key: 'urlV3',
       name: 'Mandiant V3 URL',
       description:
-        'The URL for the Mandiant Threat Intelligence V3 API.  Defaults to `https://api.intelligence.fireeye.com`.',
+        'The URL for the Mandiant Threat Intelligence V3 API.  Defaults to `https://api.intelligence.fireeye.com`. Leave empty if your keys are not compatible with this API version.',
       default: 'https://api.intelligence.fireeye.com',
       type: 'text',
       userCanEdit: false,
@@ -99,7 +99,7 @@ module.exports = {
       key: 'urlV4',
       name: 'Mandiant V4 URL',
       description:
-        'The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`.',
+        'The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`. Leave empty if your keys are not compatible with this API version.',
       default: 'https://api.intelligence.mandiant.com',
       type: 'text',
       userCanEdit: false,

@@ -24,7 +24,7 @@ const authenticatedRequest = (options, requestOptions, cb, requestCounter = 0) =
     ...requestOptions.headers,
     'X-App-Name': 'Polarity'
   };
-  if (requestOptions.url.includes(options.urlV4)) {
+  if (options.urlV4 && requestOptions.url.includes(options.urlV4)) {
     const requestOptionsWithAuth = {
       ...requestOptions,
       headers: {

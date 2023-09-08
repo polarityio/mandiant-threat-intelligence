@@ -1,4 +1,4 @@
-const { map, get, size } = require('lodash/fp');
+const { map, get, size, toLower, flow } = require('lodash/fp');
 const { getLogger } = require('../logging');
 
 const { authenticatedRequest } = require('../request');
@@ -22,11 +22,9 @@ const searchIndicators = async (entityChunk, options) =>
       body: {
         include_reports: true,
         include_campaigns: true,
-        requests: [{ values: map(get('value'), entityChunk) }]
+        requests: [{ values: map(flow(get('value'), toLower), entityChunk) }]
       },
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers: { 'Content-Type': 'application/json' }
     };
 
     authenticatedRequest(options, requestOptions, function (err, response, body) {

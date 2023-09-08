@@ -1,9 +1,13 @@
-const { validateStringOptions } = require('./utils');
+const { compact, map, get } = require('lodash/fp');
+const { validateStringOptions, validateUrlOption } = require('./utils');
 
 const validateOptions = (options, callback) => {
   const stringOptionsErrorMessages = {
-    urlV3: '* Required',
-    urlV4: '* Required',
+    ...(!options.urlV3.value &&
+      !options.urlV4.value && {
+        urlV3: 'Either V3 URL or V4 URL are Required',
+        urlV4: 'Either V3 URL or V4 URL are Required'
+      }),
     publicKey: '* Required',
     privateKey: '* Required'
   };
@@ -11,6 +15,10 @@ const validateOptions = (options, callback) => {
   const stringValidationErrors = validateStringOptions(
     stringOptionsErrorMessages,
     options
+  );
+
+  let urlErrors = (options.urlV3.value ? validateUrlOption(options, 'urlV3') : []).concat(
+    options.urlV4.value ? validateUrlOption(options, 'urlV4') : []
   );
 
   const minScoreError =
@@ -38,6 +46,7 @@ const validateOptions = (options, callback) => {
       : [];
 
   const errors = stringValidationErrors
+    .concat(urlErrors)
     .concat(minScoreError)
     .concat(maxConcurrentError)
     .concat(minTimeError);

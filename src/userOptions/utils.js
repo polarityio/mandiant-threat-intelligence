@@ -84,10 +84,10 @@ const validateUrlOption = (options, urlKey = 'url', otherValidationErrors = []) 
     });
   }
 
-  if (urlValue.endsWith('//')) {
+  if (urlValue.endsWith('/')) {
     allValidationErrors = allValidationErrors.concat({
       key: urlKey,
-      message: 'Url cannot end with a //'
+      message: 'Url cannot end with a /'
     });
   }
 
@@ -105,6 +105,7 @@ const validateUrlOption = (options, urlKey = 'url', otherValidationErrors = []) 
 
   return allValidationErrors;
 };
+
 module.exports = {
   compareStringLetters,
   flattenOptions,

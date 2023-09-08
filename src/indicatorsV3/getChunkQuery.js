@@ -1,3 +1,4 @@
+const { toLower } = require('lodash/fp');
 const entityTypeToIndicatorType = require('./entityTypeToIndicatorType');
 
 /**
@@ -16,7 +17,7 @@ function getChunkQuery(lookupChunk) {
     if (object_type !== null) {
       queries.push({
         object_type,
-        value: [entityObj.value],
+        value: [toLower(entityObj.value)],
         extended: true
       });
     }
