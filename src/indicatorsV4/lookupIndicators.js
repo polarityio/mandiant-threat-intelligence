@@ -1,4 +1,14 @@
-const { map, get, flow, chunk, size, flatten, find, toLower } = require('lodash/fp');
+const {
+  map,
+  get,
+  flow,
+  chunk,
+  size,
+  flatten,
+  find,
+  toLower,
+  join
+} = require('lodash/fp');
 
 const searchIndicators = require('./searchIndicators');
 const { getLimiter } = require('../request');
@@ -15,11 +25,7 @@ const lookupIndicators = async (nonCveEntities, options) => {
           try {
             const indicators = await limitedSearchIndicators(entityChunk, options);
 
-            return associateEntitiesWithIndicators(
-              entityChunk,
-              indicators,
-              options
-            );
+            return associateEntitiesWithIndicators(entityChunk, indicators, options);
           } catch (error) {
             if (Math.floor(parseInt(get('errors.0.status', error)) / 100) * 100 === 500) {
               return {
@@ -42,10 +48,15 @@ const lookupIndicators = async (nonCveEntities, options) => {
 const associateEntitiesWithIndicators = (entities, indicators, options) =>
   map((entity) => {
     const indicatorV4 = find((indicator) => {
-      const associatedHashValues = map(flow(get('value'), toLower), get('associated_hashes', indicator));
+      const associatedHashValues = map(
+        flow(get('value'), toLower),
+        get('associated_hashes', indicator)
+      );
       const possibleEntityValueLocations = [indicator.value].concat(associatedHashValues);
 
-      const valueIsFoundInIndicator = possibleEntityValueLocations.includes(toLower(entity.value));
+      const valueIsFoundInIndicator = possibleEntityValueLocations.includes(
+        toLower(entity.value)
+      );
 
       const minScoreIsMet = indicator.mscore >= options.minimumMScore;
       return valueIsFoundInIndicator && minScoreIsMet;
@@ -56,7 +67,16 @@ const associateEntitiesWithIndicators = (entities, indicators, options) =>
       data: !size(indicatorV4)
         ? null
         : {
-            summary: ['Indicator Found'],
+            summary: size(indicatorV4.attributed_associations)
+              ? [
+                  'Assoc: ' +
+                    flow(
+                      get('attributed_associations'),
+                      map(get('name')),
+                      join(', ')
+                    )(indicatorV4)
+                ]
+              : [],
             details: { indicatorV4 }
           }
     };
