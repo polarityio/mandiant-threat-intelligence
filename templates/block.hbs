@@ -625,6 +625,53 @@
               {{fa-icon icon="external-link-square" class="external-link-icon"}}
             </a>
           </div>
+
+          {{#if indicatorV4.attributed_associations}}
+            <div class="attributed-associations">
+              {{#if (get expandableTitleStates (concat "attributedAssociations" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "attributedAssociations" 0)
+                  }}
+                >
+                  <span class="text">Attributed Associations</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 attributed-associations-content">
+                  {{#each
+                    indicatorV4.attributed_associations
+                    as |attributed_association|
+                  }}
+                    <div class="attributed-association"></div>
+                    <div>
+                      <span class="p-key">Name:</span>
+                      <span class="p-value">{{attributed_association.name}}</span>
+                    </div>
+                    <div>
+                      <span class="p-key">Type:</span>
+                      <span class="p-value">{{attributed_association.type}}</span>
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "attributedAssociations" 0)
+                  }}
+                >
+                  <span class="text">Attributed Associations</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+
           {{#if (or indicatorV4.mscore (eq indicatorV4.mscore 0))}}
             <div>
               <span class="p-key">MScore:</span>
@@ -679,52 +726,6 @@
                   "MM/DD/YYYY HH:mm:ss z"
                   timeZone=timezone
                 }}</span>
-            </div>
-          {{/if}}
-
-          {{#if indicatorV4.attributed_associations}}
-            <div class="attributed-associations">
-              {{#if (get expandableTitleStates (concat "attributedAssociations" 0))}}
-                <a
-                  href="#"
-                  class="expandable-title"
-                  {{on
-                    "click"
-                    (action "toggleExpandableTitle" "attributedAssociations" 0)
-                  }}
-                >
-                  <span class="text">Attributed Associations</span>
-                  {{fa-icon "angle-up"}}
-                </a>
-                <div class="ml-2 attributed-associations-content">
-                  {{#each
-                    indicatorV4.attributed_associations
-                    as |attributed_association|
-                  }}
-                    <div class="attributed-association"></div>
-                    <div>
-                      <span class="p-key">Name:</span>
-                      <span class="p-value">{{attributed_association.name}}</span>
-                    </div>
-                    <div>
-                      <span class="p-key">Type:</span>
-                      <span class="p-value">{{attributed_association.type}}</span>
-                    </div>
-                  {{/each}}
-                </div>
-              {{else}}
-                <a
-                  href="#"
-                  class="expandable-title"
-                  {{on
-                    "click"
-                    (action "toggleExpandableTitle" "attributedAssociations" 0)
-                  }}
-                >
-                  <span class="text">Attributed Associations</span>
-                  {{fa-icon "angle-down"}}
-                </a>
-              {{/if}}
             </div>
           {{/if}}
 
