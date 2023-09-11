@@ -46,7 +46,7 @@ polarity.export = PolarityComponent.extend({
 
     if (!this.get('block._state')) {
       this.set('block._state', {});
-      this.set('block._state.expandableTitleStates', {});
+      this.set('block._state.expandableTitleStates', { attributedAssociations0: true });
     }
 
     this.set(

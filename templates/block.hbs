@@ -682,6 +682,52 @@
             </div>
           {{/if}}
 
+          {{#if indicatorV4.attributed_associations}}
+            <div class="attributed-associations">
+              {{#if (get expandableTitleStates (concat "attributedAssociations" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "attributedAssociations" 0)
+                  }}
+                >
+                  <span class="text">Attributed Associations</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 attributed-associations-content">
+                  {{#each
+                    indicatorV4.attributed_associations
+                    as |attributed_association|
+                  }}
+                    <div class="attributed-association"></div>
+                    <div>
+                      <span class="p-key">Name:</span>
+                      <span class="p-value">{{attributed_association.name}}</span>
+                    </div>
+                    <div>
+                      <span class="p-key">Type:</span>
+                      <span class="p-value">{{attributed_association.type}}</span>
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "attributedAssociations" 0)
+                  }}
+                >
+                  <span class="text">Attributed Associations</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+
           {{#if indicatorV4.reports}}
             <div class="indicator-reports">
               {{#if (get expandableTitleStates (concat "indicatorReports" 0))}}
@@ -892,52 +938,6 @@
                   {{on "click" (action "toggleExpandableTitle" "associateHashes" 0)}}
                 >
                   <span class="text">Associated Hashes</span>
-                  {{fa-icon "angle-down"}}
-                </a>
-              {{/if}}
-            </div>
-          {{/if}}
-
-          {{#if indicatorV4.attributed_associations}}
-            <div class="attributed-associations">
-              {{#if (get expandableTitleStates (concat "attributedAssociations" 0))}}
-                <a
-                  href="#"
-                  class="expandable-title"
-                  {{on
-                    "click"
-                    (action "toggleExpandableTitle" "attributedAssociations" 0)
-                  }}
-                >
-                  <span class="text">Attributed Associations</span>
-                  {{fa-icon "angle-up"}}
-                </a>
-                <div class="ml-2 attributed-associations-content">
-                  {{#each
-                    indicatorV4.attributed_associations
-                    as |attributed_association|
-                  }}
-                    <div class="attributed-association"></div>
-                    <div>
-                      <span class="p-key">Name:</span>
-                      <span class="p-value">{{attributed_association.name}}</span>
-                    </div>
-                    <div>
-                      <span class="p-key">Type:</span>
-                      <span class="p-value">{{attributed_association.type}}</span>
-                    </div>
-                  {{/each}}
-                </div>
-              {{else}}
-                <a
-                  href="#"
-                  class="expandable-title"
-                  {{on
-                    "click"
-                    (action "toggleExpandableTitle" "attributedAssociations" 0)
-                  }}
-                >
-                  <span class="text">Attributed Associations</span>
                   {{fa-icon "angle-down"}}
                 </a>
               {{/if}}
@@ -2259,7 +2259,9 @@
                 <div class="ml-2 threat-actor-counts-content">
                   {{#each-in threatActorResults.counts as |countKey countValue|}}
                     <div>
-                      <span class="p-key">{{titleize (humanize (dasherize countKey))}}:</span>
+                      <span class="p-key">{{titleize
+                          (humanize (dasherize countKey))
+                        }}:</span>
                       <span class="p-value">{{countValue}}</span>
                     </div>
                   {{/each-in}}
@@ -2293,7 +2295,10 @@
                   {{fa-icon "angle-up"}}
                 </a>
                 <div class="ml-2 threat-actor-suspected-attribution-content">
-                  {{#each threatActorResults.suspected_attribution as |suspectedAttribution|}}
+                  {{#each
+                    threatActorResults.suspected_attribution
+                    as |suspectedAttribution|
+                  }}
                     <div class="mb-2">
                       {{#if suspectedAttribution.name}}
                         <div>
@@ -2331,16 +2336,11 @@
           {{/if}}
           {{#if threatActorResults.aliases}}
             <div class="threat-actor-aliases">
-              {{#if
-                (get expandableTitleStates (concat "threatActorAliases" 0))
-              }}
+              {{#if (get expandableTitleStates (concat "threatActorAliases" 0))}}
                 <a
                   href="#"
                   class="expandable-title"
-                  {{on
-                    "click"
-                    (action "toggleExpandableTitle" "threatActorAliases" 0)
-                  }}
+                  {{on "click" (action "toggleExpandableTitle" "threatActorAliases" 0)}}
                 >
                   <span class="text">Aliases</span>
                   {{fa-icon "angle-up"}}
@@ -2369,7 +2369,9 @@
                       {{#if alias.attribution_scope}}
                         <div>
                           <span class="p-key">Attribution Scope: </span>
-                          <span class="p-value">{{titleize alias.attribution_scope}}</span>
+                          <span class="p-value">{{titleize
+                              alias.attribution_scope
+                            }}</span>
                         </div>
                       {{/if}}
                     </div>
@@ -2379,10 +2381,7 @@
                 <a
                   href="#"
                   class="expandable-title"
-                  {{on
-                    "click"
-                    (action "toggleExpandableTitle" "threatActorAliases" 0)
-                  }}
+                  {{on "click" (action "toggleExpandableTitle" "threatActorAliases" 0)}}
                 >
                   <span class="text">Aliases</span>
                   {{fa-icon "angle-down"}}
@@ -2497,7 +2496,9 @@
                           ({{targetRegion.region}}){{#if
                             (not
                               (eq
-                                (sub threatActorResults.locations.target_sub_region.length 1)
+                                (sub
+                                  threatActorResults.locations.target_sub_region.length 1
+                                )
                                 index
                               )
                             )
