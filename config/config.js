@@ -24,7 +24,13 @@ module.exports = {
    */
   description:
     'Provides automated access to indicators of compromise (IOCs), CVE information, as well as information on the adversary from the Mandiant Threat Intelligence API.',
-  entityTypes: ['IPv4', 'domain', 'email', 'hash', 'cve'],
+  entityTypes: ['IPv4', 'domain', 'email', 'hash', 'cve', 'url'],
+  customTypes: [
+    {
+      key: 'allText',
+      regex: /\S[\s\S]{3,30}\S/
+    }
+  ],
   /**
    * An array of style files (css or less) that will be included for your integration. Any styles specified in
    * the below files can be used in your custom template.
@@ -65,7 +71,7 @@ module.exports = {
     ca: '',
     // An HTTP proxy to be used. Supports proxy Auth with Basic Auth, identical to support for
     // the url parameter (by embedding the auth info in the uri)
-    proxy: ""
+    proxy: ''
   },
   logging: {
     level: 'info' //trace, debug, info, warn, error, fatal
@@ -80,18 +86,28 @@ module.exports = {
    */
   options: [
     {
-      key: 'uri',
-      name: 'Mandiant Threat Intelligence REST URL',
+      key: 'urlV3',
+      name: 'Mandiant V3 URL',
       description:
-        'The URL for the Mandiant Threat Intelligence API.  Defaults to `https://api.intelligence.fireeye.com`.',
+        'The URL for the Mandiant Threat Intelligence V3 API.  Defaults to `https://api.intelligence.fireeye.com`. Leave empty if your keys are not compatible with this API version.',
       default: 'https://api.intelligence.fireeye.com',
       type: 'text',
       userCanEdit: false,
       adminOnly: true
     },
     {
+      key: 'urlV4',
+      name: 'Mandiant V4 URL',
+      description:
+        'The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`. Leave empty if your keys are not compatible with this API version.',
+      default: 'https://api.intelligence.mandiant.com',
+      type: 'text',
+      userCanEdit: false,
+      adminOnly: true
+    },
+    {
       key: 'publicKey',
-      name: 'Mandiant Threat Intelligence Public Key',
+      name: 'Public Key',
       description: 'Your Mandiant Threat Intelligence API public key',
       default: '',
       type: 'text',
@@ -100,7 +116,7 @@ module.exports = {
     },
     {
       key: 'privateKey',
-      name: 'Mandiant Threat Intelligence Private Key',
+      name: 'Private Key',
       description: 'Your Mandiant Threat Intelligence API private key.',
       default: '',
       type: 'password',
@@ -111,8 +127,8 @@ module.exports = {
       key: 'minimumMScore',
       name: 'Minimum MScore to Display',
       description:
-        'The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 50 are considered suspicious and/or malicious.',
-      default: 51,
+        'The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 80 are considered malicious.',
+      default: 80,
       type: 'number',
       userCanEdit: false,
       adminOnly: false

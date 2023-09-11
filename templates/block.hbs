@@ -4,7 +4,11 @@
       <pre>{{details.errorMessage}}</pre>
     </div>
     {{#if (not (eq details.allowRetry false))}}
-      <button type="button" class="p-btn btn btn-sm btn-secondary retry-btn mt-2" {{action "retryLookup"}}>
+      <button
+        type="button"
+        class="p-btn btn btn-sm btn-secondary retry-btn mt-2"
+        {{action "retryLookup"}}
+      >
         {{#if running}}
           {{fa-icon icon="spinner-third" fixedWidth=true spin=true}}
         {{else}}
@@ -12,449 +16,2984 @@
         {{/if}}
       </button>
       <div class="mt-1">
-        <span class="p-footnote"> You can retry your search by pressing the "Retry Search" button.</span>
+        <span class="p-footnote">
+          You can retry your search by pressing the "Retry Search" button.</span>
       </div>
     {{/if}}
   </div>
 {{else}}
   {{#if details}}
-    {{#if (not-eq block.entity.type "cve")}}
-      {{#if details.name}}
-        <h1 class="p-title">{{fa-icon icon="bullseye"}} {{details.name}}</h1>
-      {{/if}}
-      {{#if details.indicator_verdict.mscore}}
-        <div>
-          <span class="p-key">MScore:</span>
-          <span class="p-value">{{details.indicator_verdict.mscore}}</span>
-        </div>
-      {{/if}}
-      {{#if details.analysis_conclusion}}
-        <div>
-          <span class="p-key">Analysis conclusion:</span>
-          <span class="p-value">{{details.analysis_conclusion}}</span>
-        </div>
-      {{/if}}
-      {{#if details.labels}}
-        <div>
-          <span class="p-key">Labels: </span>
-          {{#each details.labels as | label |}}
-            <span class="tag">{{label}}</span>
-          {{/each}}
-        </div>
-      {{/if}}
-      {{#if details.sighting_summary}}
-        <div>
-          <span class="p-key">First Seen: </span>
-          <span class="p-value">{{moment-format details.sighting_summary.first_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-        </div>
-        <div>
-          <span class="p-key">Last Seen: </span>
-          <span class="p-value">{{moment-format details.sighting_summary.last_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-        </div>
-      {{/if}}
-      {{#if details.current_asn}}
-        <div>
-          <span class="p-key">Current ASN:</span>
-          <span class="p-value">{{details.current_asn}}</span>
-        </div>
-      {{/if}}
-      {{#if details.description}}
-        <div>
-          <span class="p-key">Description:</span>
-          <span class="p-value">{{details.description}}</span>
-        </div>
-      {{/if}}
-      {{#if details.summary}}
-        <div>
-          <span class="p-key">Summary:</span>
-          <span class="p-value">{{details.summary}}</span>
-        </div>
-      {{/if}}
+    <div class="details">
+      <ul class="mb-2 nav nav-tabs">
+        {{#if details.indicatorV3}}
+          <li class="nav-item">
+            <a
+              {{action "changeTab" "indicatorV3"}}
+              class="nav-link {{if (eq activeTab 'indicatorV3') 'active'}}"
+              href="#"
+            >
+              {{get displayTabNames "indicatorV3"}}
+            </a>
+          </li>
+        {{/if}}
+        {{#if details.collections.length}}
+          <li class="nav-item">
+            <a
+              {{action "changeTab" "collections"}}
+              class="nav-link {{if (eq activeTab 'collections') 'active'}}"
+              href="#"
+            >
+              {{get displayTabNames "collections"}}
+            </a>
+          </li>
+        {{/if}}
+        {{#if details.indicatorV4}}
+          <li class="nav-item">
+            <a
+              {{action "changeTab" "indicatorV4"}}
+              class="nav-link {{if (eq activeTab 'indicatorV4') 'active'}}"
+              href="#"
+            >
+              {{get displayTabNames "indicatorV4"}}
+            </a>
+          </li>
+        {{/if}}
+        {{#if details.vulnerabilities.length}}
+          <li class="nav-item">
+            <a
+              {{action "changeTab" "vulnerabilities"}}
+              class="nav-link {{if (eq activeTab 'vulnerabilities') 'active'}}"
+              href="#"
+            >
+              {{get displayTabNames "vulnerabilities"}}
+            </a>
+          </li>
+        {{/if}}
+        {{#if details.threatActorResults}}
+          <li class="nav-item">
+            <a
+              {{action "changeTab" "threatActorResults"}}
+              class="nav-link {{if (eq activeTab 'threatActorResults') 'active'}}"
+              href="#"
+            >
+              {{get displayTabNames "threatActorResults"}}
+            </a>
+          </li>
+        {{/if}}
+        {{#if details.searchResults.length}}
+          <li class="nav-item">
+            <a
+              {{action "changeTab" "searchResults"}}
+              class="nav-link {{if (eq activeTab 'searchResults') 'active'}}"
+              href="#"
+            >
+              {{get displayTabNames "searchResults"}}
+            </a>
+          </li>
+        {{/if}}
+      </ul>
 
-      {{#if details.risk_summary}}
-        <div>
-          <span class="p-key">Risk Summary:</span>
-          <span class="p-value">{{details.risk_summary}}</span>
-        </div>
-      {{/if}}
-
-      {{!--
-      -
-      -  MALWARE Presence
-      -
-      --}}
-      {{#if details.malware_presence}}
-        <h1 class="p-title">{{fa-icon icon="bug"}} Malware Presence</h1>
-        <div>
-          <span class="p-key">Status: </span>
-          <span class="p-value">{{details.malware_presence.status}}</span>
-        </div>
-        <div>
-          <span class="p-key">Threat name: </span>
-          <span class="p-value">{{details.malware_presence.threat_name}}</span>
-        </div>
-        <div>
-          <span class="p-key">Threat level: </span>
-          <span class="p-value">{{details.malware_presence.threat_level}}</span>
-        </div>
-        <div>
-          <span class="p-key">Trust factor: </span>
-          <span class="p-value">{{details.malware_presence.trust_factor}}</span>
-        </div>
-        <div>
-          <span class="p-key">Scanner Metrics: </span>
-          <span class="p-value">{{details.malware_presence.scanner_match}} matches out of {{details.malware_presence.scanner_count}} scans</span>
-        </div>
-        <div>
-          <span class="p-key">Type: </span>
-          <span class="p-value">{{details.malware_presence.classification.type}}</span>
-        </div>
-        <div>
-          <span class="p-key">Family name: </span>
-          <span class="p-value">{{details.malware_presence.classification.family_name}}</span>
-        </div>
-        <div>
-          <span class="p-key">Is generic: </span>
-          <span class="p-value">{{details.malware_presence.classification.is_generic}}</span>
-        </div>
-        <div>
-          <span class="p-key">Platform: </span>
-          <span class="p-value">{{details.malware_presence.classification.platform}}</span>
-        </div>
-        <div>
-          <span class="p-key">First Seen: </span>
-          <span class="p-value">{{moment-format details.malware_presence.first_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-        </div>
-        <div>
-          <span class="p-key">Last Seen: </span>
-          <span class="p-value">{{moment-format details.malware_presence.last_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-        </div>
-      {{/if}}
-
-      {{!--
-      -
-      -  MALWARE FAMILIES
-      -
-      --}}
-      {{#if details.attributed_associations.malware_families}}
-        <h1 class="p-title">{{fa-icon icon="viruses"}} Associated Malware Families</h1>
-        {{#each details.attributed_associations.malware_families as | malware |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{malware.name.value}}</h1>
-            {{#if malware.name.source}}
+      {{#if (eq activeTab "indicatorV3")}}
+        {{#with details.indicatorV3 as |indicatorV3|}}
+          <div class="non-cve-results">
+            {{#if indicatorV3.name}}
+              <h1 class="p-title">{{fa-icon icon="bullseye"}} {{indicatorV3.name}}</h1>
+            {{/if}}
+            {{#if indicatorV3.indicator_verdict.mscore}}
               <div>
-                <span class="p-key">Source: </span>
-                <span class="p-value">{{malware.name.source}}</span>
+                <span class="p-key">MScore:</span>
+                <span class="p-value">{{indicatorV3.indicator_verdict.mscore}}</span>
               </div>
             {{/if}}
-            {{#if malware.description}}
+            {{#if indicatorV3.analysis_conclusion}}
               <div>
-                <span class="p-key">Description: </span>
-                <span class="p-value">{{malware.description}}</span>
+                <span class="p-key">Analysis conclusion:</span>
+                <span class="p-value">{{indicatorV3.analysis_conclusion}}</span>
               </div>
             {{/if}}
-            {{#if malware.availability}}
-              <div>
-                <span class="p-key">Availability: </span>
-                <span class="p-value">{{malware.availability}}</span>
-              </div>
-            {{/if}}
-            <div>
-              <span class="p-key">Created: </span>
-              <span class="p-value">{{moment-format malware.created "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-            </div>
-            <div>
-              <span class="p-key">Modified: </span>
-              <span class="p-value">{{moment-format malware.modified "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-            </div>
-            {{#if malware.aliases}}
-              <div>
-                <span class="p-key">Aliases: </span>
-                {{#each malware.aliases as | alias |}}
-                  <span class="tag">{{alias.value}} ({{alias.source}})</span>
-                {{/each}}
-              </div>
-            {{/if}}
-            {{#if malware.labels}}
+            {{#if indicatorV3.labels}}
               <div>
                 <span class="p-key">Labels: </span>
-                {{#each malware.labels as | label |}}
+                {{#each indicatorV3.labels as |label|}}
                   <span class="tag">{{label}}</span>
                 {{/each}}
               </div>
             {{/if}}
-          </div>
-        {{/each}}
-      {{/if}}
-
-      {{!--
-      -
-      -  Threat Actors
-      -
-      --}}
-      {{#if details.attributed_associations.threat_actors}}
-        <h1 class="p-title">{{fa-icon icon="user-secret"}} Associated Threat Actors</h1>
-        {{#each details.attributed_associations.threat_actors as | actor |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{actor.name}}</h1>
-            <div>
-              <span class="p-key">Description: </span>
-              <span class="p-value">{{actor.description}}</span>
-            </div>
-            <div>
-              <span class="p-key">Created: </span>
-              <span class="p-value">{{moment-format actor.created "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-            </div>
-            <div>
-              <span class="p-key">Modified: </span>
-              <span class="p-value">{{moment-format actor.modified "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
-
-
-      {{!--
-      -
-      -  Threat Details -- Signatures
-      -
-      --}}
-      {{#if details.threat_details.signatures}}
-        <h1 class="p-title">{{fa-icon icon="books"}} Signatures</h1>
-        {{#each details.threat_details.signatures as | sig |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{sig.name}}</h1>
-            <div>
-              <span class="p-key">Signature type: </span>
-              <span class="p-value">{{sig.signature_type}}</span>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
-
-      {{!--
-      -
-      -  Threat Details -- Attack Patterns
-      -
-      --}}
-      {{#if details.threat_details.attack_patterns}}
-        <h1 class="p-title">{{fa-icon icon="sword"}} Attack Patterns</h1>
-        {{#each details.threat_details.attack_patterns as | pattern |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{pattern.name}}</h1>
-            <div>
-              <span class="p-key">Title: </span>
-              <span class="p-value">{{pattern.name}}</span>
-            </div>
-            <div>
-              <span class="p-key">Description: </span>
-              <span class="p-value">{{pattern.description}}</span>
-            </div>
-            <div>
-              <span class="p-key">Type: </span>
-              <span class="p-value">{{pattern.type}}</span>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
-
-      {{!--
-      -
-      -  Threat Details -- AV Classification
-      -
-      --}}
-      {{#if details.threat_details.av_classifications}}
-        <h1 class="p-title">{{fa-icon icon="shield-virus"}} AV Classification</h1>
-        {{#each details.threat_details.av_classifications as | av |}}
-          <div class="sub-object-container">
-            <div>
-              <span class="p-key">AV Vendor: </span>
-              <span class="p-value">{{av.av_vendor}}</span>
-            </div>
-            <div>
-              <span class="p-key">AV Product: </span>
-              <span class="p-value">{{av.av_product}}</span>
-            </div>
-            <div>
-              <span class="p-key">Scans: </span>
-              <span class="p-value">{{av.total_malicious}} malicious out of {{av.total_scanned}} total scans</span>
-            </div>
-            <div>
-              <span class="p-key">First Seen: </span>
-              <span class="p-value">{{moment-format av.first_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
-
-
-      {{!--
-      -
-      -  Indicator Verdict -- Sources
-      -
-      --}}
-      {{#if details.indicator_verdict.sources}}
-        <h1 class="p-title">{{fa-icon icon="newspaper"}} Sources</h1>
-        {{#each details.indicator_verdict.sources as | source |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{source.source_name}}</h1>
-            <div>
-              <span class="p-key">OSInt: </span>
-              <span class="p-value">{{source.osint}}</span>
-            </div>
-            {{#if (gt source.category.length 0)}}
+            {{#if indicatorV3.sighting_summary}}
               <div>
-                <span class="p-key">Labels: </span>
-                {{#each source.category as | category |}}
-                  <span class="tag">{{category}}</span>
-                {{/each}}
+                <span class="p-key">First Seen: </span>
+                <span class="p-value">{{moment-format
+                    indicatorV3.sighting_summary.first_seen
+                    "YYYY-MM-DD HH:mm:ss z"
+                    timeZone=timezone
+                  }}</span>
+              </div>
+              <div>
+                <span class="p-key">Last Seen: </span>
+                <span class="p-value">{{moment-format
+                    indicatorV3.sighting_summary.last_seen
+                    "YYYY-MM-DD HH:mm:ss z"
+                    timeZone=timezone
+                  }}</span>
               </div>
             {{/if}}
-            <div>
-              <span class="p-key">First Seen: </span>
-              <span class="p-value">{{moment-format source.first_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-            </div>
-            <div>
-              <span class="p-key">Last Seen: </span>
-              <span class="p-value">{{moment-format source.last_seen "YYYY-MM-DD HH:mm:ss z" timeZone=timezone}}</span>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
+            {{#if indicatorV3.current_asn}}
+              <div>
+                <span class="p-key">Current ASN:</span>
+                <span class="p-value">{{indicatorV3.current_asn}}</span>
+              </div>
+            {{/if}}
+            {{#if indicatorV3.description}}
+              <div>
+                <span class="p-key">Description:</span>
+                <span class="p-value">{{indicatorV3.description}}</span>
+              </div>
+            {{/if}}
+            {{#if indicatorV3.summary}}
+              <div>
+                <span class="p-key">Summary:</span>
+                <span class="p-value">{{indicatorV3.summary}}</span>
+              </div>
+            {{/if}}
 
-      {{!--
-      -
-      -  Asertions
-      -
-      --}}
-      {{#if details.assertions}}
-        <h1 class="p-title">{{fa-icon icon="info-square"}} Assertions</h1>
-        {{#each details.assertions as | assertion |}}
-          <div class="sub-object-container">
-            <div>
-              <span class="p-key">Description: </span>
-              <span class="p-value">{{assertion.description}}</span>
-            </div>
-            <div>
-              <span class="p-key">Statement: </span>
-              <span class="p-value">{{assertion.statement}}</span>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
+            {{#if indicatorV3.risk_summary}}
+              <div>
+                <span class="p-key">Risk Summary:</span>
+                <span class="p-value">{{indicatorV3.risk_summary}}</span>
+              </div>
+            {{/if}}
 
-      {{!--
-      -
-      -  External References
-      -
-      --}}
-      {{#if details.external_references}}
-        <h1 class="p-title">{{fa-icon icon="books"}} External References</h1>
-        {{#each details.external_references as | reference |}}
-          <div class="sub-object-container">
-            <h1 class="p-title">{{reference.title}}</h1>
-            <div>
-              <span class="p-key">Source: </span>
-              <span class="p-value">{{humanize reference.source}}</span>
-            </div>
-            <div>
-              <span class="p-key">Link: </span>
-              <a href="{{reference.url}}" class="p-link">{{reference.url}}</a>
-            </div>
-          </div>
-        {{/each}}
-      {{/if}}
-    {{/if}}
+            {{!
+            -
+            -  MALWARE Presence
+            -
+            }}
+            {{#if indicatorV3.malware_presence}}
+              <h1 class="p-title">{{fa-icon icon="bug"}} Malware Presence</h1>
+              <div>
+                <span class="p-key">Status: </span>
+                <span class="p-value">{{indicatorV3.malware_presence.status}}</span>
+              </div>
+              <div>
+                <span class="p-key">Threat name: </span>
+                <span class="p-value">{{indicatorV3.malware_presence.threat_name}}</span>
+              </div>
+              <div>
+                <span class="p-key">Threat level: </span>
+                <span class="p-value">{{indicatorV3.malware_presence.threat_level}}</span>
+              </div>
+              <div>
+                <span class="p-key">Trust factor: </span>
+                <span class="p-value">{{indicatorV3.malware_presence.trust_factor}}</span>
+              </div>
+              <div>
+                <span class="p-key">Scanner Metrics: </span>
+                <span class="p-value">{{indicatorV3.malware_presence.scanner_match}}
+                  matches out of
+                  {{indicatorV3.malware_presence.scanner_count}}
+                  scans</span>
+              </div>
+              <div>
+                <span class="p-key">Type: </span>
+                <span
+                  class="p-value"
+                >{{indicatorV3.malware_presence.classification.type}}</span>
+              </div>
+              <div>
+                <span class="p-key">Family name: </span>
+                <span
+                  class="p-value"
+                >{{indicatorV3.malware_presence.classification.family_name}}</span>
+              </div>
+              <div>
+                <span class="p-key">Is generic: </span>
+                <span
+                  class="p-value"
+                >{{indicatorV3.malware_presence.classification.is_generic}}</span>
+              </div>
+              <div>
+                <span class="p-key">Platform: </span>
+                <span
+                  class="p-value"
+                >{{indicatorV3.malware_presence.classification.platform}}</span>
+              </div>
+              <div>
+                <span class="p-key">First Seen: </span>
+                <span class="p-value">{{moment-format
+                    indicatorV3.malware_presence.first_seen
+                    "YYYY-MM-DD HH:mm:ss z"
+                    timeZone=timezone
+                  }}</span>
+              </div>
+              <div>
+                <span class="p-key">Last Seen: </span>
+                <span class="p-value">{{moment-format
+                    indicatorV3.malware_presence.last_seen
+                    "YYYY-MM-DD HH:mm:ss z"
+                    timeZone=timezone
+                  }}</span>
+              </div>
+            {{/if}}
 
-    {{!--
-    -
-    - Legacy CVE Search Template
-    -
-    --}}
-    {{#if (eq block.entity.type "cve")}}
-      {{#each details as | collectionType|}}
-        {{#if collectionType}}
-          <h1 class="p-title">{{fa-icon collectionType.icon fixedWidth=true}} {{collectionType.displayValue}}</h1>
-          {{#each collectionType.values as | collection |}}
-            <div class="result-container">
-              <h1 class="p-title">{{fa-icon "th-list" fixedWidth=true}} {{collection.fields.[0].key}}: {{collection.fields.[0].value}}</h1>
-              {{#if (and collection.link collection.link.url)}}
-                <div>
-                  <span class="p-key">Link: </span>
-                  <a class="p-link" href="{{collection.link.url}}">{{collection.link.display}} {{fa-icon "external-link" class="external-icon"}}</a>
-                </div>
-              {{/if}}
-              {{#each collection.fields as | field index|}}
-                {{#if field.value}}
-                  {{#if (not-eq index 0)}}
+            {{!
+            -
+            -  MALWARE FAMILIES
+            -
+            }}
+            {{#if indicatorV3.attributed_associations.malware_families}}
+              <h1 class="p-title">{{fa-icon icon="viruses"}}
+                Associated Malware Families</h1>
+              {{#each indicatorV3.attributed_associations.malware_families as |malware|}}
+                <div class="sub-object-container">
+                  <h1 class="p-title">{{malware.name.value}}</h1>
+                  {{#if malware.name.source}}
                     <div>
-                      {{#if field.nested}}
-                        <span class="p-key">{{field.key}}</span>
-                        {{!-- Nested List --}}
-                        <div class="sub-object-container">
-                          {{!-- If field.value is an array --}}
-                          {{#if field.value.[0]}}
-                            {{#each field.value as | nestedObject |}}
-                              <div class="pt-1">
-                                {{#each-in nestedObject as | key value |}}
-                                  {{#if value}}
-                                    <div>
-                                      <span class="p-key">{{key}}: </span>
-                                      <span class="p-value">{{value}}</span>
-                                    </div>
-                                  {{/if}}
+                      <span class="p-key">Source: </span>
+                      <span class="p-value">{{malware.name.source}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if malware.description}}
+                    <div>
+                      <span class="p-key">Description: </span>
+                      <span class="p-value">{{malware.description}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if malware.availability}}
+                    <div>
+                      <span class="p-key">Availability: </span>
+                      <span class="p-value">{{malware.availability}}</span>
+                    </div>
+                  {{/if}}
+                  <div>
+                    <span class="p-key">Created: </span>
+                    <span class="p-value">{{moment-format
+                        malware.created
+                        "YYYY-MM-DD HH:mm:ss z"
+                        timeZone=timezone
+                      }}</span>
+                  </div>
+                  <div>
+                    <span class="p-key">Modified: </span>
+                    <span class="p-value">{{moment-format
+                        malware.modified
+                        "YYYY-MM-DD HH:mm:ss z"
+                        timeZone=timezone
+                      }}</span>
+                  </div>
+                  {{#if malware.aliases}}
+                    <div>
+                      <span class="p-key">Aliases: </span>
+                      {{#each malware.aliases as |alias|}}
+                        <span class="tag">{{alias.value}} ({{alias.source}})</span>
+                      {{/each}}
+                    </div>
+                  {{/if}}
+                  {{#if malware.labels}}
+                    <div>
+                      <span class="p-key">Labels: </span>
+                      {{#each malware.labels as |label|}}
+                        <span class="tag">{{label}}</span>
+                      {{/each}}
+                    </div>
+                  {{/if}}
+                </div>
+              {{/each}}
+            {{/if}}
+
+            {{!
+            -
+            -  Threat Actors
+            -
+            }}
+            {{#if indicatorV3.attributed_associations.threat_actors}}
+              <h1 class="p-title">{{fa-icon icon="user-secret"}}
+                Associated Threat Actors</h1>
+              {{#each indicatorV3.attributed_associations.threat_actors as |actor|}}
+                <div class="sub-object-container">
+                  <h1 class="p-title">{{actor.name}}</h1>
+                  <div>
+                    <span class="p-key">Description: </span>
+                    <span class="p-value">{{actor.description}}</span>
+                  </div>
+                  <div>
+                    <span class="p-key">Created: </span>
+                    <span class="p-value">{{moment-format
+                        actor.created
+                        "YYYY-MM-DD HH:mm:ss z"
+                        timeZone=timezone
+                      }}</span>
+                  </div>
+                  <div>
+                    <span class="p-key">Modified: </span>
+                    <span class="p-value">{{moment-format
+                        actor.modified
+                        "YYYY-MM-DD HH:mm:ss z"
+                        timeZone=timezone
+                      }}</span>
+                  </div>
+                </div>
+              {{/each}}
+            {{/if}}
+
+            {{!
+            -
+            -  Threat indicatorV3 -- Signatures
+            -
+            }}
+            {{#if indicatorV3.threat_indicatorV3.signatures}}
+              <h1 class="p-title">{{fa-icon icon="books"}} Signatures</h1>
+              {{#each indicatorV3.threat_indicatorV3.signatures as |sig|}}
+                <div class="sub-object-container">
+                  <h1 class="p-title">{{sig.name}}</h1>
+                  <div>
+                    <span class="p-key">Signature type: </span>
+                    <span class="p-value">{{sig.signature_type}}</span>
+                  </div>
+                </div>
+              {{/each}}
+            {{/if}}
+
+            {{!
+            -
+            -  Threat indicatorV3 -- Attack Patterns
+            -
+            }}
+            {{#if indicatorV3.threat_indicatorV3.attack_patterns}}
+              <h1 class="p-title">{{fa-icon icon="sword"}} Attack Patterns</h1>
+              {{#each indicatorV3.threat_indicatorV3.attack_patterns as |pattern|}}
+                <div class="sub-object-container">
+                  <h1 class="p-title">{{pattern.name}}</h1>
+                  <div>
+                    <span class="p-key">Title: </span>
+                    <span class="p-value">{{pattern.name}}</span>
+                  </div>
+                  <div>
+                    <span class="p-key">Description: </span>
+                    <span class="p-value">{{pattern.description}}</span>
+                  </div>
+                  <div>
+                    <span class="p-key">Type: </span>
+                    <span class="p-value">{{pattern.type}}</span>
+                  </div>
+                </div>
+              {{/each}}
+            {{/if}}
+
+            {{!
+            -
+            -  Threat indicatorV3 -- AV Classification
+            -
+            }}
+            {{#if indicatorV3.threat_indicatorV3.av_classifications}}
+              <h1 class="p-title">{{fa-icon icon="shield-virus"}} AV Classification</h1>
+              {{#each indicatorV3.threat_indicatorV3.av_classifications as |av|}}
+                <div class="sub-object-container">
+                  <div>
+                    <span class="p-key">AV Vendor: </span>
+                    <span class="p-value">{{av.av_vendor}}</span>
+                  </div>
+                  <div>
+                    <span class="p-key">AV Product: </span>
+                    <span class="p-value">{{av.av_product}}</span>
+                  </div>
+                  <div>
+                    <span class="p-key">Scans: </span>
+                    <span class="p-value">{{av.total_malicious}}
+                      malicious out of
+                      {{av.total_scanned}}
+                      total scans</span>
+                  </div>
+                  <div>
+                    <span class="p-key">First Seen: </span>
+                    <span class="p-value">{{moment-format
+                        av.first_seen
+                        "YYYY-MM-DD HH:mm:ss z"
+                        timeZone=timezone
+                      }}</span>
+                  </div>
+                </div>
+              {{/each}}
+            {{/if}}
+
+            {{!
+            -
+            -  Indicator Verdict -- Sources
+            -
+            }}
+            {{#if indicatorV3.indicator_verdict.sources}}
+              <h1 class="p-title">{{fa-icon icon="newspaper"}} Sources</h1>
+              {{#each indicatorV3.indicator_verdict.sources as |source|}}
+                <div class="sub-object-container">
+                  <h1 class="p-title">{{source.source_name}}</h1>
+                  <div>
+                    <span class="p-key">OSInt: </span>
+                    <span class="p-value">{{source.osint}}</span>
+                  </div>
+                  {{#if (gt source.category.length 0)}}
+                    <div>
+                      <span class="p-key">Labels: </span>
+                      {{#each source.category as |category|}}
+                        <span class="tag">{{category}}</span>
+                      {{/each}}
+                    </div>
+                  {{/if}}
+                  <div>
+                    <span class="p-key">First Seen: </span>
+                    <span class="p-value">{{moment-format
+                        source.first_seen
+                        "YYYY-MM-DD HH:mm:ss z"
+                        timeZone=timezone
+                      }}</span>
+                  </div>
+                  <div>
+                    <span class="p-key">Last Seen: </span>
+                    <span class="p-value">{{moment-format
+                        source.last_seen
+                        "YYYY-MM-DD HH:mm:ss z"
+                        timeZone=timezone
+                      }}</span>
+                  </div>
+                </div>
+              {{/each}}
+            {{/if}}
+
+            {{!
+            -
+            -  Asertions
+            -
+            }}
+            {{#if indicatorV3.assertions}}
+              <h1 class="p-title">{{fa-icon icon="info-square"}} Assertions</h1>
+              {{#each indicatorV3.assertions as |assertion|}}
+                <div class="sub-object-container">
+                  <div>
+                    <span class="p-key">Description: </span>
+                    <span class="p-value">{{assertion.description}}</span>
+                  </div>
+                  <div>
+                    <span class="p-key">Statement: </span>
+                    <span class="p-value">{{assertion.statement}}</span>
+                  </div>
+                </div>
+              {{/each}}
+            {{/if}}
+
+            {{!
+            -
+            -  External References
+            -
+            }}
+            {{#if indicatorV3.external_references}}
+              <h1 class="p-title">{{fa-icon icon="books"}} External References</h1>
+              {{#each indicatorV3.external_references as |reference|}}
+                <div class="sub-object-container">
+                  <h1 class="p-title">{{reference.title}}</h1>
+                  <div>
+                    <span class="p-key">Source: </span>
+                    <span class="p-value">{{humanize reference.source}}</span>
+                  </div>
+                  <div>
+                    <span class="p-key">Link: </span>
+                    <a href="{{reference.url}}" class="p-link">{{reference.url}}</a>
+                  </div>
+                </div>
+              {{/each}}
+            {{/if}}
+          </div>
+        {{/with}}
+      {{/if}}
+
+      {{!
+      -
+      - Legacy CVE Search Template
+      -
+      }}
+      {{#if (eq activeTab "collections")}}
+        <div class="cve-results">
+          {{#each details.collections as |collectionType|}}
+            {{#if collectionType}}
+              <h1 class="p-title">{{fa-icon collectionType.icon fixedWidth=true}}
+                {{collectionType.displayValue}}</h1>
+              {{#each collectionType.values as |collection|}}
+                <div class="result-container">
+                  <h1 class="p-title">{{fa-icon "th-list" fixedWidth=true}}
+                    {{collection.fields.0.key}}:
+                    {{collection.fields.0.value}}</h1>
+                  {{#if (and collection.link collection.link.url)}}
+                    <div>
+                      <span class="p-key">Link: </span>
+                      <a
+                        class="p-link"
+                        href="{{collection.link.url}}"
+                      >{{collection.link.display}}
+                        {{fa-icon "external-link" class="external-icon"}}</a>
+                    </div>
+                  {{/if}}
+                  {{#each collection.fields as |field index|}}
+                    {{#if field.value}}
+                      {{#if (not-eq index 0)}}
+                        <div>
+                          {{#if field.nested}}
+                            <span class="p-key">{{field.key}}</span>
+                            {{! 
+                            - Nested List 
+                            }}
+                            <div class="sub-object-container">
+                              {{!
+                              - If field.value is an array
+                              }}
+                              {{#if (is-array field.value)}}
+                                {{#each field.value as |nestedObject|}}
+                                  <div class="pt-1">
+                                    {{#each-in nestedObject as |key value|}}
+                                      {{#if value}}
+                                        <div>
+                                          <span class="p-key">{{key}}: </span>
+                                          <span class="p-value">{{value}}</span>
+                                        </div>
+                                      {{/if}}
+                                    {{/each-in}}
+                                  </div>
+                                {{/each}}
+                              {{else}}
+                                {{!
+                                - Nested Object
+                                }}
+                                {{#each-in field.value as |nestedKey nestedValue|}}
+                                  <div>
+                                    <span class="p-key">{{humanize nestedKey}}: </span>
+                                    {{!
+                                    - Nested Object where nestedValue is an array
+                                    }}
+                                    {{#if (is-array nestedValue)}}
+                                      <div>
+                                        {{#each nestedValue as |listValue|}}
+                                          {{#if listValue}}
+                                            <span class="tag">{{listValue}}</span>
+                                          {{/if}}
+                                        {{/each}}
+                                      </div>
+                                    {{else}}
+                                      <span class="p-value">{{nestedValue}}</span>
+                                    {{/if}}
+                                  </div>
                                 {{/each-in}}
-                              </div>
+                              {{/if}}
+                            </div>
+                          {{else if (is-array field.value)}}
+                            {{!
+                            - Basic list value
+                            }}
+                            <span class="p-key">{{field.key}}: </span>
+                            {{#each field.value as |listValue|}}
+                              <span class="tag">{{listValue}}</span>
                             {{/each}}
                           {{else}}
-                          {{!-- Nested Object --}}
-                            {{#each-in field.value as | nestedKey nestedValue |}}
-                              <div>
-                                <span class="p-key">{{humanize nestedKey}}: </span>
-                                {{!-- Nested Object where nestedValue is an array --}}
-                                {{#if nestedValue.[0]}}
-                                  <div>
-                                    {{#each nestedValue as | listValue |}}
-                                      {{#if listValue}}
-                                        <span class="tag">{{listValue}}</span>
-                                      {{/if}}
-                                    {{/each}}
-                                  </div>
-                                {{else}}
-                                  <span class="p-value">{{nestedValue}}</span>
-                                {{/if}}
-                              </div>
-                            {{/each-in}}
+                            {{!
+                            - Plain string value
+                            }}
+                            <span class="p-key">{{field.key}}: </span>
+                            <span class="p-value">{{field.value}}</span>
                           {{/if}}
                         </div>
-                      {{else if field.value.[0]}}
-                      {{!-- Basic list value --}}
-                        <span class="p-key">{{field.key}}: </span>
-                        {{#each field.value as | listValue |}}
-                          <span class="tag">{{listValue}}</span>
+                      {{/if}}
+                    {{/if}}
+                  {{/each}}
+                </div>
+              {{/each}}
+              {{#if (lt collectionType.values.length collectionType.total)}}
+                <div>
+                  +{{sub collectionType.total collectionType.values.length}}
+                  more
+                  {{lowercase collectionType.displayValue}}.
+                </div>
+              {{/if}}
+            {{/if}}
+          {{/each}}
+        </div>
+      {{/if}}
+    </div>
+
+    {{#if (eq activeTab "indicatorV4")}}
+      <div class="indicator-v4-results">
+        {{#with details.indicatorV4 as |indicatorV4|}}
+          <div class="p-link">
+            <a
+              href="https://advantage.mandiant.com/indicator/{{indicatorV4.type}}/{{indicatorV4.value}}"
+            >
+              View in Mandiant
+              {{fa-icon icon="external-link-square" class="external-link-icon"}}
+            </a>
+          </div>
+
+          {{#if indicatorV4.attributed_associations}}
+            <div class="attributed-associations">
+              {{#if (get expandableTitleStates (concat "attributedAssociations" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "attributedAssociations" 0)
+                  }}
+                >
+                  <span class="text">Attributed Associations</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 attributed-associations-content">
+                  {{#each
+                    indicatorV4.attributed_associations
+                    as |attributed_association|
+                  }}
+                    <div class="attributed-association"></div>
+                    <div>
+                      <span class="p-key">Name:</span>
+                      <span class="p-value">{{attributed_association.name}}</span>
+                    </div>
+                    <div>
+                      <span class="p-key">Type:</span>
+                      <span class="p-value">{{attributed_association.type}}</span>
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "attributedAssociations" 0)
+                  }}
+                >
+                  <span class="text">Attributed Associations</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+
+          {{#if (or indicatorV4.mscore (eq indicatorV4.mscore 0))}}
+            <div>
+              <span class="p-key">MScore:</span>
+              <span class="p-value">{{indicatorV4.mscore}}</span>
+            </div>
+          {{/if}}
+          {{#if indicatorV4.type}}
+            <div>
+              <span class="p-key">Type:</span>
+              <span class="p-value">{{indicatorV4.type}}</span>
+            </div>
+          {{/if}}
+          {{#if indicatorV4.value}}
+            <div>
+              <span class="p-key">Value:</span>
+              <span class="p-value">{{indicatorV4.value}}</span>
+            </div>
+          {{/if}}
+          <div>
+            <span class="p-key">Is Publishable:</span>
+            <span class="p-value">{{or indicatorV4.is_publishable "false"}}</span>
+          </div>
+          <div>
+            <span class="p-key">Is Exclusive:</span>
+            <span class="p-value">{{or indicatorV4.is_exclusive "false"}}</span>
+          </div>
+          {{#if indicatorV4.first_seen}}
+            <div>
+              <span class="p-key">First Seen:</span>
+              <span class="p-value">{{moment-format
+                  indicatorV4.first_seen
+                  "MM/DD/YYYY HH:mm:ss z"
+                  timeZone=timezone
+                }}</span>
+            </div>
+          {{/if}}
+          {{#if indicatorV4.last_updated}}
+            <div>
+              <span class="p-key">Last Updated:</span>
+              <span class="p-value">{{moment-format
+                  indicatorV4.last_updated
+                  "MM/DD/YYYY HH:mm:ss z"
+                  timeZone=timezone
+                }}</span>
+            </div>
+          {{/if}}
+          {{#if indicatorV4.last_seen}}
+            <div>
+              <span class="p-key">Last Seen:</span>
+              <span class="p-value">{{moment-format
+                  indicatorV4.last_seen
+                  "MM/DD/YYYY HH:mm:ss z"
+                  timeZone=timezone
+                }}</span>
+            </div>
+          {{/if}}
+
+          {{#if indicatorV4.reports}}
+            <div class="indicator-reports">
+              {{#if (get expandableTitleStates (concat "indicatorReports" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "indicatorReports" 0)}}
+                >
+                  <span class="text">Reports</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 indicator-reports-content">
+                  {{#each indicatorV4.reports as |report|}}
+                    <div class="mb-2 indicator-report">
+                      {{#if report.title}}
+                        <div>
+                          <span class="p-key">Title:</span>
+                          <span class="p-value">{{report.title}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if report.published_date}}
+                        <div>
+                          <span class="p-key">Published Date:</span>
+                          <span class="p-value">{{moment-format
+                              report.published_date
+                              "MM/DD/YYYY HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if report.type}}
+                        <div>
+                          <span class="p-key">Type:</span>
+                          <span class="p-value">{{report.type}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if report.report_id}}
+                        <div class="p-link">
+                          <a
+                            href="https://advantage.mandiant.com/reports/{{report.report_id}}"
+                          >
+                            View Report in Mandiant
+                            {{fa-icon
+                              icon="external-link-square"
+                              class="external-link-icon"
+                            }}
+                          </a>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "indicatorReports" 0)}}
+                >
+                  <span class="text">Reports</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+
+          {{#if indicatorV4.campaigns}}
+            <div class="indicator-campaigns">
+              {{#if (get expandableTitleStates (concat "indicatorCampaigns" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "indicatorCampaigns" 0)}}
+                >
+                  <span class="text">Campaigns</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 indicator-campaigns-content">
+                  {{#each indicatorV4.campaigns as |campaign|}}
+                    <div class="mb-2 indicator-report">
+                      {{#if campaign.title}}
+                        <div>
+                          <span class="p-key">Title:</span>
+                          <span class="p-value">{{campaign.title}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if campaign.name}}
+                        <div>
+                          <span class="p-key">Name:</span>
+                          <span class="p-value">{{campaign.name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if campaign.id}}
+                        <div class="p-link">
+                          <a
+                            href="https://advantage.mandiant.com/campaigns/{{campaign.id}}"
+                          >
+                            View Campaign in Mandiant
+                            {{fa-icon
+                              icon="external-link-square"
+                              class="external-link-icon"
+                            }}
+                          </a>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "indicatorCampaigns" 0)}}
+                >
+                  <span class="text">Campaigns</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+
+          {{#if indicatorV4.sources}}
+            <div class="sources">
+              {{#if (get expandableTitleStates (concat "sources" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "sources" 0)}}
+                >
+                  <span class="text">Sources</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 sources-content">
+                  {{#each indicatorV4.sources as |source|}}
+                    <div class="source">
+                      <div>
+                        <span class="p-key">Name:</span>
+                        <span class="p-value">{{titleize
+                            (humanize (dasherize source.source_name))
+                          }}</span>
+                      </div>
+                      <div>
+                        <span class="p-key">First Seen:</span>
+                        <span class="p-value">{{moment-format
+                            source.first_seen
+                            "MM/DD/YYYY HH:mm:ss z"
+                            timeZone=timezone
+                          }}</span>
+                      </div>
+                      <div>
+                        <span class="p-key">Last Seen:</span>
+                        <span class="p-value">{{moment-format
+                            source.last_seen
+                            "MM/DD/YYYY HH:mm:ss z"
+                            timeZone=timezone
+                          }}</span>
+                      </div>
+                      {{#if source.category.length}}
+                        <div>
+                          <span class="p-key">Categories:</span>
+                          <span class="p-value">{{join ", " source.category}}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "sources" 0)}}
+                >
+                  <span class="text">Sources</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+
+          {{#if indicatorV4.associated_hashes}}
+            <div class="associated-hashes">
+              {{#if (get expandableTitleStates (concat "associateHashes" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "associateHashes" 0)}}
+                >
+                  <span class="text">Associated Hashes</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 associated-hashes-content">
+                  {{#each indicatorV4.associated_hashes as |associated_hash|}}
+                    <div class="associated-hash">
+                      <div>
+                        <span class="p-key">Type:</span>
+                        <span class="p-value">{{associated_hash.type}}</span>
+                      </div>
+                      <div>
+                        <span class="p-key">Value:</span>
+                        <span class="p-value">{{associated_hash.value}}</span>
+                      </div>
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "associateHashes" 0)}}
+                >
+                  <span class="text">Associated Hashes</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+
+          {{#if mispV4}}
+            <div class="misp-v4">
+              {{#if (get expandableTitleStates (concat "mispV4" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "mispV4" 0)}}
+                >
+                  <span class="text">MISP</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 misp-v4-content">
+                  {{#each mispV4 as |mispV4Value|}}
+                    <div>
+                      <span class="p-key">{{titleize
+                          (humanize (dasherize (get mispV4Value 0)))
+                        }}:</span>
+                      <span class="p-value">True</span>
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "mispV4" 0)}}
+                >
+                  <span class="text">MISP</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+        {{/with}}
+      </div>
+    {{/if}}
+
+    {{#if (eq activeTab "vulnerabilities")}}
+      <div class="vulnerabilities-results">
+        {{#each details.vulnerabilities as |vulnerability vulnerabilityIndex|}}
+          <div class="mb-2 vulnerabilities-result">
+            <h1 class="p-title">
+              {{fa-icon icon="fingerprint"}}
+              {{vulnerability.cve_id}}
+            </h1>
+            <div class="p-link">
+              <a
+                href="https://advantage.mandiant.com/vulnerabilities/{{vulnerability.id}}"
+              >
+                View in Mandiant
+                {{fa-icon icon="external-link-square" class="external-link-icon"}}
+              </a>
+            </div>
+            {{#if vulnerability.mve_id}}
+              <div>
+                <span class="p-key">MVE ID:</span>
+                <span class="p-value">{{vulnerability.mve_id}}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.cwe_details.id}}
+              <div>
+                <span class="p-key">CWE ID:</span>
+                <span class="p-value">{{vulnerability.cwe_details.id}}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.cwe_details.title}}
+              <div>
+                <span class="p-key">CWE Title:</span>
+                <span class="p-value">{{vulnerability.cwe_details.title}}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.risk_rating}}
+              <div>
+                <span class="p-key">Risk Rating:</span>
+                <span class="p-value">{{vulnerability.risk_rating}}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.days_to_patch}}
+              <div>
+                <span class="p-key">Days to Patch:</span>
+                <span class="p-value">{{vulnerability.days_to_patch}}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.exploitation_state}}
+              <div>
+                <span class="p-key">Exploitation State:</span>
+                <span class="p-value">{{vulnerability.exploitation_state}}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.exploitation_consequence}}
+              <div>
+                <span class="p-key">Exploitation Consequence:</span>
+                <span class="p-value">{{vulnerability.exploitation_consequence}}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.audience.length}}
+              <div>
+                <span class="p-key">Audiences:</span>
+                <span class="p-value">{{join ", " vulnerability.audience}}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.aliases.length}}
+              <div>
+                <span class="p-key">Aliases:</span>
+                <span class="p-value">{{join ", " vulnerability.aliases}}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.available_mitigation.length}}
+              <div>
+                <span class="p-key">Available Mitigation:</span>
+                <span class="p-value">{{join
+                    ", "
+                    vulnerability.available_mitigation
+                  }}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.epss.percentile}}
+              <div>
+                <span class="p-key">EPSS Percentile:</span>
+                <span class="p-value">{{vulnerability.epss.percentile}}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.epss.score}}
+              <div>
+                <span class="p-key">EPSS Score:</span>
+                <span class="p-value">{{vulnerability.epss.score}}</span>
+              </div>
+            {{/if}}
+
+            {{#if vulnerability.first_publish_date}}
+              <div>
+                <span class="p-key">First Publish Date:</span>
+                <span class="p-value">{{moment-format
+                    vulnerability.first_publish_date
+                    "MM/DD/YYYY HH:mm:ss z"
+                    timeZone=timezone
+                  }}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.publish_date}}
+              <div>
+                <span class="p-key">Publish Date:</span>
+                <span class="p-value">{{moment-format
+                    vulnerability.publish_date
+                    "MM/DD/YYYY HH:mm:ss z"
+                    timeZone=timezone
+                  }}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.last_modified_date}}
+              <div>
+                <span class="p-key">Last Modified Date:</span>
+                <span class="p-value">{{moment-format
+                    vulnerability.last_modified_date
+                    "MM/DD/YYYY HH:mm:ss z"
+                    timeZone=timezone
+                  }}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.date_of_disclosure}}
+              <div>
+                <span class="p-key">Date of Disclosure:</span>
+                <span class="p-value">{{moment-format
+                    vulnerability.date_of_disclosure
+                    "MM/DD/YYYY HH:mm:ss z"
+                    timeZone=timezone
+                  }}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.cisa_known_exploited.added_date}}
+              <div>
+                <span class="p-key">CISA Known Exploited Date Added:</span>
+                <span class="p-value">{{moment-format
+                    vulnerability.cisa_known_exploited.added_date
+                    "MM/DD/YYYY HH:mm:ss z"
+                    timeZone=timezone
+                  }}</span>
+              </div>
+            {{/if}}
+            {{#if vulnerability.cisa_known_exploited.due_date}}
+              <div>
+                <span class="p-key">CISA Known Exploited Due Date:</span>
+                <span class="p-value">{{moment-format
+                    vulnerability.cisa_known_exploited.due_date
+                    "MM/DD/YYYY HH:mm:ss z"
+                    timeZone=timezone
+                  }}</span>
+              </div>
+            {{/if}}
+
+            {{#if (or vulnerability.affects_ot (eq vulnerability.affects_ot false))}}
+              <div>
+                <span class="p-key">Affects OT:</span>
+                <span class="p-value">{{vulnerability.affects_ot}}</span>
+              </div>
+            {{/if}}
+            {{#if
+              (or
+                vulnerability.observed_in_the_wild
+                (eq vulnerability.observed_in_the_wild false)
+              )
+            }}
+              <div>
+                <span class="p-key">Observed in the Wild:</span>
+                <span class="p-value">{{vulnerability.observed_in_the_wild}}</span>
+              </div>
+            {{/if}}
+            {{#if (or vulnerability.was_zero_day (eq vulnerability.was_zero_day false))}}
+              <div>
+                <span class="p-key">Was Zero Day:</span>
+                <span class="p-value">{{vulnerability.was_zero_day}}</span>
+              </div>
+            {{/if}}
+            {{#if (or vulnerability.intel_free (eq vulnerability.intel_free false))}}
+              <div>
+                <span class="p-key">Intel Free:</span>
+                <span class="p-value">{{vulnerability.intel_free}}</span>
+              </div>
+            {{/if}}
+            {{#if (or vulnerability.is_predicted (eq vulnerability.is_predicted false))}}
+              <div>
+                <span class="p-key">Is Predicted:</span>
+                <span class="p-value">{{vulnerability.is_predicted}}</span>
+              </div>
+            {{/if}}
+            {{#if
+              (or vulnerability.is_publishable (eq vulnerability.is_publishable false))
+            }}
+              <div>
+                <span class="p-key">Is Publishable:</span>
+                <span class="p-value">{{vulnerability.is_publishable}}</span>
+              </div>
+            {{/if}}
+
+            {{#if vulnerability.description}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityDescription" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityDescription"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Description</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 vulnerability-description">
+                  {{html-safe vulnerability.description}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityDescription"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Description</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if vulnerability.analysis}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityAnalysis" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle" "vulnerabilityAnalysis" vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Analysis</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 vulnerability-analysis">
+                  {{html-safe vulnerability.analysis}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle" "vulnerabilityAnalysis" vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Analysis</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if vulnerability.executive_summary}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityExecutiveSummary" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityExecutiveSummary"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Executive Summary</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 vulnerability-executive-summary">
+                  {{html-safe vulnerability.executive_summary}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityExecutiveSummary"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Executive Summary</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if vulnerability.vulnerable_products}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityVulnerableProducts" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityVulnerableProducts"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Vulnerable Products</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 vulnerability-vulnerable-products">
+                  {{html-safe vulnerability.vulnerable_products}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityVulnerableProducts"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Vulnerable Products</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if (or vulnerability.workarounds vulnerability.workarounds_list.length)}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityWorkarounds" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityWorkarounds"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Workarounds</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 vulnerability-workarounds">
+                  {{#if vulnerability.workarounds_list.length}}
+                    {{#each vulnerability.workarounds_list as |workaround|}}
+                      <div class="vulnerability-workaround">
+                        {{html-safe workaround}}
+                      </div>
+                    {{/each}}
+                  {{else}}
+                    {{html-safe vulnerability.workarounds}}
+                  {{/if}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityWorkarounds"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Workarounds</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if vulnerability.associated_actors}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityAssociatedActors" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityAssociatedActors"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Associated Actors</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 associated-actors">
+                  {{#each
+                    vulnerability.associated_actors
+                    as |associated_actor associatedActorIndex|
+                  }}
+                    <div class="mb-2 associated-actor">
+                      {{#if associated_actor.name}}
+                        <div>
+                          <span class="p-key">Name:</span>
+                          <span class="p-value">{{associated_actor.name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if associated_actor.description}}
+                        <div>
+                          <span class="p-key">Description:</span>
+                          <span class="p-value">{{associated_actor.description}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if associated_actor.country_code}}
+                        <div>
+                          <span class="p-key">Country Code:</span>
+                          <span class="p-value">{{associated_actor.country_code}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if associated_actor.last_updated}}
+                        <div>
+                          <span class="p-key">Last Updated:</span>
+                          <span class="p-value">{{moment-format
+                              associated_actor.last_updated
+                              "MM/DD/YYYY HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if
+                        (or
+                          associated_actor.intel_free
+                          (eq associated_actor.intel_free false)
+                        )
+                      }}
+                        <div>
+                          <span class="p-key">Intel Free:</span>
+                          <span class="p-value">{{associated_actor.intel_free}}</span>
+                        </div>
+                      {{/if}}
+
+                      {{#if associated_actor.aliases}}
+                        {{#if
+                          (get
+                            expandableTitleStates
+                            (concat
+                              "vulnerabilityVulnerableProducts"
+                              associatedActorIndex
+                              vulnerabilityIndex
+                            )
+                          )
+                        }}
+                          <a
+                            href="#"
+                            class="expandable-title"
+                            {{on
+                              "click"
+                              (action
+                                "toggleExpandableTitle"
+                                (concat
+                                  "vulnerabilityVulnerableProducts" associatedActorIndex
+                                )
+                                vulnerabilityIndex
+                              )
+                            }}
+                          >
+                            <span class="text">Aliases</span>
+                            {{fa-icon "angle-up"}}
+                          </a>
+                          <div class="ml-2 associated-actor-aliases">
+                            {{#each associated_actor.aliases as |alias|}}
+                              <div class="mb-1 associated-actor-alias">
+                                {{#if alias.name}}
+                                  <div>
+                                    <span class="p-key">Name:</span>
+                                    <span class="p-value">{{alias.name}}</span>
+                                  </div>
+                                {{/if}}
+                                {{#if alias.attribution_scope}}
+                                  <div>
+                                    <span class="p-key">Attribution Scope:</span>
+                                    <span
+                                      class="p-value"
+                                    >{{alias.attribution_scope}}</span>
+                                  </div>
+                                {{/if}}
+                              </div>
+                            {{/each}}
+                          </div>
+                        {{else}}
+                          <a
+                            href="#"
+                            class="expandable-title"
+                            {{on
+                              "click"
+                              (action
+                                "toggleExpandableTitle"
+                                (concat
+                                  "vulnerabilityVulnerableProducts" associatedActorIndex
+                                )
+                                vulnerabilityIndex
+                              )
+                            }}
+                          >
+                            <span class="text">Aliases</span>
+                            {{fa-icon "angle-down"}}
+                          </a>
+                        {{/if}}
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityAssociatedActors"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Associated Actors</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if vulnerability.associated_reports}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityAssociatedReports" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityAssociatedReports"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Associated Reports</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 associated-reports">
+                  {{#each vulnerability.associated_reports as |associated_report|}}
+                    <div class="mb-2 associated-report">
+                      {{#if associated_report.title}}
+                        <div>
+                          <span class="p-key">Title:</span>
+                          <span class="p-value">{{associated_report.title}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if associated_report.report_type}}
+                        <div>
+                          <span class="p-key">Report Type:</span>
+                          <span class="p-value">{{associated_report.report_type}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if associated_report.published_date}}
+                        <div>
+                          <span class="p-key">Published Date:</span>
+                          <span class="p-value">{{moment-format
+                              associated_report.published_date
+                              "MM/DD/YYYY HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if associated_report.audience.length}}
+                        <div>
+                          <span class="p-key">Audiences:</span>
+                          <span class="p-value">{{join
+                              ", "
+                              associated_report.audience
+                            }}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityAssociatedReports"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Associated Reports</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if vulnerability.common_vulnerability_scores}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityCommonVulnerabilityScore" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityCommonVulnerabilityScore"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Common Vulnerability Score</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 common-vulnerability-scores">
+                  {{#each-in
+                    vulnerability.common_vulnerability_scores
+                    as |version common_vulnerability_score|
+                  }}
+                    <div class="mb-2 common-vulnerability-score">
+                      <div>
+                        <span class="p-key">Score Version:</span>
+                        <span class="p-value">{{version}}</span>
+                      </div>
+                      {{#each-in common_vulnerability_score as |key value|}}
+                        {{#if value}}
+                          <div>
+                            <span class="p-key">{{titleize
+                                (humanize (dasherize key))
+                              }}:</span>
+                            <span class="p-value">{{value}}</span>
+                          </div>
+                        {{/if}}
+                      {{/each-in}}
+                    </div>
+                  {{/each-in}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityCommonVulnerabilityScore"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Common Vulnerability Score</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if vulnerability.exploits}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityExploits" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle" "vulnerabilityExploits" vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Exploits</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 exploits">
+                  {{#if vulnerability.exploitation_vectors.length}}
+                    <div class="mb-3">
+                      <span class="p-key">Exploit Vectors:</span>
+                      <span class="p-value">{{join
+                          ", "
+                          vulnerability.exploitation_vectors
+                        }}</span>
+                    </div>
+                  {{/if}}
+                  {{#each vulnerability.exploits as |exploit|}}
+                    <div class="mb-2 exploit">
+                      {{#if exploit.name}}
+                        <div>
+                          <span class="p-key">Name:</span>
+                          <span class="p-value">{{exploit.name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if exploit.description}}
+                        <div>
+                          <span class="p-key">Description:</span>
+                          <span class="p-value">{{exploit.description}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if exploit.grade}}
+                        <div>
+                          <span class="p-key">Grade:</span>
+                          <span class="p-value">{{exploit.grade}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if exploit.reliability}}
+                        <div>
+                          <span class="p-key">Reliability:</span>
+                          <span class="p-value">{{exploit.reliability}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if exploit.exploit_url}}
+                        <div>
+                          <span class="p-key">Exploit URL:</span>
+                          <span class="p-value">{{exploit.exploit_url}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if exploit.file_size}}
+                        <div>
+                          <span class="p-key">File Size:</span>
+                          <span class="p-value">{{exploit.file_size}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if exploit.release_date}}
+                        <div>
+                          <span class="p-key">Release Date:</span>
+                          <span class="p-value">{{moment-format
+                              exploit.release_date
+                              "MM/DD/YYYY HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if exploit.replication_urls.length}}
+                        <div>
+                          <span class="p-key">Replication URLs:</span>
+                          <span class="p-value">{{join
+                              ", "
+                              exploit.replication_urls
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#each-in exploit.hashes as |hashType hashValue|}}
+                        <div>
+                          <span class="p-key">{{uppercase hashType}}:</span>
+                          <span class="p-value">{{hashValue}}</span>
+                        </div>
+                      {{/each-in}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle" "vulnerabilityExploits" vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Exploits</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if vulnerability.sources}}
+              {{#if
+                (get
+                  expandableTitleStates (concat "vulnerabilitySources" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle" "vulnerabilitySources" vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Sources</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 sources">
+                  {{#each vulnerability.sources as |source|}}
+                    <div class="source">
+                      {{#if source.title}}
+                        <div>
+                          <span class="p-key">Title:</span>
+                          <span class="p-value">{{source.title}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if source.source_name}}
+                        <div>
+                          <span class="p-key">Source Name:</span>
+                          <span class="p-value">{{source.source_name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if source.unique_id}}
+                        <div>
+                          <span class="p-key">Unique ID:</span>
+                          <span class="p-value">{{source.unique_id}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if source.url}}
+                        <div>
+                          <span class="p-key">URL:</span>
+                          <span class="p-value">{{source.url}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if source.date}}
+                        <div>
+                          <span class="p-key">Date:</span>
+                          <span class="p-value">{{moment-format
+                              source.date
+                              "MM/DD/YYYY HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if (or source.is_vendor_fix (eq source.is_vendor_fix false))}}
+                        <div>
+                          <span class="p-key">Is Publishable:</span>
+                          <span class="p-value">{{source.is_vendor_fix}}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle" "vulnerabilitySources" vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Sources</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if vulnerability.vendor_fix_references}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityVendorFixReferences" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityVendorFixReferences"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Vendor Fix References</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 vendor_fix_references">
+                  {{#each vulnerability.vendor_fix_references as |vendor_fix_reference|}}
+                    <div class="vendor_fix_reference">
+                      {{#if vendor_fix_reference.name}}
+                        <div>
+                          <span class="p-key">Name:</span>
+                          <span class="p-value">{{vendor_fix_reference.name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if vendor_fix_reference.unique_id}}
+                        <div>
+                          <span class="p-key">Unique ID:</span>
+                          <span class="p-value">{{vendor_fix_reference.unique_id}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if vendor_fix_reference.url}}
+                        <div>
+                          <span class="p-key">URL:</span>
+                          <span class="p-value">{{vendor_fix_reference.url}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if vendor_fix_reference.published_date}}
+                        <div>
+                          <span class="p-key">Published Date:</span>
+                          <span class="p-value">{{moment-format
+                              vendor_fix_reference.published_date
+                              "MM/DD/YYYY HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityVendorFixReferences"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Vendor Fix References</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if vulnerability.version_history}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityVersionHistory" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityVersionHistory"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Version History</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 version_history">
+                  {{#each vulnerability.version_history as |version_history|}}
+                    <div class="mb-2 version_history">
+                      {{#if version_history.date}}
+                        <div>
+                          <span class="p-key">Date:</span>
+                          <span class="p-value">{{moment-format
+                              version_history.date
+                              "MM/DD/YYYY HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if version_history.version_notes}}
+                        <div class="version-notes">
+                          <span class="p-key">Version Notes:</span>
+                          <ul>
+                            {{#each version_history.version_notes as |version_note|}}
+                              <li>{{version_note}}</li>
+                            {{/each}}
+                          </ul>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityVersionHistory"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Version History</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+
+            {{#if vulnerability.vulnerable_cpes}}
+              {{#if
+                (get
+                  expandableTitleStates
+                  (concat "vulnerabilityVulnerableCPEs" vulnerabilityIndex)
+                )
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityVulnerableCPEs"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Vulnerable CPEs</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 vulnerable_cpes">
+                  {{#each vulnerability.vulnerable_cpes as |vulnerable_cpe|}}
+                    <div class="vendor_fix_reference">
+                      {{#if vulnerable_cpe.vendor_name}}
+                        <div>
+                          <span class="p-key">Vendor Name:</span>
+                          <span class="p-value">{{vulnerable_cpe.vendor_name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if vulnerable_cpe.technology_name}}
+                        <div>
+                          <span class="p-key">Technology Name:</span>
+                          <span class="p-value">{{vulnerable_cpe.technology_name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if vulnerable_cpe.cpe_title}}
+                        <div>
+                          <span class="p-key">CPE Title:</span>
+                          <span class="p-value">{{vulnerable_cpe.cpe_title}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if vulnerable_cpe.cpe}}
+                        <div>
+                          <span class="p-key">CPE:</span>
+                          <span class="p-value">{{vulnerable_cpe.cpe}}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action
+                      "toggleExpandableTitle"
+                      "vulnerabilityVulnerableCPEs"
+                      vulnerabilityIndex
+                    )
+                  }}
+                >
+                  <span class="text">Vulnerable CPEs</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            {{/if}}
+          </div>
+        {{/each}}
+      </div>
+    {{/if}}
+
+    {{#if (eq activeTab "threatActorResults")}}
+      <div class="threat-actor-results">
+        {{#with details.threatActorResults as |threatActorResults|}}
+          <div class="p-link">
+            <a href="https://advantage.mandiant.com/actors/{{threatActorResults.id}}">
+              View in Mandiant
+              {{fa-icon icon="external-link-square" class="external-link-icon"}}
+            </a>
+          </div>
+          {{#if threatActorResults.name}}
+            <div>
+              <span class="p-key">Name:</span>
+              <span class="p-value">{{threatActorResults.name}}</span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.description}}
+            <div>
+              <span class="p-key">Description:</span>
+              <span class="p-value">{{threatActorResults.description}}</span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.type}}
+            <div>
+              <span class="p-key">Type:</span>
+              <span class="p-value">{{threatActorResults.type}}</span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.last_activity_time}}
+            <div>
+              <span class="p-key">Last Activity Time:</span>
+              <span class="p-value">{{moment-format
+                  threatActorResults.last_activity_time
+                  "MM/DD/YYYY HH:mm:ss z"
+                  timeZone=timezone
+                }}</span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.last_updated}}
+            <div>
+              <span class="p-key">Last Updated:</span>
+              <span class="p-value">{{moment-format
+                  threatActorResults.last_updated
+                  "MM/DD/YYYY HH:mm:ss z"
+                  timeZone=timezone
+                }}</span>
+            </div>
+          {{/if}}
+          {{#if
+            (or
+              (eq threatActorResults.is_publishable true)
+              (eq threatActorResults.is_publishable false)
+            )
+          }}
+            <div>
+              <span class="p-key">Is Publishable:</span>
+              <span class="p-value">{{threatActorResults.is_publishable}}</span>
+            </div>
+          {{/if}}
+          {{#if
+            (or
+              (eq threatActorResults.intel_free true)
+              (eq threatActorResults.intel_free false)
+            )
+          }}
+            <div>
+              <span class="p-key">Intel Free:</span>
+              <span class="p-value">{{threatActorResults.intel_free}}</span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.audience.length}}
+            <div>
+              <span class="p-key">Audiences:</span>
+              <span class="p-value">
+                {{#each threatActorResults.audience as |audience index|}}
+                  {{audience.name}}
+                  ({{audience.license}}){{#if
+                    (not (eq (sub hreatActorResults.audience.length 1) index))
+                  }}, {{/if}}
+                {{/each}}
+              </span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.tools.length}}
+            <div>
+              <span class="p-key">Tools:</span>
+              <span class="p-value">
+                {{#each threatActorResults.tools as |tool index|}}
+                  {{tool.name}}{{#if
+                    (not (eq (sub threatActorResults.tools.length 1) index))
+                  }}, {{/if}}
+                {{/each}}
+              </span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.motivations.length}}
+            <div>
+              <span class="p-key">Motivations:</span>
+              <span class="p-value">
+                {{#each threatActorResults.motivations as |motivation index|}}
+                  {{motivation.name}}{{#if
+                    (not (eq (sub threatActorResults.motivations.length 1) index))
+                  }}, {{/if}}
+                {{/each}}
+              </span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.cve.length}}
+            <div>
+              <span class="p-key">CVEs:</span>
+              <span class="p-value">
+                {{#each threatActorResults.cve as |cve index|}}
+                  {{cve.cve_id}}{{#if
+                    (not (eq (sub threatActorResults.cve.length 1) index))
+                  }}, {{/if}}
+                {{/each}}
+              </span>
+            </div>
+          {{/if}}
+          {{#if threatActorResults.associated_uncs.length}}
+            <div>
+              <span class="p-key">Associated UNCs:</span>
+              <span class="p-value">
+                {{#each threatActorResults.associated_uncs as |associated_unc index|}}
+                  {{associated_unc.name}}{{#if
+                    (not (eq (sub threatActorResults.associated_uncs.length 1) index))
+                  }}, {{/if}}
+                {{/each}}
+              </span>
+            </div>
+          {{/if}}
+
+          {{#if threatActorResults.counts}}
+            <div class="threat-actor-counts">
+              {{#if (get expandableTitleStates (concat "threatActorCounts" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorCounts" 0)}}
+                >
+                  <span class="text">Count</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-counts-content">
+                  {{#each-in threatActorResults.counts as |countKey countValue|}}
+                    <div>
+                      <span class="p-key">{{titleize
+                          (humanize (dasherize countKey))
+                        }}:</span>
+                      <span class="p-value">{{countValue}}</span>
+                    </div>
+                  {{/each-in}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorCounts" 0)}}
+                >
+                  <span class="text">Count</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#if threatActorResults.suspected_attribution}}
+            <div class="threat-actor-suspected-attribution">
+              {{#if
+                (get expandableTitleStates (concat "threatActorSuspectedAttribution" 0))
+              }}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorSuspectedAttribution" 0)
+                  }}
+                >
+                  <span class="text">Suspected Attributions</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-suspected-attribution-content">
+                  {{#each
+                    threatActorResults.suspected_attribution
+                    as |suspectedAttribution|
+                  }}
+                    <div class="mb-2">
+                      {{#if suspectedAttribution.name}}
+                        <div>
+                          <span class="p-key">Name: </span>
+                          <span class="p-value">{{suspectedAttribution.name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if suspectedAttribution.suspected_date}}
+                        <div>
+                          <span class="p-key">Suspected Date: </span>
+                          <span class="p-value">{{moment-format
+                              suspectedAttribution.suspected_date
+                              "YYYY-MM-DD HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorSuspectedAttribution" 0)
+                  }}
+                >
+                  <span class="text">Suspected Attributions</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#if threatActorResults.aliases}}
+            <div class="threat-actor-aliases">
+              {{#if (get expandableTitleStates (concat "threatActorAliases" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorAliases" 0)}}
+                >
+                  <span class="text">Aliases</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-aliases-content">
+                  {{#each threatActorResults.aliases as |alias|}}
+                    <div class="mb-2">
+                      {{#if alias.name}}
+                        <div>
+                          <span class="p-key">Name: </span>
+                          <span class="p-value">{{alias.name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if alias.alias}}
+                        <div>
+                          <span class="p-key">Alias: </span>
+                          <span class="p-value">{{alias.alias}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if alias.company}}
+                        <div>
+                          <span class="p-key">Company: </span>
+                          <span class="p-value">{{alias.company}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if alias.attribution_scope}}
+                        <div>
+                          <span class="p-key">Attribution Scope: </span>
+                          <span class="p-value">{{titleize
+                              alias.attribution_scope
+                            }}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorAliases" 0)}}
+                >
+                  <span class="text">Aliases</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#if threatActorResults.observed}}
+            <div class="threat-actor-observations">
+              {{#if (get expandableTitleStates (concat "threatActorObservations" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorObservations" 0)
+                  }}
+                >
+                  <span class="text">Observation Dates</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-observations-content">
+                  {{#each threatActorResults.observed as |observationDate|}}
+                    <div class="mb-2">
+                      {{#if observationDate.earliest}}
+                        <div>
+                          <span class="p-key">Earliest: </span>
+                          <span class="p-value">{{moment-format
+                              observationDate.earliest
+                              "YYYY-MM-DD HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if observationDate.recent}}
+                        <div>
+                          <span class="p-key">Most Recent: </span>
+                          <span class="p-value">{{moment-format
+                              observationDate.recent
+                              "YYYY-MM-DD HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if observationDate.attribution_scope}}
+                        <div>
+                          <span class="p-key">Attribution Scope:</span>
+                          <span class="p-value">{{titleize
+                              observationDate.attribution_scope
+                            }}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorObservations" 0)
+                  }}
+                >
+                  <span class="text">Observation Dates</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#if threatActorResults.locations}}
+            <div class="threat-actor-location">
+              {{#if (get expandableTitleStates (concat "threatActorLocations" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorLocations" 0)}}
+                >
+                  <span class="text">Locations</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-location-source-content">
+                  {{#if threatActorResults.locations.target_region.length}}
+                    <div>
+                      <span class="p-key">Target Regions:</span>
+                      <span class="p-value">
+                        {{#each
+                          threatActorResults.locations.target_region
+                          as |targetRegion index|
+                        }}
+                          {{targetRegion.name}}{{#if
+                            (not
+                              (eq
+                                (sub threatActorResults.locations.target_region.length 1)
+                                index
+                              )
+                            )
+                          }}, {{/if}}
                         {{/each}}
+                      </span>
+                    </div>
+                  {{/if}}
+                  {{#if threatActorResults.locations.target_sub_region.length}}
+                    <div>
+                      <span class="p-key">Target Sub Regions:</span>
+                      <span class="p-value">
+                        {{#each
+                          threatActorResults.locations.target_sub_region
+                          as |targetRegion index|
+                        }}
+                          {{targetRegion.name}}
+                          ({{targetRegion.region}}){{#if
+                            (not
+                              (eq
+                                (sub
+                                  threatActorResults.locations.target_sub_region.length 1
+                                )
+                                index
+                              )
+                            )
+                          }}, {{/if}}
+                        {{/each}}
+                      </span>
+                    </div>
+                  {{/if}}
+                  {{#if threatActorResults.locations.source}}
+                    <div class="threat-actor-location-source">
+                      {{#if
+                        (get
+                          expandableTitleStates (concat "threatActorLocationSources" 0)
+                        )
+                      }}
+                        <a
+                          href="#"
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle" "threatActorLocationSources" 0
+                            )
+                          }}
+                        >
+                          <span class="text">Sources</span>
+                          {{fa-icon "angle-up"}}
+                        </a>
+                        <div class="ml-2 threat-actor-location-source-content">
+                          {{#each
+                            threatActorResults.locations.source
+                            as |locationSource|
+                          }}
+                            <div class="mb-2">
+                              {{#if locationSource.region.name}}
+                                <div>
+                                  <span class="p-key">Region Name:</span>
+                                  <span class="p-value">{{titleize
+                                      locationSource.region.name
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationSource.region.attribution_scope}}
+                                <div>
+                                  <span class="p-key">Region Attribution Scope:</span>
+                                  <span class="p-value">{{titleize
+                                      locationSource.region.attribution_scope
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationSource.country.name}}
+                                <div>
+                                  <span class="p-key">Country Name:</span>
+                                  <span class="p-value">{{titleize
+                                      locationSource.country.name
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationSource.country.iso2}}
+                                <div>
+                                  <span class="p-key">Country ISO2:</span>
+                                  <span class="p-value">{{titleize
+                                      locationSource.country.iso2
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationSource.country.attribution_scope}}
+                                <div>
+                                  <span class="p-key">Country Attribution Scope:</span>
+                                  <span class="p-value">{{titleize
+                                      locationSource.country.attribution_scope
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                            </div>
+                          {{/each}}
+                        </div>
                       {{else}}
-                      {{!-- Plain string value --}}
-                        <span class="p-key">{{field.key}}: </span>
-                        <span class="p-value">{{field.value}}</span>
+                        <a
+                          href="#"
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle" "threatActorLocationSources" 0
+                            )
+                          }}
+                        >
+                          <span class="text">Sources</span>
+                          {{fa-icon "angle-down"}}
+                        </a>
                       {{/if}}
                     </div>
                   {{/if}}
-                {{/if}}
-              {{/each}}
-            </div>
-          {{/each}}
-          {{#if (lt collectionType.values.length collectionType.total)}}
-            <div>
-              +{{sub collectionType.total collectionType.values.length}} more {{lowercase collectionType.displayValue}}.
+                  {{#if threatActorResults.locations.target}}
+                    <div class="threat-actor-location-target">
+                      {{#if
+                        (get
+                          expandableTitleStates (concat "threatActorLocationTargets" 0)
+                        )
+                      }}
+                        <a
+                          href="#"
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle" "threatActorLocationTargets" 0
+                            )
+                          }}
+                        >
+                          <span class="text">Targets</span>
+                          {{fa-icon "angle-up"}}
+                        </a>
+                        <div class="ml-2 threat-actor-location-target-content">
+                          {{#each
+                            threatActorResults.locations.target
+                            as |locationTarget|
+                          }}
+                            <div class="mb-2">
+                              {{#if locationTarget.name}}
+                                <div>
+                                  <span class="p-key">Name:</span>
+                                  <span class="p-value">{{titleize
+                                      locationTarget.name
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationTarget.region}}
+                                <div>
+                                  <span class="p-key">Region:</span>
+                                  <span class="p-value">{{titleize
+                                      locationTarget.region
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if (get locationTarget "sub-region")}}
+                                <div>
+                                  <span class="p-key">Sub Region:</span>
+                                  <span class="p-value">{{titleize
+                                      (get locationTarget "sub-region")
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationTarget.iso2}}
+                                <div>
+                                  <span class="p-key">ISO2:</span>
+                                  <span class="p-value">{{titleize
+                                      locationTarget.iso2
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if locationTarget.attribution_scope}}
+                                <div>
+                                  <span class="p-key">Attribution Scope:</span>
+                                  <span class="p-value">{{titleize
+                                      locationTarget.attribution_scope
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                            </div>
+                          {{/each}}
+                        </div>
+                      {{else}}
+                        <a
+                          href="#"
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle" "threatActorLocationTargets" 0
+                            )
+                          }}
+                        >
+                          <span class="text">Targets</span>
+                          {{fa-icon "angle-down"}}
+                        </a>
+                      {{/if}}
+                    </div>
+                  {{/if}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorLocations" 0)}}
+                >
+                  <span class="text">Locations</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
             </div>
           {{/if}}
-        {{/if}}
-      {{/each}}
+          {{#if threatActorResults.industries}}
+            <div class="threat-actor-industries">
+              {{#if (get expandableTitleStates (concat "threatActorIndustries" 0))}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorIndustries" 0)
+                  }}
+                >
+                  <span class="text">Industries</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-industries-content">
+                  {{#each threatActorResults.industries as |industry|}}
+                    <div class="mb-2">
+                      {{#if industry.name}}
+                        <div>
+                          <span class="p-key">Region Name:</span>
+                          <span class="p-value">{{titleize industry.name}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if industry.attribution_scope}}
+                        <div>
+                          <span class="p-key">Region Attribution Scope:</span>
+                          <span class="p-value">{{titleize
+                              industry.attribution_scope
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if industry.first_seen}}
+                        <div>
+                          <span class="p-key">First Seen: </span>
+                          <span class="p-value">{{moment-format
+                              industry.first_seen
+                              "YYYY-MM-DD HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if industry.last_seen}}
+                        <div>
+                          <span class="p-key">Last Seen: </span>
+                          <span class="p-value">{{moment-format
+                              industry.last_seen
+                              "YYYY-MM-DD HH:mm:ss z"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  href="#"
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorIndustries" 0)
+                  }}
+                >
+                  <span class="text">Industries</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+        {{/with}}
+      </div>
+    {{/if}}
+    {{#if (eq activeTab "searchResults")}}
+      <div class="search-results">
+        <div class="p-link">
+          <a href="https://advantage.mandiant.com/search?query={{block.entity.value}}">
+            Search in Mandiant
+            {{fa-icon icon="external-link-square" class="external-link-icon"}}
+          </a>
+        </div>
+        <div class="search-results-content">
+          {{#each details.searchResults as |searchResult searchResultIndex|}}
+            <div class="search-result">
+              <h1 class="p-title">
+                {{fa-icon icon="fingerprint"}}
+                {{or searchResult.value searchResult.name}}
+              </h1>
+              {{#if (or searchResult.mscore (eq searchResult.mscore 0))}}
+                <div>
+                  <span class="p-key">MScore:</span>
+                  <span class="p-value">{{searchResult.mscore}}</span>
+                </div>
+              {{/if}}
+              {{#if searchResult.type}}
+                <div>
+                  <span class="p-key">Type:</span>
+                  <span class="p-value">{{titleize
+                      (humanize (dasherize searchResult.type))
+                    }}</span>
+                </div>
+              {{/if}}
+              {{#if searchResult.risk_rating}}
+                <div>
+                  <span class="p-key">Risk Rating:</span>
+                  <span class="p-value">{{searchResult.risk_rating}}</span>
+                </div>
+              {{/if}}
+              {{#if searchResult.report_type}}
+                <div>
+                  <span class="p-key">Report Type:</span>
+                  <span class="p-value">{{searchResult.report_type}}</span>
+                </div>
+              {{/if}}
+              {{#if searchResult.exploitation_state}}
+                <div>
+                  <span class="p-key">Exploitation State:</span>
+                  <span class="p-value">{{searchResult.exploitation_state}}</span>
+                </div>
+              {{/if}}
+              {{#if searchResult.description}}
+                <div>
+                  <span class="p-key">Description:</span>
+                  <span class="p-value">{{searchResult.description}}</span>
+                </div>
+              {{/if}}
+              {{#if searchResult.audience.length}}
+                <div>
+                  <span class="p-key">Audiences:</span>
+                  <span class="p-value">{{join ", " searchResult.audience}}</span>
+                </div>
+              {{/if}}
+              {{#if searchResult.actors.length}}
+                <div>
+                  <span class="p-key">Actors:</span>
+                  <span class="p-value">
+                    {{#each searchResult.actors as |actor index|}}
+                      {{actor.name}}{{#if
+                        (not (eq (sub searchResult.actors.length 1) index))
+                      }}, {{/if}}
+                    {{/each}}
+                  </span>
+                </div>
+              {{/if}}
+              {{#if searchResult.malwares.length}}
+                <div>
+                  <span class="p-key">Malwares:</span>
+                  <span class="p-value">
+                    {{#each searchResult.malwares as |malware index|}}
+                      {{malware.name}}{{#if
+                        (not (eq (sub searchResult.malwares.length 1) index))
+                      }}, {{/if}}
+                    {{/each}}
+                  </span>
+                </div>
+              {{/if}}
+
+              {{#if searchResult.tags}}
+                {{#if
+                  (get
+                    expandableTitleStates (concat "searchResultTags" searchResultIndex)
+                  )
+                }}
+                  <a
+                    href="#"
+                    class="expandable-title"
+                    {{on
+                      "click"
+                      (action
+                        "toggleExpandableTitle" "searchResultTags" searchResultIndex
+                      )
+                    }}
+                  >
+                    <span class="text">{{fa-icon "tag"}} Tags</span>
+                    {{fa-icon "angle-up"}}
+                  </a>
+                  <div class="ml-2 search-result-tag-content">
+                    {{#if searchResult.tags.affected_industries.length}}
+                      <div>
+                        <span class="p-key">Affected Industries:</span>
+                        <span class="p-value">{{join
+                            ", "
+                            searchResult.tags.affected_industries
+                          }}</span>
+                      </div>
+                    {{/if}}
+                    {{#if searchResult.tags.affected_systems.length}}
+                      <div>
+                        <span class="p-key">Affected Systems:</span>
+                        <span class="p-value">{{join
+                            ", "
+                            searchResult.tags.affected_systems
+                          }}</span>
+                      </div>
+                    {{/if}}
+                    {{#if searchResult.tags.motivations.length}}
+                      <div>
+                        <span class="p-key">Motivations:</span>
+                        <span class="p-value">{{join
+                            ", "
+                            searchResult.tags.motivations
+                          }}</span>
+                      </div>
+                    {{/if}}
+                    {{#if searchResult.tags.source_geographies.length}}
+                      <div>
+                        <span class="p-key">Source Geographies:</span>
+                        <span class="p-value">{{join
+                            ", "
+                            searchResult.tags.source_geographies
+                          }}</span>
+                      </div>
+                    {{/if}}
+                    {{#if searchResult.tags.target_geographies.length}}
+                      <div>
+                        <span class="p-key">Target Geographies:</span>
+                        <span class="p-value">{{join
+                            ", "
+                            searchResult.tags.target_geographies
+                          }}</span>
+                      </div>
+                    {{/if}}
+                    {{#if searchResult.tags.ttps.length}}
+                      <div>
+                        <span class="p-key">TTPs:</span>
+                        <span class="p-value">{{join ", " searchResult.tags.ttps}}</span>
+                      </div>
+                    {{/if}}
+
+                    {{#with searchResult.tags.actors as |tagActors|}}
+                      {{#if tagActors.length}}
+                        <div class="actors">
+                          <h1 class="p-title">
+                            {{fa-icon icon="user"}}
+                            Actors
+                          </h1>
+                          {{#each searchResult.tags.actors as |actor|}}
+                            <div class="mb-2 actor">
+                              <div>
+                                <span class="p-key">Name:</span>
+                                <span class="p-value">{{actor.name}}</span>
+                              </div>
+                              <div>
+                                <span class="p-key">Aliases:</span>
+                                <span class="p-value">{{join ", " actor.aliases}}</span>
+                              </div>
+                            </div>
+                          {{/each}}
+                        </div>
+                      {{/if}}
+                    {{/with}}
+
+                    {{#with searchResult.tags.malware_families as |tagMalwareFamilies|}}
+                      {{#if tagMalwareFamilies.length}}
+                        <div class="malware_families">
+                          <h1 class="p-title">
+                            {{fa-icon icon="user"}}
+                            Malware Families
+                          </h1>
+                          {{#each searchResult.tags.malware_families as |malware_family|}}
+                            <div class="malware_family">
+                              <div>
+                                <span class="p-key">Name:</span>
+                                <span class="p-value">{{malware_family.name}}</span>
+                              </div>
+                              <div>
+                                <span class="p-key">Aliases:</span>
+                                <span class="p-value">{{join
+                                    ", "
+                                    malware_family.aliases
+                                  }}</span>
+                              </div>
+                            </div>
+                          {{/each}}
+                        </div>
+                      {{/if}}
+                    {{/with}}
+                  </div>
+                {{else}}
+                  <a
+                    href="#"
+                    class="expandable-title"
+                    {{on
+                      "click"
+                      (action
+                        "toggleExpandableTitle" "searchResultTags" searchResultIndex
+                      )
+                    }}
+                  >
+                    <span class="text">{{fa-icon "tag"}} Tags</span>
+                    {{fa-icon "angle-down"}}
+                  </a>
+                {{/if}}
+              {{/if}}
+            </div>
+          {{/each}}
+        </div>
+      </div>
     {{/if}}
   {{else}}
-    No Results Found in {{block.name}} for this entity
+    No Results Found in
+    {{block.name}}
+    for this entity
   {{/if}}
 {{/if}}
-
-  

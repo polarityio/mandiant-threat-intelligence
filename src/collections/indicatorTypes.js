@@ -285,7 +285,10 @@ const legacyTypes = {
     }
   }
 };
+const MAX_RESULTS = 10;
+
 
 module.exports = {
-  legacyTypes
+  legacyTypes,
+  MAX_RESULTS
 };
