@@ -25,6 +25,10 @@ function getSummaryTags(indicator) {
     tags.push(`Reports: ${indicator.external_references.length}`);
   }
 
+  if (indicator.analysis_conclusion) {
+    tags.push(`Analysis: ${capitalize(indicator.analysis_conclusion)}`);
+  }
+
   return tags;
 }
 
