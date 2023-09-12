@@ -127,7 +127,7 @@ module.exports = {
       key: 'minimumMScore',
       name: 'Minimum MScore to Display',
       description:
-        'The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 80 are considered malicious.',
+        'The minimum MScore (0-100) required for indicators to be displayed [default is 80].  Indicators with a MScore above 80 are considered malicious.',
       default: 80,
       type: 'number',
       userCanEdit: false,

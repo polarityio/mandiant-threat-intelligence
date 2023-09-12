@@ -29,7 +29,7 @@ Your Mandiant Threat Intelligence API public key
 Your Mandiant Threat Intelligence API private key.
 
 ### Minimum MScore to Display
-The minimum MScore (0-100) required for indicators to be displayed [default is 51].  Indicators with a MScore above 80 are considered malicious.
+The minimum MScore (0-100) required for indicators to be displayed [default is 80].  Indicators with a MScore above 80 are considered malicious.
 
 ### Ignored Entities
 Comma separated list of entities that you never want looked up. Should be set to "Only admins can view and edit".
