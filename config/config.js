@@ -16,6 +16,7 @@ module.exports = {
    * @required
    */
   acronym: 'MTI',
+  onDemandOnly: true,
   /**
    * Description for this integration which is displayed in the Polarity integrations user interface
    *
@@ -76,7 +77,6 @@ module.exports = {
   logging: {
     level: 'info' //trace, debug, info, warn, error, fatal
   },
-  onDemandOnly: false,
   /**
    * Options that are displayed to the user/admin in the Polarity integration user-interface.  Should be structured
    * as an array of option objects.
