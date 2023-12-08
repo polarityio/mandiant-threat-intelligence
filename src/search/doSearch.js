@@ -22,6 +22,7 @@ const doSearch = async (entity, options) =>
       url: `${options.urlV4}/v4/search`,
       body: {
         search: entity.value,
+        type: options.searchResultsType.value,
         limit: MAX_RESULTS
       },
       headers: {

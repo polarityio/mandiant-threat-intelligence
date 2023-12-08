@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const BASE_WEB_URL = 'https://intelligence.fireeye.com';
+const BASE_WEB_URL = 'https://advantage.mandiant.com';
 
 const legacyTypes = {
   malware: {
@@ -10,8 +10,8 @@ const legacyTypes = {
     getFields: (malware) => {
       return {
         link: {
-          display: 'Search in FireEye Intel',
-          url: `${BASE_WEB_URL}/search?search=malware%20is%20${malware.name}`
+          display: 'Search in Mandiant Intel',
+          url: `${BASE_WEB_URL}/search??query=${malware.name}&object_type=malware'`
         },
         fields: [
           {
@@ -32,7 +32,9 @@ const legacyTypes = {
           },
           {
             key: 'OS Execution Envs',
-            value: Array.isArray(malware.os_execution_envs) ? malware.os_execution_envs : []
+            value: Array.isArray(malware.os_execution_envs)
+              ? malware.os_execution_envs
+              : []
           },
           {
             key: 'Associated Detection Names',
@@ -54,10 +56,10 @@ const legacyTypes = {
     getFields: (indicator, entityObj) => {
       return {
         link: {
-          display: 'Search in FireEye Intel',
-          url: `${BASE_WEB_URL}/search?search=indicator%20${entityTypeToIndicatorType(entityObj)}%20is${
-            entityObj.value
-          }`
+          display: 'Search in Mandiant Intel',
+          url: `${BASE_WEB_URL}/search?search=indicator%20${entityTypeToIndicatorType(
+            entityObj
+          )}%20is${entityObj.value}`
         },
         fields: [
           {
@@ -92,8 +94,8 @@ const legacyTypes = {
     getFields: (actor) => {
       return {
         link: {
-          display: 'Search in FireEye Intel',
-          url: `${BASE_WEB_URL}/search?search=actor%20is%20${actor.name}&exclude_indicator_reports=false`
+          display: 'Search in Mandiant Intel',
+          url: `${BASE_WEB_URL}/search??query=${actor.name}&object_type=threat-actor'`
         },
         fields: [
           {
@@ -132,9 +134,11 @@ const legacyTypes = {
     getFields: (report) => {
       return {
         link: {
-          display: 'View Report in FireEye Intel',
+          display: 'View Report in Mandiant Intel',
           url:
-            report && report.x_fireeye_com_tracking_info && report.x_fireeye_com_tracking_info.document_id
+            report &&
+            report.x_fireeye_com_tracking_info &&
+            report.x_fireeye_com_tracking_info.document_id
               ? `${BASE_WEB_URL}/reports/${report.x_fireeye_com_tracking_info.document_id}`
               : null
         },
@@ -177,8 +181,8 @@ const legacyTypes = {
       if (Array.isArray(vuln.x_fireeye_com_vulnerability_score)) {
         return {
           link: {
-            display: 'Search in FireEye Intel',
-            url: `${BASE_WEB_URL}/search?search=${entityObj.value}`
+            display: 'Search in Mandiant Intel',
+            url: `${BASE_WEB_URL}/search?query=${entityObj.value}`
           },
           fields: [
             {
@@ -212,8 +216,8 @@ const legacyTypes = {
     getFields: (file, entityObj) => {
       return {
         link: {
-          display: 'Search in FireEye Intel',
-          url: `${BASE_WEB_URL}/search?search=${entityObj.value}`
+          display: 'Search in Mandiant Intel',
+          url: `${BASE_WEB_URL}/search?query=${entityObj.value}`
         },
         fields: [
           {
@@ -239,8 +243,8 @@ const legacyTypes = {
     getFields: (email, entityObj) => {
       return {
         link: {
-          display: 'Search in FireEye Intel',
-          url: `${BASE_WEB_URL}/search?search=${entityObj.value}`
+          display: 'Search in Mandiant Intel',
+          url: `${BASE_WEB_URL}/search?query=${entityObj.value}`
         },
         fields: [
           {
@@ -274,7 +278,9 @@ const legacyTypes = {
           {
             key: 'References',
             nested: true,
-            value: Array.isArray(remedy.external_references) ? remedy.external_references : []
+            value: Array.isArray(remedy.external_references)
+              ? remedy.external_references
+              : []
           },
           {
             key: 'Description',
@@ -286,7 +292,6 @@ const legacyTypes = {
   }
 };
 const MAX_RESULTS = 10;
-
 
 module.exports = {
   legacyTypes,

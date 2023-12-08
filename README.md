@@ -31,6 +31,12 @@ Your Mandiant Threat Intelligence API private key.
 ### Minimum MScore to Display
 The minimum MScore (0-100) required for indicators to be displayed [default is 80].  Indicators with a MScore above 80 are considered malicious.
 
+### Disable Free Text Search
+Disables the ability to search non-entity text.
+
+### Search Results Type
+Search Results returns for Indicators, Malware, Reports, Threat Actors, and Vulnerabilities. Use this to limit the Search Results to just one specific Type, `All` types, or disable the Search Results with `None`.
+
 ### Ignored Entities
 Comma separated list of entities that you never want looked up. Should be set to "Only admins can view and edit".
 

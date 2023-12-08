@@ -30,7 +30,6 @@
             <a
               {{action "changeTab" "indicatorV3"}}
               class="nav-link {{if (eq activeTab 'indicatorV3') 'active'}}"
-              href="#"
             >
               {{get displayTabNames "indicatorV3"}}
             </a>
@@ -41,7 +40,6 @@
             <a
               {{action "changeTab" "collections"}}
               class="nav-link {{if (eq activeTab 'collections') 'active'}}"
-              href="#"
             >
               {{get displayTabNames "collections"}}
             </a>
@@ -52,7 +50,6 @@
             <a
               {{action "changeTab" "indicatorV4"}}
               class="nav-link {{if (eq activeTab 'indicatorV4') 'active'}}"
-              href="#"
             >
               {{get displayTabNames "indicatorV4"}}
             </a>
@@ -63,7 +60,6 @@
             <a
               {{action "changeTab" "vulnerabilities"}}
               class="nav-link {{if (eq activeTab 'vulnerabilities') 'active'}}"
-              href="#"
             >
               {{get displayTabNames "vulnerabilities"}}
             </a>
@@ -74,7 +70,6 @@
             <a
               {{action "changeTab" "threatActorResults"}}
               class="nav-link {{if (eq activeTab 'threatActorResults') 'active'}}"
-              href="#"
             >
               {{get displayTabNames "threatActorResults"}}
             </a>
@@ -85,7 +80,6 @@
             <a
               {{action "changeTab" "searchResults"}}
               class="nav-link {{if (eq activeTab 'searchResults') 'active'}}"
-              href="#"
             >
               {{get displayTabNames "searchResults"}}
             </a>
@@ -630,7 +624,6 @@
             <div class="attributed-associations">
               {{#if (get expandableTitleStates (concat "attributedAssociations" 0))}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -658,7 +651,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -733,7 +725,6 @@
             <div class="indicator-reports">
               {{#if (get expandableTitleStates (concat "indicatorReports" 0))}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "indicatorReports" 0)}}
                 >
@@ -783,7 +774,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "indicatorReports" 0)}}
                 >
@@ -798,7 +788,6 @@
             <div class="indicator-campaigns">
               {{#if (get expandableTitleStates (concat "indicatorCampaigns" 0))}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "indicatorCampaigns" 0)}}
                 >
@@ -838,7 +827,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "indicatorCampaigns" 0)}}
                 >
@@ -853,7 +841,6 @@
             <div class="sources">
               {{#if (get expandableTitleStates (concat "sources" 0))}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "sources" 0)}}
                 >
@@ -896,7 +883,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "sources" 0)}}
                 >
@@ -911,7 +897,6 @@
             <div class="associated-hashes">
               {{#if (get expandableTitleStates (concat "associateHashes" 0))}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "associateHashes" 0)}}
                 >
@@ -934,7 +919,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "associateHashes" 0)}}
                 >
@@ -949,7 +933,6 @@
             <div class="misp-v4">
               {{#if (get expandableTitleStates (concat "mispV4" 0))}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "mispV4" 0)}}
                 >
@@ -968,7 +951,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "mispV4" 0)}}
                 >
@@ -1187,7 +1169,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1206,7 +1187,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1231,7 +1211,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1248,7 +1227,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1271,7 +1249,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1290,7 +1267,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1315,7 +1291,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1334,7 +1309,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1359,7 +1333,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1386,7 +1359,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1411,7 +1383,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1483,7 +1454,6 @@
                           )
                         }}
                           <a
-                            href="#"
                             class="expandable-title"
                             {{on
                               "click"
@@ -1521,7 +1491,6 @@
                           </div>
                         {{else}}
                           <a
-                            href="#"
                             class="expandable-title"
                             {{on
                               "click"
@@ -1544,7 +1513,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1569,7 +1537,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1622,7 +1589,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1647,7 +1613,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1686,7 +1651,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1711,7 +1675,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1801,7 +1764,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1823,7 +1785,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1883,7 +1844,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1906,7 +1866,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1956,7 +1915,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -1981,7 +1939,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -2023,7 +1980,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -2048,7 +2004,6 @@
                 )
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -2094,7 +2049,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -2250,7 +2204,6 @@
             <div class="threat-actor-counts">
               {{#if (get expandableTitleStates (concat "threatActorCounts" 0))}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "threatActorCounts" 0)}}
                 >
@@ -2269,7 +2222,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "threatActorCounts" 0)}}
                 >
@@ -2285,7 +2237,6 @@
                 (get expandableTitleStates (concat "threatActorSuspectedAttribution" 0))
               }}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -2322,7 +2273,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -2339,7 +2289,6 @@
             <div class="threat-actor-aliases">
               {{#if (get expandableTitleStates (concat "threatActorAliases" 0))}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "threatActorAliases" 0)}}
                 >
@@ -2380,7 +2329,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "threatActorAliases" 0)}}
                 >
@@ -2394,7 +2342,6 @@
             <div class="threat-actor-observations">
               {{#if (get expandableTitleStates (concat "threatActorObservations" 0))}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -2440,7 +2387,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -2457,7 +2403,6 @@
             <div class="threat-actor-location">
               {{#if (get expandableTitleStates (concat "threatActorLocations" 0))}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "threatActorLocations" 0)}}
                 >
@@ -2516,7 +2461,6 @@
                         )
                       }}
                         <a
-                          href="#"
                           class="expandable-title"
                           {{on
                             "click"
@@ -2579,7 +2523,6 @@
                         </div>
                       {{else}}
                         <a
-                          href="#"
                           class="expandable-title"
                           {{on
                             "click"
@@ -2602,7 +2545,6 @@
                         )
                       }}
                         <a
-                          href="#"
                           class="expandable-title"
                           {{on
                             "click"
@@ -2665,7 +2607,6 @@
                         </div>
                       {{else}}
                         <a
-                          href="#"
                           class="expandable-title"
                           {{on
                             "click"
@@ -2683,7 +2624,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on "click" (action "toggleExpandableTitle" "threatActorLocations" 0)}}
                 >
@@ -2697,7 +2637,6 @@
             <div class="threat-actor-industries">
               {{#if (get expandableTitleStates (concat "threatActorIndustries" 0))}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -2749,7 +2688,6 @@
                 </div>
               {{else}}
                 <a
-                  href="#"
                   class="expandable-title"
                   {{on
                     "click"
@@ -2856,7 +2794,6 @@
                   )
                 }}
                   <a
-                    href="#"
                     class="expandable-title"
                     {{on
                       "click"
@@ -2972,7 +2909,6 @@
                   </div>
                 {{else}}
                   <a
-                    href="#"
                     class="expandable-title"
                     {{on
                       "click"
