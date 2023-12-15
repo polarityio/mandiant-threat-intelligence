@@ -67,7 +67,7 @@ const associateEntitiesWithIndicators = (entities, indicators, options) =>
       data: !size(indicatorV4)
         ? null
         : {
-            summary: size(indicatorV4.attributed_associations)
+            summary: (size(indicatorV4.attributed_associations)
               ? [
                   'Assoc: ' +
                     flow(
@@ -76,7 +76,8 @@ const associateEntitiesWithIndicators = (entities, indicators, options) =>
                       join(', ')
                     )(indicatorV4)
                 ]
-              : [],
+              : []
+            ).concat(indicatorV4.mscore ? `ThreatScore: ${indicatorV4.mscore}` : []),
             details: { indicatorV4 }
           }
     };

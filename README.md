@@ -16,10 +16,7 @@ For more information please see www.FireEye.com/intel
 
 ## Mandiant Threat Intelligence Integration Options
 
-### Mandiant V3 URL
-The URL for the Mandiant Threat Intelligence V3 API.  Defaults to `https://api.intelligence.fireeye.com`. Leave empty if your keys are not compatible with this API version.
-
-### Mandiant V4 URL
+### Mandiant URL
 The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`. Leave empty if your keys are not compatible with this API version.
 
 ### Public Key
@@ -28,11 +25,15 @@ Your Mandiant Threat Intelligence API public key
 ### Private Key
 Your Mandiant Threat Intelligence API private key.
 
-### Minimum MScore to Display
-The minimum MScore (0-100) required for indicators to be displayed [default is 80].  Indicators with a MScore above 80 are considered malicious.
+### Minimum ThreatScore to Display
+The minimum ThreatScore (0-100) required for indicators to be displayed [default is 80].  Indicators with a ThreatScore above 80 are considered malicious.
 
 ### Disable Free Text Search
 Disables the ability to search non-entity text.
+
+### Vulnerability Rating Sources
+Only return results for Vulnerabilities that come from the Rating Sources selected here.
+
 
 ### Search Results Type
 Search Results returns for Indicators, Malware, Reports, Threat Actors, and Vulnerabilities. Use this to limit the Search Results to just one specific Type, `All` types, or disable the Search Results with `None`.

@@ -7,16 +7,17 @@ const {
   size,
   flatten,
   reduce,
-  getOr,
   first,
-  gte,
-  gt,
-  replace
+  replace,
+  toLower,
+  keys,
+  join
 } = require('lodash/fp');
 
 const searchVulnerabilities = require('./searchVulnerabilities');
 const sanitizeHtml = require('sanitize-html');
 const { getLimiter } = require('../request');
+const { getLogger } = require('../logging');
 
 /**
  * CVE entities have to be looked up
@@ -31,7 +32,7 @@ const lookupVulnerabilitiesWithCveEntities = async (cveEntities, options) => {
   return flatten(
     await Promise.all(
       flow(
-        chunk(10),
+        chunk(50),
         map(async (entityChunk) => {
           try {
             const vulnerabilities = await limitedSearchVulnerabilities(
@@ -41,6 +42,7 @@ const lookupVulnerabilitiesWithCveEntities = async (cveEntities, options) => {
 
             return associateCveEntitiesWithVulnerabilities(cveEntities, vulnerabilities);
           } catch (error) {
+            getLogger().error(error, 'Error searching for vulnerabilities');
             if (Math.floor(parseInt(get('errors.0.status', error)) / 100) * 100 === 500) {
               return {
                 entity: entityObj,
@@ -63,7 +65,9 @@ const associateCveEntitiesWithVulnerabilities = (cveEntities, vulnerabilities) =
   map(
     (cveEntity) =>
       flow(
-        filter((vulnerability) => cveEntity.value === vulnerability.cve_id),
+        filter(
+          (vulnerability) => toLower(cveEntity.value) === toLower(vulnerability.cve_id)
+        ),
         (vulnerabilities) => ({
           entity: cveEntity,
           data: !size(vulnerabilities)
@@ -87,7 +91,31 @@ const associateCveEntitiesWithVulnerabilities = (cveEntities, vulnerabilities) =
                       workarounds_list: map(
                         sanitizeHtmlString,
                         get('workarounds_list', vuln)
-                      )
+                      ),
+                      predictionScoresBase: flow(
+                        get('common_vulnerability_scores'),
+                        keys,
+                        map(
+                          (key) =>
+                            `${key} - ${get(
+                              ['common_vulnerability_scores', key, 'base_score'],
+                              vuln
+                            )}`
+                        ),
+                        join(' | ')
+                      )(vuln),
+                      predictionScoresTemporal: flow(
+                        get('common_vulnerability_scores'),
+                        keys,
+                        map(
+                          (key) =>
+                            `${key} - ${get(
+                              ['common_vulnerability_scores', key, 'temporal_score'],
+                              vuln
+                            )}`
+                        ),
+                        join(' | ')
+                      )(vuln)
                     }),
                     vulnerabilities
                   )
@@ -109,7 +137,7 @@ const makeHtmlFieldsSafe = (fields, vuln) =>
   );
 
 /**
- * Removes all non ['p', 'ul', 'li', 'b', 'i', 'em', 'strong', 'br'] tags, and takes the 
+ * Removes all non ['p', 'ul', 'li', 'b', 'i', 'em', 'strong', 'br'] tags, and takes the
  * links out of archor tags and hardcodes the url string at the end of that achor tab
  */
 const sanitizeHtmlString = (htmlString) => {
@@ -122,7 +150,6 @@ const sanitizeHtmlString = (htmlString) => {
   });
   return sanitizedHtmlString;
 };
-
 
 const makeHtmlStringWithDisplayedLinkUrls = (htmlString = '') => {
   const firstAnchorStartingTag = first(

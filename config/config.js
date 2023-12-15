@@ -86,18 +86,8 @@ module.exports = {
    */
   options: [
     {
-      key: 'urlV3',
-      name: 'Mandiant V3 URL',
-      description:
-        'The URL for the Mandiant Threat Intelligence V3 API.  Defaults to `https://api.intelligence.fireeye.com`. Leave empty if your keys are not compatible with this API version.',
-      default: 'https://api.intelligence.fireeye.com',
-      type: 'text',
-      userCanEdit: false,
-      adminOnly: true
-    },
-    {
       key: 'urlV4',
-      name: 'Mandiant V4 URL',
+      name: 'Mandiant URL',
       description:
         'The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`. Leave empty if your keys are not compatible with this API version.',
       default: 'https://api.intelligence.mandiant.com',
@@ -125,10 +115,10 @@ module.exports = {
     },
     {
       key: 'minimumMScore',
-      name: 'Minimum MScore to Display',
+      name: 'Minimum ThreatScore to Display',
       description:
-        'The minimum MScore (0-100) required for indicators to be displayed [default is 80].  Indicators with a MScore above 80 are considered malicious.',
-      default: 80,
+        'The minimum ThreatScore (0-100) required for indicators to be displayed [default is 80].  Indicators with a ThreatScore above 80 are considered malicious.',
+      default: 60,
       type: 'number',
       userCanEdit: false,
       adminOnly: false
@@ -140,6 +130,44 @@ module.exports = {
       default: false,
       type: 'boolean',
       userCanEdit: false,
+      adminOnly: false
+    },
+    {
+      key: 'vulnerabilityRatingSources',
+      name: 'Vulnerability Rating Sources',
+      description:
+        'Only return results for Vulnerabilities that come from the Rating Sources selected here.',
+      type: 'select',
+      default: [
+        {
+          value: 'analyst',
+          display: 'Analysts'
+        },
+        {
+          value: 'predicted',
+          display: 'Machine Learning'
+        },
+        {
+          value: 'unrated',
+          display: 'Unrated'
+        }
+      ],
+      options: [
+        {
+          value: 'analyst',
+          display: 'Analysts'
+        },
+        {
+          value: 'predicted',
+          display: 'Machine Learning'
+        },
+        {
+          value: 'unrated',
+          display: 'Unrated'
+        }
+      ],
+      multiple: true,
+      userCanEdit: true,
       adminOnly: false
     },
     {
