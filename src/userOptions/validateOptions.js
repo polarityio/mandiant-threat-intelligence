@@ -1,4 +1,3 @@
-const { compact, map, get } = require('lodash/fp');
 const { validateStringOptions, validateUrlOption } = require('./utils');
 
 const validateOptions = (options, callback) => {

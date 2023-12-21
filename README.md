@@ -34,10 +34,6 @@ Disables the ability to search non-entity text.
 ### Vulnerability Rating Sources
 Only return results for Vulnerabilities that come from the Rating Sources selected here.
 
-
-### Search Results Type
-Search Results returns for Indicators, Malware, Reports, Threat Actors, and Vulnerabilities. Use this to limit the Search Results to just one specific Type, `All` types, or disable the Search Results with `None`.
-
 ### Ignored Entities
 Comma separated list of entities that you never want looked up. Should be set to "Only admins can view and edit".
 

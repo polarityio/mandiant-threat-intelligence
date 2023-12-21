@@ -12,9 +12,10 @@ const lookupEntities = async (
   options
 ) => {
   const [searchLookupResults, threatActorsLookupResults] = await Promise.all([
-    options.searchResultsType.value !== 'none'
-      ? lookupWithSearch(filteredEntities, cveEntities, customEntities, options)
-      : [],
+    // options.searchResultsType.value !== 'none'
+    //   ? lookupWithSearch(filteredEntities, cveEntities, customEntities, options)
+    //   : 
+      [],
     lookupThreatActors(customEntities, options)
   ]);
 
