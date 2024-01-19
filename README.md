@@ -6,7 +6,7 @@ Provides automated access to indicators of compromise (IOCs), CVE information, a
 
 The Mandiant Threat Intelligence API provides machine-to-machine-integration with the most contextually rich threat intelligence data available on the market today. The API provides automated access to indicators of compromise (IOCs)—IP addresses, domain names, URLs used by threat actors—as well as information on the adversary, to further enrich integrations. The API supports Python, Java, PHP, C++, and C# programming languages.
 
-For more information please see www.FireEye.com/intel
+For more information please see https://www.mandiant.com/advantage/threat-intelligence
 
 | ![overlay window hash result](assets/hash.png) | ![overlay window ip result](assets/ip.png) | ![overlay window cve result](assets/cve.png) |
 |---|--|--|
