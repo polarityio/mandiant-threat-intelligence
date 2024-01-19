@@ -117,7 +117,7 @@ module.exports = {
       key: 'minimumMScore',
       name: 'Minimum ThreatScore to Display',
       description:
-        'The minimum ThreatScore (0-100) required for indicators to be displayed [default is 80].  Indicators with a ThreatScore above 80 are considered malicious.',
+        'The minimum ThreatScore (0-100) required for indicators to be displayed [default is 60].  Indicators with a ThreatScore above 60 are considered malicious.',
       default: 60,
       type: 'number',
       userCanEdit: false,

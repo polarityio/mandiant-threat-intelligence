@@ -26,7 +26,7 @@ Your Mandiant Threat Intelligence API public key
 Your Mandiant Threat Intelligence API private key.
 
 ### Minimum ThreatScore to Display
-The minimum ThreatScore (0-100) required for indicators to be displayed [default is 80].  Indicators with a ThreatScore above 80 are considered malicious.
+The minimum ThreatScore (0-100) required for indicators to be displayed [default is 60].  Indicators with a ThreatScore above 60 are considered malicious.
 
 ### Disable Free Text Search
 Disables the ability to search non-entity text.
