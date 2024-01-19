@@ -24,11 +24,11 @@ module.exports = {
    * @optional
    */
   description:
-    'Provides automated access to indicators of compromise (IOCs), CVE information, as well as information on the adversary from the Mandiant Threat Intelligence API.',
-  entityTypes: ['IPv4', 'domain', 'email', 'hash', 'cve', 'url'],
+    'Provides automated access to indicators of compromise (IOCs), CVE information, as well as information on threat actor names from the Mandiant Threat Intelligence API.',
+  entityTypes: ['IPv4', 'domain', 'email', 'MD5', 'SHA1', 'SHA256', 'cve', 'url'],
   customTypes: [
     {
-      key: 'allText',
+      key: 'threatActor',
       regex: /\S[\s\S]{3,30}\S/
     }
   ],
@@ -124,10 +124,10 @@ module.exports = {
       adminOnly: false
     },
     {
-      key: 'disableFreeTextSearch',
-      name: 'Disable Free Text Search',
-      description: 'Disables the ability to search non-entity text.',
-      default: false,
+      key: 'enableThreatActorSearch',
+      name: 'Enable Threat Actor Search',
+      description: 'If checked, the integration will search threat actors by name.',
+      default: true,
       type: 'boolean',
       userCanEdit: false,
       adminOnly: false

@@ -3,17 +3,45 @@
   "name": "Mandiant Threat Intelligence",
   "acronym": "MTI",
   "onDemandOnly": true,
-  "description": "Provides automated access to indicators of compromise (IOCs), CVE information, as well as information on the adversary from the Mandiant Threat Intelligence API.",
-  "entityTypes": ["IPv4", "domain", "email", "hash", "cve", "url"],
-  "customTypes": [{ "key": "allText", "regex": "\\S[\\s\\S]{2,2048}\\S" }],
-  "styles": ["./styles/styles.less"],
+  "description": "Provides automated access to indicators of compromise (IOCs), CVE information, as well as information on threat actor names from the Mandiant Threat Intelligence API.",
+  "entityTypes": [
+    "IPv4",
+    "domain",
+    "email",
+    "MD5",
+    "SHA1",
+    "SHA256",
+    "cve",
+    "url"
+  ],
+  "customTypes": [
+    {
+      "key": "threatActor",
+      "regex": "\\S[\\s\\S]{3,30}\\S"
+    }
+  ],
+  "styles": [
+    "./styles/styles.less"
+  ],
   "block": {
-    "component": { "file": "./components/block.js" },
-    "template": { "file": "./templates/block.hbs" }
+    "component": {
+      "file": "./components/block.js"
+    },
+    "template": {
+      "file": "./templates/block.hbs"
+    }
   },
   "defaultColor": "dark-pink",
-  "request": { "cert": "", "key": "", "passphrase": "", "ca": "", "proxy": "" },
-  "logging": { "level": "info" },
+  "request": {
+    "cert": "",
+    "key": "",
+    "passphrase": "",
+    "ca": "",
+    "proxy": ""
+  },
+  "logging": {
+    "level": "info"
+  },
   "options": [
     {
       "key": "urlV4",
@@ -52,10 +80,10 @@
       "adminOnly": false
     },
     {
-      "key": "disableFreeTextSearch",
-      "name": "Disable Free Text Search",
-      "description": "Disables the ability to search non-entity text.",
-      "default": false,
+      "key": "enableThreatActorSearch",
+      "name": "Enable Threat Actor Search",
+      "description": "If checked, the integration will search threat actors by name.",
+      "default": true,
       "type": "boolean",
       "userCanEdit": false,
       "adminOnly": false
