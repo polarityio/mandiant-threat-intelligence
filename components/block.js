@@ -9,8 +9,6 @@ polarity.export = PolarityComponent.extend({
   activeTab: '',
 
   displayTabNames: {
-    indicatorV3: 'Indicator',
-    collections: 'Collections',
     indicatorV4: 'Indicator',
     vulnerabilities: 'Vulnerabilities',
     threatActorResults: 'Threat Actors',
@@ -22,11 +20,7 @@ polarity.export = PolarityComponent.extend({
     const details = this.get('details');
     this.set(
       'activeTab',
-      details.indicatorV3
-        ? 'indicatorV3'
-        : details.collections && details.collections.length
-        ? 'collections'
-        : details.indicatorV4
+      details.indicatorV4
         ? 'indicatorV4'
         : details.threatActorResults
         ? 'threatActorResults'
@@ -34,15 +28,6 @@ polarity.export = PolarityComponent.extend({
         ? 'vulnerabilities'
         : 'searchResults'
     );
-
-    if (details.indicatorV3 && details.indicatorV4)
-      this.set(
-        'displayTabNames',
-        Object.assign({}, this.get('displayTabNames'), {
-          indicatorV3: 'Indicator V3',
-          indicatorV4: 'Indicator V4'
-        })
-      );
 
     if (!this.get('block._state')) {
       this.set('block._state', {});

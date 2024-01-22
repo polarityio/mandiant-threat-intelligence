@@ -20,6 +20,7 @@ const searchIndicators = async (entityChunk, options) =>
       method: 'POST',
       url: `${options.urlV4}/v4/indicator`,
       body: {
+        gte_mscore: options.minimumMScore,
         include_reports: true,
         include_campaigns: true,
         requests: [{ values: map(flow(get('value'), toLower), entityChunk) }]

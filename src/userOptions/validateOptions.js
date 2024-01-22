@@ -1,13 +1,8 @@
-const { compact, map, get } = require('lodash/fp');
 const { validateStringOptions, validateUrlOption } = require('./utils');
 
 const validateOptions = (options, callback) => {
   const stringOptionsErrorMessages = {
-    ...(!options.urlV3.value &&
-      !options.urlV4.value && {
-        urlV3: 'Either V3 URL or V4 URL are Required',
-        urlV4: 'Either V3 URL or V4 URL are Required'
-      }),
+    urlV4: '* Required',
     publicKey: '* Required',
     privateKey: '* Required'
   };
@@ -17,15 +12,13 @@ const validateOptions = (options, callback) => {
     options
   );
 
-  let urlErrors = (options.urlV3.value ? validateUrlOption(options, 'urlV3') : []).concat(
-    options.urlV4.value ? validateUrlOption(options, 'urlV4') : []
-  );
+  let urlError = options.urlV4.value ? validateUrlOption(options, 'urlV4') : []
 
   const minScoreError =
     options.minimumMScore.value < 0 || options.minimumMScore.value > 100
       ? {
           key: 'minimumMScore',
-          message: 'The Minimum MScore must be between 0 and 100'
+          message: 'The Minimum ThreatScore must be between 0 and 100'
         }
       : [];
 
@@ -46,7 +39,7 @@ const validateOptions = (options, callback) => {
       : [];
 
   const errors = stringValidationErrors
-    .concat(urlErrors)
+    .concat(urlError)
     .concat(minScoreError)
     .concat(maxConcurrentError)
     .concat(minTimeError);

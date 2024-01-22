@@ -2,7 +2,6 @@ const { get, size, map } = require('lodash/fp');
 const { getLogger } = require('../logging');
 
 const { authenticatedRequest } = require('../request');
-const { MAX_RESULTS } = require('../collections/indicatorTypes');
 
 /**
  * Used specifically to search for CVEs which cannot use the bulk endpoint.  Returns a completely different
@@ -22,10 +21,8 @@ const doSearch = async (entity, options) =>
       url: `${options.urlV4}/v4/search`,
       body: {
         search: entity.value,
-        limit: MAX_RESULTS
-      },
-      headers: {
-        'Content-Type': 'application/json'
+        type: options.searchResultsType.value,
+        limit: 10
       }
     };
 

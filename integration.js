@@ -10,11 +10,13 @@ const lookupEntities = require('./src/lookupEntities');
 
 async function doLookup(entities, options, cb) {
   const Logger = getLogger();
-  Logger.trace({ entities, options }, 'Lookup Entities & Options')
-  
+  Logger.trace({ entities, options }, 'Lookup Entities & Options');
+
   try {
     let { lookupResults, filteredEntities, cveEntities, customEntities } =
       getFilteredEntities(entities, options);
+
+    customEntities = options.enableThreatActorSearch ? customEntities : [];
 
     const indicatorLookupResults = await lookupNonCveEntities(filteredEntities, options);
 
@@ -29,7 +31,16 @@ async function doLookup(entities, options, cb) {
       options
     );
 
-    Logger.trace({ lookupResults, allSearchLookupResults }, 'Lookup Results');
+    Logger.trace(
+      {
+        lookupResults,
+        filteredEntities,
+        cveEntities,
+        customEntities,
+        allSearchLookupResults
+      },
+      'Lookup Results'
+    );
 
     cb(null, lookupResults.concat(allSearchLookupResults));
   } catch (lookupError) {

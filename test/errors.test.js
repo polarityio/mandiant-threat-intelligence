@@ -2,7 +2,7 @@ const nock = require('nock');
 const { doLookup, startup } = require('../integration');
 
 const options = {
-  urlV3: 'https://api.intelligence.fireeye.com',
+  urlV4: 'https://api.intelligence.mandiant.com',
   publicKeyV3: 'publicKey',
   privateKeyV3: 'privateKey',
   minimumMScore: 51,
@@ -60,7 +60,7 @@ beforeAll(() => {
 const buildErrorTest = (describeMessage, route, entity, defaultSuccessRoutes = []) =>
   describe(describeMessage, () => {
     beforeEach(() => {
-      scope = nock(options.urlV3).post('/token').reply(200, 'Nock token');
+      scope = nock(options.urlV4).post('/token').reply(200, 'Nock token');
       defaultSuccessRoutes.forEach((successRoute) => scope.post(successRoute).reply(200, {}));
     });
 
@@ -113,5 +113,5 @@ const testForError = (err, lookupResults, messageContainsString) => {
   expect(err.errors[0].detail).toEqual(expect.stringContaining(messageContainsString));
 };
 
-buildErrorTest('When searching for Indicators:', '/collections/indicators/objects', ip);
-buildErrorTest('When searching for Collections:', '/collections/search', cve, ['/collections/indicators/objects']);
+buildErrorTest('When searching for Indicators:', '/v4/indicator', ip);
+buildErrorTest('When searching for Search:', 'v4/search', cve);

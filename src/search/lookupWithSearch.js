@@ -9,7 +9,9 @@ const lookupWithSearch = async (
   customEntities,
   options
 ) => {
-  const entities = filteredEntities.concat(cveEntities).concat(customEntities);
+  const entities = filteredEntities
+    .concat(cveEntities)
+    .concat(customEntities);
 
   const limitedDoSearch = getLimiter(options).wrap(doSearch);
 
