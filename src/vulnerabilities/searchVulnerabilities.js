@@ -1,4 +1,4 @@
-const { map, get, size, flow } = require('lodash/fp');
+const { toUpper, map, get, size, flow } = require('lodash/fp');
 const { getLogger } = require('../logging');
 
 const { authenticatedRequest } = require('../request');
@@ -20,7 +20,7 @@ const searchVulnerabilities = async (entityChunk, options) =>
       method: 'POST',
       url: `${options.urlV4}/v4/vulnerability`,
       body: {
-        requests: [{ values: map(get('value'), entityChunk) }],
+        requests: [{ values: map(flow(get('value'), toUpper), entityChunk) }],
         rating_types: map('value', options.vulnerabilityRatingSources),
         has_cve: true
       },
