@@ -94,3 +94,80 @@ pre {
 .search-result > .p-title {
   margin-top: 10px;
 }
+
+.attack-pattern-box {
+  border: 1px solid gray;
+  border-radius: 4px;
+  margin-bottom: 3px;
+  padding: 1px 5px;
+}
+
+.threat-actor-attack-patterns, .search-threat-actor-attack-patterns {
+  .threat-actor-attack-patterns-content, .search-threat-actor-attack-patterns-content {
+    margin-left: 5px;
+
+    .attack-pattern-group {
+      margin: 0;
+      margin-bottom: 2px;
+      line-height: 15px;
+      background-color: #dedede;
+
+      .expandable-title {
+        line-height: 15px;
+        color: #161625 !important;
+
+        .text {
+          color: #161625 !important;
+          border-bottom: none;
+          font-size: 14px;
+          font-style: italic;
+        }
+      }
+      .attack-pattern-group-content {
+        .attack-pattern {
+          background-color: white;
+
+          .expandable-title {
+            .text {
+              font-size: 13px;
+              font-style: normal;
+            }
+          }
+
+          .attack-pattern-content {
+            pre {
+              margin: 2px 0px;
+              padding: 4px;
+              background-color: #dedede;
+              border-radius: 2px;
+              white-space: pre-wrap;
+              word-break: break-word;
+              background-color: #e6e6e6;
+            }
+
+            .sub-techniques {
+              .expandable-title {
+                .text {
+                  font-size: 12px;
+                  font-style: italic;
+                }
+              }
+
+              .sub-technique {
+                background-color: #e6e6e6;
+                padding-bottom: 3px;
+
+                .sub-technique-content {
+                  pre {
+                    background-color: white;
+                    color: black;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

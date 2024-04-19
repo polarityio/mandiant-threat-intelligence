@@ -133,6 +133,16 @@ module.exports = {
       adminOnly: false
     },
     {
+      key: 'getThreatActorAssociatedAttackPatternsAndReports',
+      name: 'Get Threat Actor associated Attack Patterns and Reports',
+      description:
+        'If checked, the integration will get associated Attack Patterns and Reports by found Threat Actors in `Threat Actors` and `Search` Tabs.',
+      default: true,
+      type: 'boolean',
+      userCanEdit: false,
+      adminOnly: false
+    },
+    {
       key: 'vulnerabilityRatingSources',
       name: 'Vulnerability Rating Sources',
       description:
@@ -170,50 +180,50 @@ module.exports = {
       userCanEdit: true,
       adminOnly: false
     },
-    // {
-    //   key: 'searchResultsType',
-    //   name: 'Search Results Type',
-    //   description:
-    //     'Search Results returns for Indicators, Malware, Reports, Threat Actors, and Vulnerabilities. Use this to limit the Search Results to just one specific Type, `All` types, or disable the Search Results with `None`.',
-    //   type: 'select',
-    //   default: {
-    //     value: 'all',
-    //     display: 'All'
-    //   },
-    //   options: [
-    //     {
-    //       value: 'all',
-    //       display: 'All'
-    //     },
-    //     {
-    //       value: 'indicator',
-    //       display: 'Indicators'
-    //     },
-    //     {
-    //       value: 'malware',
-    //       display: 'Malware'
-    //     },
-    //     {
-    //       value: 'report',
-    //       display: 'Reports'
-    //     },
-    //     {
-    //       value: 'threat-actor',
-    //       display: 'Threat Actors'
-    //     },
-    //     {
-    //       value: 'vulnerability',
-    //       display: 'Vulnerabilities'
-    //     },
-    //     {
-    //       value: 'none',
-    //       display: 'None'
-    //     }
-    //   ],
-    //   multiple: false,
-    //   userCanEdit: true,
-    //   adminOnly: false
-    // },
+    {
+      key: 'searchResultsType',
+      name: 'Search Results Type',
+      description:
+        'Search Results returns for Indicators, Malware, Reports, Threat Actors, and Vulnerabilities. Use this to limit the Search Results to just one specific Type, `All` types, or disable the Search Results with `None`.',
+      type: 'select',
+      default: {
+        value: 'all',
+        display: 'All'
+      },
+      options: [
+        {
+          value: 'all',
+          display: 'All'
+        },
+        {
+          value: 'indicator',
+          display: 'Indicators'
+        },
+        {
+          value: 'malware',
+          display: 'Malware'
+        },
+        {
+          value: 'report',
+          display: 'Reports'
+        },
+        {
+          value: 'threat-actor',
+          display: 'Threat Actors'
+        },
+        {
+          value: 'vulnerability',
+          display: 'Vulnerabilities'
+        },
+        {
+          value: 'none',
+          display: 'None'
+        }
+      ],
+      multiple: false,
+      userCanEdit: true,
+      adminOnly: false
+    },
     {
       key: 'blocklist',
       name: 'Ignored Entities',

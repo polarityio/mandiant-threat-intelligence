@@ -28,14 +28,14 @@ const lookupIndicators = async (nonCveEntities, options) => {
             return associateEntitiesWithIndicators(entityChunk, indicators, options);
           } catch (error) {
             if (Math.floor(parseInt(get('errors.0.status', error)) / 100) * 100 === 500) {
-              return {
+              return map((entityObj) => ({
                 entity: entityObj,
                 isVolatile: true,
                 data: {
                   summary: ['Search Returned Error'],
                   details: { errorMessage: get('errors.0.detail', error) }
                 }
-              };
+              }), entityChunk);
             }
             throw error;
           }

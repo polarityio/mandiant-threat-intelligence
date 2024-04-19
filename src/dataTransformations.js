@@ -40,33 +40,6 @@ const and =
   (x) =>
     func(x) && (funcs.length ? and(...funcs)(x) : true);
 
-// func: (value, key) => [newKey, newValue], obj: { key1:value1, key2:value2 }
-// return { newKey1: newValue1, newKey2: newValue2 }
-const mapObject = curry((func, obj) =>
-  obj
-    ? flow(
-        Object.entries,
-        map(([key, value]) => func(value, key)),
-        filter(and(negate(isEmpty), flow(size, eq(2)))),
-        transpose2DArray,
-        ([keys, values]) => zipObject(keys, values)
-      )(obj)
-    : obj
-);
-
-const mapObjectAsync = async (func, obj) => {
-  // func: (value, key) => [newKey, newValue], obj: { key1:value1, key2:value2 }
-  // return { newKey1: newValue1, newKey2: newValue2 }
-  const unzippedResults = await Promise.all(
-    map(async ([key, value]) => await func(value, key), Object.entries(obj))
-  );
-
-  return flow(
-    filter(and(negate(isEmpty), flow(size, eq(2)))),
-    transpose2DArray,
-    ([keys, values]) => zipObject(keys, values)
-  )(unzippedResults);
-};
 
 const objectPromiseAll = async (obj = { fn1: async () => {} }) => {
   const labels = keys(obj);
@@ -155,8 +128,6 @@ module.exports = {
   mergeLookupResults,
   objectPromiseAll,
   asyncObjectReduce,
-  mapObject,
-  mapObjectAsync,
   transpose2DArray,
   parseErrorToReadableJson,
   and,

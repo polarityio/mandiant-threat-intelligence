@@ -429,7 +429,16 @@
             {{#if vulnerability.audience.length}}
               <div>
                 <span class="p-key">Audiences:</span>
-                <span class="p-value">{{join ", " vulnerability.audience}}</span>
+                <span class="p-value">
+                  {{#each vulnerability.audience as |audience index|}}
+                    {{titleize (humanize (dasherize (or audience.name audience)))}}
+                    {{#if audience.license}}({{titleize
+                        (humanize (dasherize audience.license))
+                      }}){{/if}}{{#if
+                      (not (eq (sub vulnerability.audience.length 1) index))
+                    }}, {{/if}}
+                  {{/each}}
+                </span>
               </div>
             {{/if}}
             {{#if vulnerability.aliases.length}}
@@ -1010,10 +1019,18 @@
                       {{#if associated_report.audience.length}}
                         <div>
                           <span class="p-key">Audiences:</span>
-                          <span class="p-value">{{join
-                              ", "
-                              associated_report.audience
-                            }}</span>
+                          <span class="p-value">
+                            {{#each associated_report.audience as |audience index|}}
+                              {{titleize
+                                (humanize (dasherize (or audience.name audience)))
+                              }}
+                              {{#if audience.license}}({{titleize
+                                  (humanize (dasherize audience.license))
+                                }}){{/if}}{{#if
+                                (not (eq (sub associated_report.audience.length 1) index))
+                              }}, {{/if}}
+                            {{/each}}
+                          </span>
                         </div>
                       {{/if}}
                     </div>
@@ -1503,46 +1520,40 @@
 
     {{#if (eq activeTab "threatActorResults")}}
       <div class="threat-actor-results">
-        {{#with details.threatActorResults as |threatActorResults|}}
+        {{#with details.threatActorResults as |threatActorResult|}}
           <div class="p-link">
-            <a href="https://advantage.mandiant.com/actors/{{threatActorResults.id}}">
+            <a href="https://advantage.mandiant.com/actors/{{threatActorResult.id}}">
               View in Mandiant
               {{fa-icon icon="external-link-square" class="external-link-icon"}}
             </a>
           </div>
-          {{#if threatActorResults.name}}
+          {{#if threatActorResult.name}}
             <div>
               <span class="p-key">Name:</span>
-              <span class="p-value">{{threatActorResults.name}}</span>
+              <span class="p-value">{{threatActorResult.name}}</span>
             </div>
           {{/if}}
-          {{#if threatActorResults.description}}
+          {{#if threatActorResult.description}}
             <div>
               <span class="p-key">Description:</span>
-              <span class="p-value">{{threatActorResults.description}}</span>
+              <span class="p-value">{{threatActorResult.description}}</span>
             </div>
           {{/if}}
-          {{#if threatActorResults.type}}
-            <div>
-              <span class="p-key">Type:</span>
-              <span class="p-value">{{threatActorResults.type}}</span>
-            </div>
-          {{/if}}
-          {{#if threatActorResults.last_activity_time}}
+          {{#if threatActorResult.last_activity_time}}
             <div>
               <span class="p-key">Last Activity Time:</span>
               <span class="p-value">{{moment-format
-                  threatActorResults.last_activity_time
+                  threatActorResult.last_activity_time
                   "MM/DD/YYYY HH:mm:ss z"
                   timeZone=timezone
                 }}</span>
             </div>
           {{/if}}
-          {{#if threatActorResults.last_updated}}
+          {{#if threatActorResult.last_updated}}
             <div>
               <span class="p-key">Last Updated:</span>
               <span class="p-value">{{moment-format
-                  threatActorResults.last_updated
+                  threatActorResult.last_updated
                   "MM/DD/YYYY HH:mm:ss z"
                   timeZone=timezone
                 }}</span>
@@ -1550,89 +1561,91 @@
           {{/if}}
           {{#if
             (or
-              (eq threatActorResults.is_publishable true)
-              (eq threatActorResults.is_publishable false)
+              (eq threatActorResult.is_publishable true)
+              (eq threatActorResult.is_publishable false)
             )
           }}
             <div>
               <span class="p-key">Is Publishable:</span>
-              <span class="p-value">{{threatActorResults.is_publishable}}</span>
+              <span class="p-value">{{threatActorResult.is_publishable}}</span>
             </div>
           {{/if}}
           {{#if
             (or
-              (eq threatActorResults.intel_free true)
-              (eq threatActorResults.intel_free false)
+              (eq threatActorResult.intel_free true)
+              (eq threatActorResult.intel_free false)
             )
           }}
             <div>
               <span class="p-key">Intel Free:</span>
-              <span class="p-value">{{threatActorResults.intel_free}}</span>
+              <span class="p-value">{{threatActorResult.intel_free}}</span>
             </div>
           {{/if}}
-          {{#if threatActorResults.audience.length}}
+          {{#if threatActorResult.audience.length}}
             <div>
               <span class="p-key">Audiences:</span>
               <span class="p-value">
-                {{#each threatActorResults.audience as |audience index|}}
-                  {{audience.name}}
-                  ({{audience.license}}){{#if
-                    (not (eq (sub hreatActorResults.audience.length 1) index))
+                {{#each threatActorResult.audience as |audience index|}}
+                  {{titleize (humanize (dasherize (or audience.name audience)))}}
+                  {{#if audience.license}}({{titleize
+                      (humanize (dasherize audience.license))
+                    }}){{/if}}{{#if
+                    (not (eq (sub threatActorResult.audience.length 1) index))
                   }}, {{/if}}
                 {{/each}}
               </span>
             </div>
           {{/if}}
-          {{#if threatActorResults.tools.length}}
+          {{#if threatActorResult.tools.length}}
             <div>
               <span class="p-key">Tools:</span>
               <span class="p-value">
-                {{#each threatActorResults.tools as |tool index|}}
+                {{#each threatActorResult.tools as |tool index|}}
                   {{tool.name}}{{#if
-                    (not (eq (sub threatActorResults.tools.length 1) index))
+                    (not (eq (sub threatActorResult.tools.length 1) index))
                   }}, {{/if}}
                 {{/each}}
               </span>
             </div>
           {{/if}}
-          {{#if threatActorResults.motivations.length}}
+          {{#if threatActorResult.motivations.length}}
             <div>
               <span class="p-key">Motivations:</span>
               <span class="p-value">
-                {{#each threatActorResults.motivations as |motivation index|}}
+                {{#each threatActorResult.motivations as |motivation index|}}
                   {{motivation.name}}{{#if
-                    (not (eq (sub threatActorResults.motivations.length 1) index))
+                    (not (eq (sub threatActorResult.motivations.length 1) index))
                   }}, {{/if}}
                 {{/each}}
               </span>
             </div>
           {{/if}}
-          {{#if threatActorResults.cve.length}}
+          {{#if threatActorResult.cve.length}}
             <div>
               <span class="p-key">CVEs:</span>
               <span class="p-value">
-                {{#each threatActorResults.cve as |cve index|}}
+                {{#each threatActorResult.cve as |cve index|}}
                   {{cve.cve_id}}{{#if
-                    (not (eq (sub threatActorResults.cve.length 1) index))
+                    (not (eq (sub threatActorResult.cve.length 1) index))
                   }}, {{/if}}
                 {{/each}}
               </span>
             </div>
           {{/if}}
-          {{#if threatActorResults.associated_uncs.length}}
+          {{#if threatActorResult.associated_uncs.length}}
             <div>
               <span class="p-key">Associated UNCs:</span>
               <span class="p-value">
-                {{#each threatActorResults.associated_uncs as |associated_unc index|}}
+                {{#each threatActorResult.associated_uncs as |associated_unc index|}}
                   {{associated_unc.name}}{{#if
-                    (not (eq (sub threatActorResults.associated_uncs.length 1) index))
+                    (not (eq (sub threatActorResult.associated_uncs.length 1) index))
                   }}, {{/if}}
                 {{/each}}
               </span>
             </div>
           {{/if}}
 
-          {{#if threatActorResults.counts}}
+          {{#if threatActorResult.counts}}
             <div class="threat-actor-counts">
               {{#if (get expandableTitleStates (concat "threatActorCounts" 0))}}
                 <a
@@ -1643,7 +1656,7 @@
                   {{fa-icon "angle-up"}}
                 </a>
                 <div class="ml-2 threat-actor-counts-content">
-                  {{#each-in threatActorResults.counts as |countKey countValue|}}
+                  {{#each-in threatActorResult.counts as |countKey countValue|}}
                     <div>
                       <span class="p-key">{{titleize
                           (humanize (dasherize countKey))
@@ -1663,7 +1676,7 @@
               {{/if}}
             </div>
           {{/if}}
-          {{#if threatActorResults.suspected_attribution}}
+          {{#if threatActorResult.suspected_attribution}}
             <div class="threat-actor-suspected-attribution">
               {{#if
                 (get expandableTitleStates (concat "threatActorSuspectedAttribution" 0))
@@ -1680,7 +1693,7 @@
                 </a>
                 <div class="ml-2 threat-actor-suspected-attribution-content">
                   {{#each
-                    threatActorResults.suspected_attribution
+                    threatActorResult.suspected_attribution
                     as |suspectedAttribution|
                   }}
                     <div class="mb-2">
@@ -1717,7 +1730,7 @@
               {{/if}}
             </div>
           {{/if}}
-          {{#if threatActorResults.aliases}}
+          {{#if threatActorResult.aliases}}
             <div class="threat-actor-aliases">
               {{#if (get expandableTitleStates (concat "threatActorAliases" 0))}}
                 <a
@@ -1728,7 +1741,7 @@
                   {{fa-icon "angle-up"}}
                 </a>
                 <div class="ml-2 threat-actor-aliases-content">
-                  {{#each threatActorResults.aliases as |alias|}}
+                  {{#each threatActorResult.aliases as |alias|}}
                     <div class="mb-2">
                       {{#if alias.name}}
                         <div>
@@ -1770,7 +1783,7 @@
               {{/if}}
             </div>
           {{/if}}
-          {{#if threatActorResults.observed}}
+          {{#if threatActorResult.observed}}
             <div class="threat-actor-observations">
               {{#if (get expandableTitleStates (concat "threatActorObservations" 0))}}
                 <a
@@ -1784,7 +1797,7 @@
                   {{fa-icon "angle-up"}}
                 </a>
                 <div class="ml-2 threat-actor-observations-content">
-                  {{#each threatActorResults.observed as |observationDate|}}
+                  {{#each threatActorResult.observed as |observationDate|}}
                     <div class="mb-2">
                       {{#if observationDate.earliest}}
                         <div>
@@ -1831,7 +1844,7 @@
               {{/if}}
             </div>
           {{/if}}
-          {{#if threatActorResults.locations}}
+          {{#if threatActorResult.locations}}
             <div class="threat-actor-location">
               {{#if (get expandableTitleStates (concat "threatActorLocations" 0))}}
                 <a
@@ -1842,18 +1855,18 @@
                   {{fa-icon "angle-up"}}
                 </a>
                 <div class="ml-2 threat-actor-location-source-content">
-                  {{#if threatActorResults.locations.target_region.length}}
+                  {{#if threatActorResult.locations.target_region.length}}
                     <div>
                       <span class="p-key">Target Regions:</span>
                       <span class="p-value">
                         {{#each
-                          threatActorResults.locations.target_region
+                          threatActorResult.locations.target_region
                           as |targetRegion index|
                         }}
                           {{targetRegion.name}}{{#if
                             (not
                               (eq
-                                (sub threatActorResults.locations.target_region.length 1)
+                                (sub threatActorResult.locations.target_region.length 1)
                                 index
                               )
                             )
@@ -1862,12 +1875,12 @@
                       </span>
                     </div>
                   {{/if}}
-                  {{#if threatActorResults.locations.target_sub_region.length}}
+                  {{#if threatActorResult.locations.target_sub_region.length}}
                     <div>
                       <span class="p-key">Target Sub Regions:</span>
                       <span class="p-value">
                         {{#each
-                          threatActorResults.locations.target_sub_region
+                          threatActorResult.locations.target_sub_region
                           as |targetRegion index|
                         }}
                           {{targetRegion.name}}
@@ -1875,7 +1888,7 @@
                             (not
                               (eq
                                 (sub
-                                  threatActorResults.locations.target_sub_region.length 1
+                                  threatActorResult.locations.target_sub_region.length 1
                                 )
                                 index
                               )
@@ -1885,7 +1898,7 @@
                       </span>
                     </div>
                   {{/if}}
-                  {{#if threatActorResults.locations.source}}
+                  {{#if threatActorResult.locations.source}}
                     <div class="threat-actor-location-source">
                       {{#if
                         (get
@@ -1905,10 +1918,7 @@
                           {{fa-icon "angle-up"}}
                         </a>
                         <div class="ml-2 threat-actor-location-source-content">
-                          {{#each
-                            threatActorResults.locations.source
-                            as |locationSource|
-                          }}
+                          {{#each threatActorResult.locations.source as |locationSource|}}
                             <div class="mb-2">
                               {{#if locationSource.region.name}}
                                 <div>
@@ -1969,7 +1979,7 @@
                       {{/if}}
                     </div>
                   {{/if}}
-                  {{#if threatActorResults.locations.target}}
+                  {{#if threatActorResult.locations.target}}
                     <div class="threat-actor-location-target">
                       {{#if
                         (get
@@ -1989,10 +1999,7 @@
                           {{fa-icon "angle-up"}}
                         </a>
                         <div class="ml-2 threat-actor-location-target-content">
-                          {{#each
-                            threatActorResults.locations.target
-                            as |locationTarget|
-                          }}
+                          {{#each threatActorResult.locations.target as |locationTarget|}}
                             <div class="mb-2">
                               {{#if locationTarget.name}}
                                 <div>
@@ -2065,7 +2072,7 @@
               {{/if}}
             </div>
           {{/if}}
-          {{#if threatActorResults.industries}}
+          {{#if threatActorResult.industries}}
             <div class="threat-actor-industries">
               {{#if (get expandableTitleStates (concat "threatActorIndustries" 0))}}
                 <a
@@ -2079,7 +2086,7 @@
                   {{fa-icon "angle-up"}}
                 </a>
                 <div class="ml-2 threat-actor-industries-content">
-                  {{#each threatActorResults.industries as |industry|}}
+                  {{#each threatActorResult.industries as |industry|}}
                     <div class="mb-2">
                       {{#if industry.name}}
                         <div>
@@ -2127,6 +2134,212 @@
                   }}
                 >
                   <span class="text">Industries</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+          {{#if threatActorResult.attackPatterns}}
+            <div class="threat-actor-attack-patterns">
+              {{#if (get expandableTitleStates (concat "threatActorAttackPatterns" 0))}}
+                <a
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorAttackPatterns" 0)
+                  }}
+                >
+                  <span class="text">Attack Patterns</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="threat-actor-attack-patterns-content">
+                  {{#each-in
+                    threatActorResult.attackPatterns
+                    as |patternGroupName groupAttackPatterns|
+                  }}
+                    <div class="attack-pattern-group attack-pattern-box">
+                      {{#if
+                        (get
+                          expandableTitleStates
+                          (concat "threatActorAttackPatternsGroup" patternGroupName)
+                        )
+                      }}
+                        <a
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle"
+                              "threatActorAttackPatternsGroup"
+                              patternGroupName
+                            )
+                          }}
+                        >
+                          <span class="text">{{patternGroupName}}</span>
+                          {{fa-icon "angle-up"}}
+                        </a>
+                        <div class="attack-pattern-group-content">
+                          {{#each groupAttackPatterns as |attackPattern|}}
+                            <div class="attack-pattern attack-pattern-box">
+                              {{#if
+                                (get
+                                  expandableTitleStates
+                                  (concat "threatActorAttackPattern" attackPattern.id)
+                                )
+                              }}
+                                <a
+                                  class="expandable-title"
+                                  {{on
+                                    "click"
+                                    (action
+                                      "toggleExpandableTitle"
+                                      "threatActorAttackPattern"
+                                      attackPattern.id
+                                    )
+                                  }}
+                                >
+                                  <span class="text">{{attackPattern.name}}
+                                    ({{attackPattern.attack_pattern_identifier}})</span>
+                                  {{fa-icon "angle-up"}}
+                                </a>
+                                <div class="attack-pattern-content">
+                                  {{#if attackPattern.subTechniques}}
+                                    <div class="sub-techniques">
+                                      {{#each
+                                        attackPattern.subTechniques
+                                        as |subTechniqueAttackPattern|
+                                      }}
+                                        <div class="sub-technique attack-pattern-box">
+                                          {{#if
+                                            (get
+                                              expandableTitleStates
+                                              (concat
+                                                "threatActorAttackPatternSubTechnique"
+                                                subTechniqueAttackPattern.id
+                                              )
+                                            )
+                                          }}
+                                            <a
+                                              class="expandable-title"
+                                              {{on
+                                                "click"
+                                                (action
+                                                  "toggleExpandableTitle"
+                                                  "threatActorAttackPatternSubTechnique"
+                                                  subTechniqueAttackPattern.id
+                                                )
+                                              }}
+                                            >
+                                              <span
+                                                class="text"
+                                              >{{subTechniqueAttackPattern.name}}
+                                                ({{subTechniqueAttackPattern.attack_pattern_identifier}})</span>
+                                              {{fa-icon "angle-up"}}
+                                            </a>
+                                            <div class="sub-technique-content">
+                                              {{#if subTechniqueAttackPattern.modified}}
+                                                <div>
+                                                  <span class="p-key">Last Updated:</span>
+                                                  <span class="p-value"><span
+                                                      class="p-value"
+                                                    >
+                                                      {{moment-format
+                                                        attackPattern.modified
+                                                        "MM/DD/YYYY HH:mm:ss z"
+                                                        timeZone=timezone
+                                                      }}</span></span>
+                                                </div>
+                                              {{/if}}
+                                              <pre
+                                              >{{subTechniqueAttackPattern.description}}</pre>
+                                            </div>
+                                          {{else}}
+                                            <a
+                                              class="expandable-title"
+                                              {{on
+                                                "click"
+                                                (action
+                                                  "toggleExpandableTitle"
+                                                  "threatActorAttackPatternSubTechnique"
+                                                  subTechniqueAttackPattern.id
+                                                )
+                                              }}
+                                            >
+                                              <span
+                                                class="text"
+                                              >{{subTechniqueAttackPattern.name}}
+                                                ({{subTechniqueAttackPattern.attack_pattern_identifier}})</span>
+                                              {{fa-icon "angle-down"}}
+                                            </a>
+                                          {{/if}}
+                                        </div>
+                                      {{/each}}
+                                    </div>
+                                  {{/if}}
+
+                                  <div class="mb-1">
+                                    {{#if attackPattern.modified}}
+                                      <div>
+                                        <span class="p-key">Last Updated:</span>
+                                        <span class="p-value">
+                                          {{moment-format
+                                            attackPattern.modified
+                                            "MM/DD/YYYY HH:mm:ss z"
+                                            timeZone=timezone
+                                          }}</span>
+                                      </div>
+                                    {{/if}}
+                                    <pre>{{attackPattern.description}}</pre>
+                                  </div>
+                                </div>
+                              {{else}}
+                                <a
+                                  class="expandable-title"
+                                  {{on
+                                    "click"
+                                    (action
+                                      "toggleExpandableTitle"
+                                      "threatActorAttackPattern"
+                                      attackPattern.id
+                                    )
+                                  }}
+                                >
+                                  <span class="text">{{attackPattern.name}}
+                                    ({{attackPattern.attack_pattern_identifier}})</span>
+                                  {{fa-icon "angle-down"}}
+                                </a>
+                              {{/if}}
+                            </div>
+                          {{/each}}
+                        </div>
+                      {{else}}
+                        <a
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action
+                              "toggleExpandableTitle"
+                              "threatActorAttackPatternsGroup"
+                              patternGroupName
+                            )
+                          }}
+                        >
+                          <span class="text">{{patternGroupName}}</span>
+                          {{fa-icon "angle-down"}}
+                        </a>
+                      {{/if}}
+                    </div>
+                  {{/each-in}}
+                </div>
+              {{else}}
+                <a
+                  class="expandable-title"
+                  {{on
+                    "click"
+                    (action "toggleExpandableTitle" "threatActorAttackPatterns" 0)
+                  }}
+                >
+                  <span class="text">Attack Patterns</span>
                   {{fa-icon "angle-down"}}
                 </a>
               {{/if}}
@@ -2191,7 +2404,16 @@
               {{#if searchResult.audience.length}}
                 <div>
                   <span class="p-key">Audiences:</span>
-                  <span class="p-value">{{join ", " searchResult.audience}}</span>
+                  <span class="p-value">
+                    {{#each searchResult.audience as |audience index|}}
+                      {{titleize (humanize (dasherize (or audience.name audience)))}}
+                      {{#if audience.license}}({{titleize
+                          (humanize (dasherize audience.license))
+                        }}){{/if}}{{#if
+                        (not (eq (sub searchResult.audience.length 1) index))
+                      }}, {{/if}}
+                    {{/each}}
+                  </span>
                 </div>
               {{/if}}
               {{#if searchResult.actors.length}}
@@ -2353,6 +2575,227 @@
                     {{fa-icon "angle-down"}}
                   </a>
                 {{/if}}
+              {{/if}}
+
+              {{#if searchResult.attackPatterns}}
+                <div class="search-threat-actor-attack-patterns">
+                  {{#if
+                    (get
+                      expandableTitleStates (concat "searchThreatActorAttackPatterns" searchResultIndex)
+                    )
+                  }}
+                    <a
+                      class="expandable-title"
+                      {{on
+                        "click"
+                        (action
+                          "toggleExpandableTitle" "searchThreatActorAttackPatterns" searchResultIndex
+                        )
+                      }}
+                    >
+                      <span class="text">Attack Patterns</span>
+                      {{fa-icon "angle-up"}}
+                    </a>
+                    <div class="search-threat-actor-attack-patterns-content">
+                      {{#each-in
+                        searchResult.attackPatterns
+                        as |patternGroupName groupAttackPatterns|
+                      }}
+                        <div class="attack-pattern-group attack-pattern-box">
+                          {{#if
+                            (get
+                              expandableTitleStates
+                              (concat
+                                "searchThreatActorAttackPatternsGroup" patternGroupName
+                              )
+                            )
+                          }}
+                            <a
+                              class="expandable-title"
+                              {{on
+                                "click"
+                                (action
+                                  "toggleExpandableTitle"
+                                  "searchThreatActorAttackPatternsGroup"
+                                  patternGroupName
+                                )
+                              }}
+                            >
+                              <span class="text">{{patternGroupName}}</span>
+                              {{fa-icon "angle-up"}}
+                            </a>
+                            <div class="attack-pattern-group-content">
+                              {{#each groupAttackPatterns as |attackPattern|}}
+                                <div class="attack-pattern attack-pattern-box">
+                                  {{#if
+                                    (get
+                                      expandableTitleStates
+                                      (concat
+                                        "searchThreatActorAttackPattern" attackPattern.id
+                                      )
+                                    )
+                                  }}
+                                    <a
+                                      class="expandable-title"
+                                      {{on
+                                        "click"
+                                        (action
+                                          "toggleExpandableTitle"
+                                          "searchThreatActorAttackPattern"
+                                          attackPattern.id
+                                        )
+                                      }}
+                                    >
+                                      <span class="text">{{attackPattern.name}}
+                                        ({{attackPattern.attack_pattern_identifier}})</span>
+                                      {{fa-icon "angle-up"}}
+                                    </a>
+                                    <div class="attack-pattern-content">
+                                      {{#if attackPattern.subTechniques}}
+                                        <div class="sub-techniques">
+                                          {{#each
+                                            attackPattern.subTechniques
+                                            as |subTechniqueAttackPattern|
+                                          }}
+                                            <div class="sub-technique attack-pattern-box">
+                                              {{#if
+                                                (get
+                                                  expandableTitleStates
+                                                  (concat
+                                                    "searchThreatActorAttackPatternSubTechnique"
+                                                    subTechniqueAttackPattern.id
+                                                  )
+                                                )
+                                              }}
+                                                <a
+                                                  class="expandable-title"
+                                                  {{on
+                                                    "click"
+                                                    (action
+                                                      "toggleExpandableTitle"
+                                                      "searchThreatActorAttackPatternSubTechnique"
+                                                      subTechniqueAttackPattern.id
+                                                    )
+                                                  }}
+                                                >
+                                                  <span
+                                                    class="text"
+                                                  >{{subTechniqueAttackPattern.name}}
+                                                    ({{subTechniqueAttackPattern.attack_pattern_identifier}})</span>
+                                                  {{fa-icon "angle-up"}}
+                                                </a>
+                                                <div class="sub-technique-content">
+                                                  {{#if
+                                                    subTechniqueAttackPattern.modified
+                                                  }}
+                                                    <div>
+                                                      <span class="p-key">Last Updated:</span>
+                                                      <span class="p-value"><span
+                                                          class="p-value"
+                                                        >
+                                                          {{moment-format
+                                                            attackPattern.modified
+                                                            "MM/DD/YYYY HH:mm:ss z"
+                                                            timeZone=timezone
+                                                          }}</span></span>
+                                                    </div>
+                                                  {{/if}}
+                                                  <pre
+                                                  >{{subTechniqueAttackPattern.description}}</pre>
+                                                </div>
+                                              {{else}}
+                                                <a
+                                                  class="expandable-title"
+                                                  {{on
+                                                    "click"
+                                                    (action
+                                                      "toggleExpandableTitle"
+                                                      "searchThreatActorAttackPatternSubTechnique"
+                                                      subTechniqueAttackPattern.id
+                                                    )
+                                                  }}
+                                                >
+                                                  <span
+                                                    class="text"
+                                                  >{{subTechniqueAttackPattern.name}}
+                                                    ({{subTechniqueAttackPattern.attack_pattern_identifier}})</span>
+                                                  {{fa-icon "angle-down"}}
+                                                </a>
+                                              {{/if}}
+                                            </div>
+                                          {{/each}}
+                                        </div>
+                                      {{/if}}
+
+                                      <div class="mb-1">
+                                        {{#if attackPattern.modified}}
+                                          <div>
+                                            <span class="p-key">Last Updated:</span>
+                                            <span class="p-value">
+                                              {{moment-format
+                                                attackPattern.modified
+                                                "MM/DD/YYYY HH:mm:ss z"
+                                                timeZone=timezone
+                                              }}</span>
+                                          </div>
+                                        {{/if}}
+                                        <pre>{{attackPattern.description}}</pre>
+                                      </div>
+                                    </div>
+                                  {{else}}
+                                    <a
+                                      class="expandable-title"
+                                      {{on
+                                        "click"
+                                        (action
+                                          "toggleExpandableTitle"
+                                          "searchThreatActorAttackPattern"
+                                          attackPattern.id
+                                        )
+                                      }}
+                                    >
+                                      <span class="text">{{attackPattern.name}}
+                                        ({{attackPattern.attack_pattern_identifier}})</span>
+                                      {{fa-icon "angle-down"}}
+                                    </a>
+                                  {{/if}}
+                                </div>
+                              {{/each}}
+                            </div>
+                          {{else}}
+                            <a
+                              class="expandable-title"
+                              {{on
+                                "click"
+                                (action
+                                  "toggleExpandableTitle"
+                                  "searchThreatActorAttackPatternsGroup"
+                                  patternGroupName
+                                )
+                              }}
+                            >
+                              <span class="text">{{patternGroupName}}</span>
+                              {{fa-icon "angle-down"}}
+                            </a>
+                          {{/if}}
+                        </div>
+                      {{/each-in}}
+                    </div>
+                  {{else}}
+                    <a
+                      class="expandable-title"
+                      {{on
+                        "click"
+                        (action
+                          "toggleExpandableTitle" "searchThreatActorAttackPatterns" searchResultIndex
+                        )
+                      }}
+                    >
+                      <span class="text">Attack Patterns</span>
+                      {{fa-icon "angle-down"}}
+                    </a>
+                  {{/if}}
+                </div>
               {{/if}}
             </div>
           {{/each}}
