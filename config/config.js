@@ -28,8 +28,13 @@ module.exports = {
   entityTypes: ['IPv4', 'domain', 'email', 'MD5', 'SHA1', 'SHA256', 'cve', 'url'],
   customTypes: [
     {
-      key: 'threatActor',
+      key: 'allText',
       regex: /\S[\s\S]{3,30}\S/
+    },
+    {
+      key: 'threatActor',
+      regex:
+        /APT\d{0,6}|FIN\d{0,6}|UNC\d{0,6}|TEMP\.\w{1,25}|Ajax Team|Barista Team|Bolo Team|Conference Crew|Conimes Team|Fallout Team|Havildar Team|Koala Team|Molerats|Naikon Team|Roaming Tiger|Ace|Andromeda|Armageddon|Avengers|Batis|Beanie|Bengal|Demon|DragonOK|Hermit|Hex|Isotope|Jafar|Katar|Lice|MetaStrike|MixMaster|Omega|Overboard|Scimitar|Shadow|Splinter|Tick|Toucan|Traveler|Trident|TruthTeller|Vermin|Zagros|Zombie|Team 338|Termite Team|Tonto Team|Turla Team|ZeroWing Team/
     }
   ],
   /**
@@ -89,7 +94,7 @@ module.exports = {
       key: 'urlV4',
       name: 'Mandiant URL',
       description:
-        'The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`. Leave empty if your keys are not compatible with this API version.',
+        'The URL for the Mandiant Threat Intelligence V4 API.  Defaults to `https://api.intelligence.mandiant.com`.',
       default: 'https://api.intelligence.mandiant.com',
       type: 'text',
       userCanEdit: false,

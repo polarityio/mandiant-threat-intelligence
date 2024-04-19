@@ -40,7 +40,7 @@ function getFilteredEntities(entities, options) {
         entity: entityObj,
         data: null
       });
-    } else if (entityObj.type.includes('custom') && size(entityObj.types) === 1) {
+    } else if (entityObj.type.includes('custom') && entityObj.types.every((t) => t.includes('custom'))){
       customEntities.push(entityObj);
     } else if (entityObj.types.includes('cve')) {
       cveEntities.push(entityObj);

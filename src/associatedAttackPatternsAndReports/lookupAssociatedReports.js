@@ -30,7 +30,10 @@ const lookupAssociatedReports = async (
     );
   } catch (error) {
     const err = parseErrorToReadableJson(error);
-    Logger.error({ err, error }, 'Threat Actor Associated Reports Error');
+    Logger.error(
+      { err, error, searchLookupResults, threatActorsLookupResults },
+      'Threat Actor Associated Reports Error'
+    );
 
     return {
       searchLookupResults,

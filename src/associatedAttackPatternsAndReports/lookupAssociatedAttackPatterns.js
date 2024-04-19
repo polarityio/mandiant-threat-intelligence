@@ -36,7 +36,10 @@ const lookupAssociatedAttackPatterns = async (
     );
   } catch (error) {
     const err = parseErrorToReadableJson(error);
-    Logger.error({ err, error }, 'Threat Actor Associated Attack Patterns Error');
+    Logger.error(
+      { err, error, searchLookupResults, threatActorsLookupResults },
+      'Threat Actor Associated Attack Patterns Error'
+    );
 
     return {
       searchLookupResults,

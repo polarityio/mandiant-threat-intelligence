@@ -1,4 +1,15 @@
-const { mergeAll, isEmpty, omit, map, flow, get, mapValues } = require('lodash/fp');
+const {
+  mergeAll,
+  isEmpty,
+  omit,
+  map,
+  flow,
+  get,
+  mapValues,
+  values,
+  size,
+  flatten
+} = require('lodash/fp');
 const { getLogger } = require('../logging');
 
 const { authenticatedRequest } = require('../request');
@@ -33,7 +44,14 @@ const searchAttackPatterns = async (threatActorIds, options) =>
               const groupedAttackPatterns =
                 getAttackPatternsInAttackGroups(attackPatternsResults);
 
-              resolve({ [threatActorId]: groupedAttackPatterns });
+              resolve({
+                [threatActorId]: groupedAttackPatterns,
+                [`${threatActorId}-count`]: flow(
+                  values,
+                  flatten,
+                  size
+                )(groupedAttackPatterns)
+              });
             });
           }),
         threatActorIds

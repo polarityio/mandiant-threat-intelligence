@@ -22,17 +22,19 @@ const associateNewDataWithLookupResults = (
   detailsKey,
   searchLookupResults,
   threatActorsLookupResults,
-  reports
+  newData
 ) => ({
   threatActorsLookupResults: map(
     (threatActorsLookupResult) =>
       modifyLookupResultDetails(threatActorsLookupResult, {
         threatActorResults: flow(
           get('data.details.threatActorResults'),
-          (threatActorResults) => ({
-            ...threatActorResults,
-            [detailsKey]: get(threatActorResults.id, reports)
-          })
+          (threatActorResults) =>
+            threatActorResults && ({
+              ...threatActorResults,
+              [detailsKey]: get(threatActorResults.id, newData),
+              [`${detailsKey}Count`]: get(`${threatActorResults.id}-count`, newData)
+            })
         )(threatActorsLookupResult)
       }),
     threatActorsLookupResults
@@ -47,7 +49,8 @@ const associateNewDataWithLookupResults = (
               ? searchResult
               : {
                   ...searchResult,
-                  [detailsKey]: get(searchResult.id, reports)
+                  [detailsKey]: get(searchResult.id, newData),
+                  [`${detailsKey}Count`]: get(`${searchResult.id}-count`, newData)
                 }
           ),
           (searchResults) => (isEmpty(searchResults) ? undefined : searchResults)

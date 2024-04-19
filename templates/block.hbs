@@ -217,7 +217,10 @@
                         </div>
                       {{/if}}
                       {{#if report.report_id}}
-                        <div class="p-link">
+                        <div
+                          title="NOTE: Some Reports will lead to 404 pages. This is expected."
+                          class="p-link"
+                        >
                           <a
                             href="https://advantage.mandiant.com/reports/{{report.report_id}}"
                           >
@@ -2139,6 +2142,7 @@
               {{/if}}
             </div>
           {{/if}}
+
           {{#if threatActorResult.attackPatterns}}
             <div class="threat-actor-attack-patterns">
               {{#if (get expandableTitleStates (concat "threatActorAttackPatterns" 0))}}
@@ -2149,7 +2153,7 @@
                     (action "toggleExpandableTitle" "threatActorAttackPatterns" 0)
                   }}
                 >
-                  <span class="text">Attack Patterns</span>
+                  <span class="text">Attack Patterns ({{threatActorResult.attackPatternsCount}})</span>
                   {{fa-icon "angle-up"}}
                 </a>
                 <div class="threat-actor-attack-patterns-content">
@@ -2324,7 +2328,7 @@
                             )
                           }}
                         >
-                          <span class="text">{{patternGroupName}}</span>
+                          <span class="text">{{patternGroupName}} ({{groupAttackPatterns.length}})</span>
                           {{fa-icon "angle-down"}}
                         </a>
                       {{/if}}
@@ -2339,7 +2343,85 @@
                     (action "toggleExpandableTitle" "threatActorAttackPatterns" 0)
                   }}
                 >
-                  <span class="text">Attack Patterns</span>
+                  <span class="text">Attack Patterns ({{threatActorResult.attackPatternsCount}})</span>
+                  {{fa-icon "angle-down"}}
+                </a>
+              {{/if}}
+            </div>
+          {{/if}}
+
+          {{#if threatActorResult.reports}}
+            <div class="threat-actor-reports">
+              {{#if (get expandableTitleStates (concat "threatActorReports" 0))}}
+                <a
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorReports" 0)}}
+                >
+                  <span class="text">Reports ({{threatActorResult.reports.length}})</span>
+                  {{fa-icon "angle-up"}}
+                </a>
+                <div class="ml-2 threat-actor-reports-content">
+                  {{#each threatActorResult.reports as |report|}}
+                    <div class="mb-2">
+                      <h1 class="p-title">
+                        {{report.title}}
+                      </h1>
+                      <div
+                        title="NOTE: Some Reports will lead to 404 pages. This is expected."
+                        class="p-link"
+                      >
+                        <a
+                          href="https://advantage.mandiant.com/reports/{{report.report_id}}"
+                        >
+                          View in Mandiant
+                          {{fa-icon
+                            icon="external-link-square"
+                            class="external-link-icon"
+                          }}
+                        </a>
+                      </div>
+                      {{#if report.attribution_scope}}
+                        <div>
+                          <span class="p-key">Report Type:</span>
+                          <span class="p-value">{{report.report_type}}</span>
+                        </div>
+                      {{/if}}
+                      {{#if report.published_date}}
+                        <div>
+                          <span class="p-key">Publish Date: </span>
+                          <span class="p-value">{{moment-format
+                              report.published_date
+                              "YYYY-MM-DD"
+                              timeZone=timezone
+                            }}</span>
+                        </div>
+                      {{/if}}
+                      {{#if report.audience.length}}
+                        <div>
+                          <span class="p-key">Audiences:</span>
+                          <span class="p-value">
+                            {{#each report.audience as |audience index|}}
+                              {{titleize
+                                (humanize (dasherize (or audience.name audience)))
+                              }}
+                              {{#if audience.license}}({{titleize
+                                  (humanize (dasherize audience.license))
+                                }}){{/if}}{{#if
+                                (not (eq (sub report.audience.length 1) index))
+                              }}, {{/if}}
+                            {{/each}}
+                          </span>
+                        </div>
+                      {{/if}}
+                    </div>
+                  {{/each}}
+                </div>
+              {{else}}
+                <a
+                  class="expandable-title"
+                  {{on "click" (action "toggleExpandableTitle" "threatActorReports" 0)}}
+                >
+                  <span class="text">Reports ({{threatActorResult.reports.length}})</span>
                   {{fa-icon "angle-down"}}
                 </a>
               {{/if}}
@@ -2581,7 +2663,8 @@
                 <div class="search-threat-actor-attack-patterns">
                   {{#if
                     (get
-                      expandableTitleStates (concat "searchThreatActorAttackPatterns" searchResultIndex)
+                      expandableTitleStates
+                      (concat "searchThreatActorAttackPatterns" searchResultIndex)
                     )
                   }}
                     <a
@@ -2589,11 +2672,13 @@
                       {{on
                         "click"
                         (action
-                          "toggleExpandableTitle" "searchThreatActorAttackPatterns" searchResultIndex
+                          "toggleExpandableTitle"
+                          "searchThreatActorAttackPatterns"
+                          searchResultIndex
                         )
                       }}
                     >
-                      <span class="text">Attack Patterns</span>
+                      <span class="text">Attack Patterns ({{searchResult.attackPatternsCount}})</span>
                       {{fa-icon "angle-up"}}
                     </a>
                     <div class="search-threat-actor-attack-patterns-content">
@@ -2774,7 +2859,7 @@
                                 )
                               }}
                             >
-                              <span class="text">{{patternGroupName}}</span>
+                              <span class="text">{{patternGroupName}} ({{groupAttackPatterns.length}})</span>
                               {{fa-icon "angle-down"}}
                             </a>
                           {{/if}}
@@ -2787,13 +2872,99 @@
                       {{on
                         "click"
                         (action
-                          "toggleExpandableTitle" "searchThreatActorAttackPatterns" searchResultIndex
+                          "toggleExpandableTitle"
+                          "searchThreatActorAttackPatterns"
+                          searchResultIndex
                         )
                       }}
                     >
-                      <span class="text">Attack Patterns</span>
+                      <span class="text">Attack Patterns ({{searchResult.attackPatternsCount}})</span>
                       {{fa-icon "angle-down"}}
                     </a>
+                  {{/if}}
+
+                  {{#if searchResult.reports}}
+                    <div class="search-threat-actor-reports">
+                      {{#if (get expandableTitleStates (concat "searchThreatActorReports" searchResultIndex))}}
+                        <a
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action "toggleExpandableTitle" "searchThreatActorReports" searchResultIndex)
+                          }}
+                        >
+                          <span class="text">Reports ({{searchResult.reports.length}})</span>
+                          {{fa-icon "angle-up"}}
+                        </a>
+                        <div class="ml-2 search-threat-actor-reports-content">
+                          {{#each searchResult.reports as |report|}}
+                            <div class="mb-2">
+                              <h1 class="p-title">
+                                {{report.title}}
+                              </h1>
+                              <div
+                                title="NOTE: Some Reports will lead to 404 pages. This is expected."
+                                class="p-link"
+                              >
+                                <a
+                                  href="https://advantage.mandiant.com/reports/{{report.report_id}}"
+                                >
+                                  View in Mandiant
+                                  {{fa-icon
+                                    icon="external-link-square"
+                                    class="external-link-icon"
+                                  }}
+                                </a>
+                              </div>
+                              {{#if report.attribution_scope}}
+                                <div>
+                                  <span class="p-key">Report Type:</span>
+                                  <span class="p-value">{{report.report_type}}</span>
+                                </div>
+                              {{/if}}
+                              {{#if report.published_date}}
+                                <div>
+                                  <span class="p-key">Publish Date: </span>
+                                  <span class="p-value">{{moment-format
+                                      report.published_date
+                                      "YYYY-MM-DD"
+                                      timeZone=timezone
+                                    }}</span>
+                                </div>
+                              {{/if}}
+                              {{#if report.audience.length}}
+                                <div>
+                                  <span class="p-key">Audiences:</span>
+                                  <span class="p-value">
+                                    {{#each report.audience as |audience index|}}
+                                      {{titleize
+                                        (humanize (dasherize (or audience.name audience)))
+                                      }}
+                                      {{#if audience.license}}({{titleize
+                                          (humanize (dasherize audience.license))
+                                        }}){{/if}}{{#if
+                                        (not (eq (sub report.audience.length 1) index))
+                                      }}, {{/if}}
+                                    {{/each}}
+                                  </span>
+                                </div>
+                              {{/if}}
+                            </div>
+                          {{/each}}
+                        </div>
+                      {{else}}
+                        <a
+                          class="expandable-title"
+                          {{on
+                            "click"
+                            (action "toggleExpandableTitle" "searchThreatActorReports" searchResultIndex)
+                          }}
+                        >
+                          <span class="text">Reports ({{searchResult.reports.length}})</span>
+                          {{fa-icon "angle-down"}}
+                        </a>
+                      {{/if}}
+                    </div>
                   {{/if}}
                 </div>
               {{/if}}

@@ -1,5 +1,4 @@
 const { mergeLookupResults } = require('./dataTransformations');
-const { getLogger } = require('./logging');
 const { lookupWithSearch } = require('./search');
 const { lookupThreatActors } = require('./threatActors');
 const {
