@@ -16,8 +16,6 @@ async function doLookup(entities, options, cb) {
     let { lookupResults, filteredEntities, cveEntities, customEntities } =
       getFilteredEntities(entities, options);
 
-    customEntities = options.enableThreatActorSearch ? customEntities : [];
-
     const indicatorLookupResults = await lookupNonCveEntities(filteredEntities, options);
 
     const cveLookupResults = await lookupCveEntities(cveEntities, options);

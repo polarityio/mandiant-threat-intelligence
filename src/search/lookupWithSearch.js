@@ -24,7 +24,7 @@ const lookupWithSearch = async (
       } catch (error) {
         if (Math.floor(parseInt(get('errors.0.status', error)) / 100) * 100 === 500) {
           return {
-            entity: entityObj,
+            entity,
             isVolatile: true,
             data: {
               summary: ['Search Returned Error'],

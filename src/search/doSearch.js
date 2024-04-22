@@ -1,4 +1,4 @@
-const { get, size, map } = require('lodash/fp');
+const { get, size, flow, replace, toLower, includes } = require('lodash/fp');
 const { getLogger } = require('../logging');
 
 const { authenticatedRequest } = require('../request');
@@ -34,17 +34,16 @@ const doSearch = async (entity, options) =>
 
       Logger.trace({ data: body }, 'General Search Body');
       const searchResults = get('objects', body);
-      if (!size(searchResults)) return resolve([]);
+      const searchResultsContainEntityValue = flow(
+        JSON.stringify,
+        replace(/[^\w]/g, ''),
+        toLower,
+        includes(flow(replace(/[^\w]/g, ''), toLower)(entity.value))
+      )(searchResults);
 
-      resolve(
-        map(
-          (searchResult) => ({
-            ...searchResult,
-            audience: map(JSON.stringify, searchResult.audience)
-          }),
-          searchResults
-        )
-      );
+      if (!size(searchResults) || !searchResultsContainEntityValue) return resolve([]);
+
+      resolve(searchResults);
     });
   });
 

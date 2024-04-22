@@ -1,7 +1,9 @@
 const { mergeLookupResults } = require('./dataTransformations');
-const { getLogger } = require('./logging');
 const { lookupWithSearch } = require('./search');
 const { lookupThreatActors } = require('./threatActors');
+const {
+  getAssociatedAttackPatternsAndReports
+} = require('./associatedAttackPatternsAndReports');
 
 const lookupEntities = async (
   filteredEntities,
@@ -11,13 +13,21 @@ const lookupEntities = async (
   cveLookupResults,
   options
 ) => {
-  const [searchLookupResults, threatActorsLookupResults] = await Promise.all([
-    // options.searchResultsType.value !== 'none'
-    //   ? lookupWithSearch(filteredEntities, cveEntities, customEntities, options)
-    //   : 
-      [],
-    lookupThreatActors(customEntities, options)
+  let [threatActorsLookupResults, searchLookupResults] = await Promise.all([
+    options.enableThreatActorSearch ? lookupThreatActors(customEntities, options) : [],
+    options.searchResultsType.value !== 'none'
+      ? lookupWithSearch(filteredEntities, cveEntities, customEntities, options)
+      : []
   ]);
+
+  [searchLookupResults, threatActorsLookupResults] =
+    options.getThreatActorAssociatedAttackPatternsAndReports
+      ? await getAssociatedAttackPatternsAndReports(
+          searchLookupResults,
+          threatActorsLookupResults,
+          options
+        )
+      : [searchLookupResults, threatActorsLookupResults];
 
   const allEntities = filteredEntities.concat(cveEntities).concat(customEntities);
 

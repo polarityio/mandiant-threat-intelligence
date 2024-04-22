@@ -12,7 +12,7 @@ const validateOptions = (options, callback) => {
     options
   );
 
-  let urlError = options.urlV4.value ? validateUrlOption(options, 'urlV4') : []
+  let urlError = options.urlV4.value ? validateUrlOption(options, 'urlV4') : [];
 
   const minScoreError =
     options.minimumMScore.value < 0 || options.minimumMScore.value > 100
@@ -38,11 +38,24 @@ const validateOptions = (options, callback) => {
         }
       : [];
 
+  const attackPatternError =
+    options.getThreatActorAssociatedAttackPatternsAndReports.value &&
+    !options.enableThreatActorSearch.value &&
+    !(options.searchResultsType.value.value === 'all' ||
+      options.searchResultsType.value.value === 'threat-actor')
+      ? {
+          key: 'getThreatActorAssociatedAttackPatternsAndReports',
+          message:
+            'Getting Threat Actor associated Attack Patterns and Reports cannot be enabled without either `Enable Threat Actor` Search checked or `Search Results Type` set to `All` or `Threat Actor`.'
+        }
+      : [];
+
   const errors = stringValidationErrors
     .concat(urlError)
     .concat(minScoreError)
     .concat(maxConcurrentError)
-    .concat(minTimeError);
+    .concat(minTimeError)
+    .concat(attackPatternError);
 
   callback(null, errors);
 };
