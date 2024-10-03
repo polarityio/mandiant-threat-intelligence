@@ -4,13 +4,11 @@ Provides automated access to indicators of compromise (IOCs), CVE information, a
 
 The Polarity Mandiant Threat Intelligence integration allows Polarity to search the Mandiant Threat Intelligence API for indicators of compromise (IOCs) including IP addresses, domain names, emails, URLs, hashes, and CVEs.  The integration also allows Polarity to search for free form text.
 
-| Entity Types | API Endpoint | Notes |
-|---|---|---|
-| CVE | /v4/vulnerability | Results based on selected **Vulnerability Rating Sources** via the integration options |
-| Threat Actor (custom.threatActor) - a string 3 to 30 characters in length. | /v2/actor/{{actorName}} | Search on specific threat actor names (e.g., apt43, UNC3782). The **Enable Threat Actor Search** option must be checked and the "custom.threatActor" entity type must be enabled. 
-| IP, MD5, SHA1, SHA256, Domain, Email, URL | /v4/indicator | Takes into account the **Minimum ThreatScore to Display** integration option when returning results |
-
-
+| Entity Types | API Endpoint            | Notes |
+|---|-------------------------|---|
+| CVE | /v4/vulnerability       | Results based on selected **Vulnerability Rating Sources** via the integration options |
+| Threat Actor (custom.threatActor) - a string 3 to 30 characters in length. | /v4/actor/{{actorName}} | Search on specific threat actor names (e.g., apt43, UNC3782). The **Enable Threat Actor Search** option must be checked and the "custom.threatActor" entity type must be enabled. 
+| IP, MD5, SHA1, SHA256, Domain, Email, URL | /v4/indicator           | Takes into account the **Minimum ThreatScore to Display** integration option when returning results |
 
 ## About Mandiant Threat Intelligence
 
