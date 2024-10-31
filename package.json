@@ -8,7 +8,7 @@
     "lodash": "^4.17.21",
     "node-cache": "^5.1.2",
     "postman-request": "^2.88.1-postman.40",
-    "sanitize-html": "^2.13.0"
+    "sanitize-html": "^2.13.1"
   },
   "devDependencies": {
     "jest": "^27.1.0",
