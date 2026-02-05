@@ -1,0 +1,272 @@
+{
+  "indicatorV4": {
+    "id": "indicator--12345678-1234-1234-1234-123456789abc",
+    "mscore": 85,
+    "type": "ipv4",
+    "value": "198.20.87.98",
+    "first_seen": "2023-01-15T10:30:00.000Z",
+    "last_seen": "2024-01-10T14:22:00.000Z",
+    "last_updated": "2024-01-10T18:45:00.000Z",
+    "sources": [
+      {
+        "source_name": "Mandiant",
+        "category": ["malware"],
+        "first_seen": "2023-01-15T10:30:00.000Z",
+        "last_seen": "2024-01-10T14:22:00.000Z"
+      }
+    ],
+    "attributed_associations": [
+      {
+        "id": "threat-actor--abc123",
+        "name": "APT41",
+        "type": "threat-actor"
+      },
+      {
+        "id": "malware--def456",
+        "name": "DUSTPAN",
+        "type": "malware-family"
+      }
+    ],
+    "associated_hashes": [
+      {
+        "id": "md5--11111111",
+        "type": "md5",
+        "value": "5d41402abc4b2a76b9719d911017c592"
+      },
+      {
+        "id": "sha256--22222222",
+        "type": "sha256",
+        "value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "misp": {
+      "aes_key": "sensitive_misp_key_data",
+      "internal_id": 98765,
+      "galaxy_cluster_id": "cluster-xyz"
+    },
+    "is_publishable": true,
+    "reports": [
+      {
+        "report_id": "24-00012345",
+        "type": "threat-report",
+        "title": "APT41 Compromises Financial Institutions",
+        "published_date": "2024-01-05"
+      }
+    ]
+  },
+  "indicatorV3": {
+    "id": "indicator--legacy-98765432",
+    "url": "https://advantage.mandiant.com/indicator/legacy-98765432",
+    "type": "ipv4",
+    "value": "198.20.87.98",
+    "first_seen": "2022-06-10T08:15:00.000Z",
+    "last_seen": "2023-12-30T16:30:00.000Z",
+    "sources": [
+      {
+        "source_name": "Mandiant Intelligence",
+        "category": "botnet"
+      }
+    ],
+    "samples": [
+      {
+        "md5": "d41d8cd98f00b204e9800998ecf8427e",
+        "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "md5": "098f6bcd4621d373cade4e832627b4f6",
+        "sha1": "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8",
+        "sha256": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+      }
+    ],
+    "sample_metadata": {
+      "sample_count": 2,
+      "earliest_sample": "2022-08-15T10:00:00.000Z",
+      "latest_sample": "2023-11-20T14:30:00.000Z",
+      "hashes": {
+        "md5_list": ["d41d8cd98f00b204e9800998ecf8427e", "098f6bcd4621d373cade4e832627b4f6"],
+        "sha256_list": ["e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"]
+      }
+    },
+    "external_references": [
+      {
+        "source_name": "VirusTotal",
+        "external_id": "vt-abc123xyz",
+        "url": "https://virustotal.com/gui/ip-address/198.20.87.98"
+      },
+      {
+        "source_name": "AlienVault OTX",
+        "external_id": "otx-pulse-456",
+        "url": "https://otx.alienvault.com/indicator/ip/198.20.87.98"
+      }
+    ],
+    "reports": ["24-00010001", "23-00056789"]
+  },
+  "vulnerabilities": [
+    {
+      "id": "vulnerability--cve-2023-12345",
+      "url": "https://advantage.mandiant.com/vulnerability/CVE-2023-12345",
+      "cve_id": "CVE-2023-12345",
+      "title": "Remote Code Execution in Apache Struts",
+      "description": "<p>A critical vulnerability in Apache Struts 2.x allows remote code execution through crafted OGNL expressions.</p>",
+      "executive_summary": "<p>This vulnerability affects Apache Struts versions 2.0.0 through 2.5.30 and allows unauthenticated remote attackers to execute arbitrary code.</p>",
+      "publish_date": "2023-03-15T00:00:00.000Z",
+      "update_date": "2023-12-20T10:30:00.000Z",
+      "risk_rating": "CRITICAL",
+      "exploited_in_wild": true,
+      "common_vulnerability_scores": {
+        "v2.0": {
+          "base_score": 10.0,
+          "temporal_score": 9.5,
+          "vector_string": "AV:N/AC:L/Au:N/C:C/I:C/A:C"
+        },
+        "v3.1": {
+          "base_score": 9.8,
+          "temporal_score": 9.4,
+          "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+        }
+      },
+      "vulnerable_cpes": [
+        {
+          "cpe_title": "cpe:2.3:a:apache:struts:2.5.30:*:*:*:*:*:*:*",
+          "cpe_version": "2.3",
+          "vendor": "apache",
+          "product": "struts"
+        },
+        {
+          "cpe_title": "cpe:2.3:a:apache:struts:2.5.29:*:*:*:*:*:*:*",
+          "cpe_version": "2.3",
+          "vendor": "apache",
+          "product": "struts"
+        }
+      ],
+      "cpe_ranges": [
+        {
+          "cpe_version": "2.3",
+          "vendor": "apache",
+          "product": "struts",
+          "version_start": "2.0.0",
+          "version_end": "2.5.30"
+        }
+      ],
+      "associated_reports": [
+        {
+          "report_id": "23-00087654",
+          "report_type": "vulnerability-report",
+          "title": "Critical Apache Struts RCE Exploited by APT Groups"
+        }
+      ],
+      "sources": [
+        {
+          "source_name": "Mandiant Threat Intelligence",
+          "unique_id": "mti-vuln-12345",
+          "source_description": "Mandiant research and analysis"
+        },
+        {
+          "source_name": "NVD",
+          "unique_id": "nvd-cve-2023-12345",
+          "source_description": "National Vulnerability Database"
+        }
+      ],
+      "version_history": [
+        {
+          "version": "1.0",
+          "date": "2023-03-15T00:00:00.000Z",
+          "changes": "Initial publication"
+        },
+        {
+          "version": "1.1",
+          "date": "2023-05-20T00:00:00.000Z",
+          "changes": "Added exploitation details"
+        },
+        {
+          "version": "1.2",
+          "date": "2023-12-20T00:00:00.000Z",
+          "changes": "Updated affected versions"
+        }
+      ],
+      "was_zero_day": true,
+      "date_of_disclosure": "2023-03-15"
+    }
+  ],
+  "searchResults": [
+    {
+      "id": "report--search-result-001",
+      "url": "https://advantage.mandiant.com/reports/24-00012345",
+      "type": "threat-report",
+      "title": "APT41 Targets Financial Sector with Custom Malware",
+      "published_date": "2024-01-08T00:00:00.000Z",
+      "report_type": "Actor Profile",
+      "executive_summary": "APT41 conducted sophisticated attacks against financial institutions...",
+      "audience": ["CERT", "Financial Services", "Security Vendor"],
+      "tags": [
+        {
+          "target_geographies": ["United States", "European Union", "Singapore"],
+          "affected_industries": ["Financial Services", "Banking", "Investment"],
+          "actors": [
+            {
+              "name": "APT41",
+              "aliases": ["Winnti", "Barium", "Wicked Panda"]
+            }
+          ],
+          "malware_families": [
+            {
+              "name": "DUSTPAN",
+              "aliases": ["Dust", "PanLoader"]
+            },
+            {
+              "name": "CROSSWALK",
+              "aliases": ["Cross", "WalkLoader"]
+            }
+          ]
+        }
+      ],
+      "threat_score": 85,
+      "confidence_level": "high"
+    },
+    {
+      "id": "indicator--search-result-002",
+      "url": "https://advantage.mandiant.com/indicators/indicator-xyz789",
+      "type": "indicator",
+      "value": "badactor-c2.example[.]com",
+      "indicator_type": "domain",
+      "published_date": "2024-01-05T00:00:00.000Z",
+      "audience": ["CERT", "Managed Security Service Provider"],
+      "tags": [
+        {
+          "target_geographies": ["Japan", "South Korea"],
+          "affected_industries": ["Technology", "Manufacturing"],
+          "actors": [
+            {
+              "name": "APT10",
+              "aliases": ["MenuPass", "Stone Panda", "POTASSIUM"]
+            }
+          ],
+          "malware_families": [
+            {
+              "name": "UPPERCUT",
+              "aliases": ["Anel", "UPPERCUT Backdoor"]
+            }
+          ]
+        }
+      ],
+      "mscore": 72
+    },
+    {
+      "id": "report--search-result-003",
+      "url": "https://advantage.mandiant.com/reports/23-99887766",
+      "type": "vulnerability-report",
+      "title": "Zero-Day Vulnerability Exploited in Targeted Attacks",
+      "published_date": "2023-12-28T00:00:00.000Z",
+      "report_type": "Vulnerability Analysis",
+      "audience": ["Enterprise", "CERT"],
+      "tags": []
+    }
+  ],
+  "metadata": {
+    "integration_version": "3.2.0",
+    "api_version": "v4",
+    "request_id": "req-abc123xyz",
+    "timestamp": "2024-01-16T04:50:00.000Z"
+  }
+}

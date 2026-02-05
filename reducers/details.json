@@ -1,0 +1,57 @@
+{
+  "root": {
+    "path": "",
+    "on_null": "return_empty"
+  },
+  "pipeline": [
+    {
+      "op": "copy",
+      "from": "vulnerabilities",
+      "to": "reduced_results.vulnerabilities"
+    },
+    {
+      "op": "copy",
+      "from": "indicatorV3",
+      "to": "reduced_results.indicatorV3"
+    },
+    {
+      "op": "copy",
+      "from": "indicatorV4",
+      "to": "reduced_results.indicatorV4"
+    },
+    {
+      "op": "copy",
+      "from": "searchResults",
+      "to": "reduced_results.searchResults"
+    },
+    {
+      "op": "drop",
+      "paths": [
+        "reduced_results.vulnerabilities[].id",
+        "reduced_results.vulnerabilities[].url",
+        "reduced_results.vulnerabilities[].associated_reports[].report_id",
+        "reduced_results.vulnerabilities[].sources[].unique_id",
+        "reduced_results.vulnerabilities[].cpe_ranges",
+        "reduced_results.vulnerabilities[].version_history",
+        "reduced_results.indicatorV3.id",
+        "reduced_results.indicatorV3.url",
+        "reduced_results.indicatorV3.samples",
+        "reduced_results.indicatorV3.sample_metadata.hashes",
+        "reduced_results.indicatorV3.external_references[].external_id",
+        "reduced_results.indicatorV4.id",
+        "reduced_results.indicatorV4.url",
+        "reduced_results.indicatorV4.misp",
+        "reduced_results.searchResults[].id",
+        "reduced_results.searchResults[].url"
+      ]
+    },
+    {
+      "op": "prune",
+      "strategy": "empty_values",
+      "target": "reduced_results"
+    }
+  ],
+  "output": {
+    "result": "$working.reduced_results"
+  }
+}
