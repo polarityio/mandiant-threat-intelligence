@@ -3,17 +3,22 @@ const { doLookup, startup } = require('../integration');
 
 const options = {
   urlV4: 'https://api.intelligence.mandiant.com',
-  publicKeyV3: 'publicKey',
-  privateKeyV3: 'privateKey',
+  publicKey: 'publicKey',
+  privateKey: 'privateKey',
   minimumMScore: 51,
   blocklist: '',
   domainBlocklistRegex: '',
   maxConcurrent: 20,
-  minTime: 100
+  minTime: 100,
+  searchResultsType: { value: 'threat_actor' },
+  enableThreatActorSearch: false,
+  getThreatActorAssociatedAttackPatternsAndReports: false,
+  vulnerabilityRatingSources: []
 };
 
 const ip = {
   type: 'IPv4',
+  types: ['IPv4'],
   value: '8.8.8.8',
   isPrivateIP: false,
   isIPv4: true,
@@ -22,6 +27,7 @@ const ip = {
 
 const cve = {
   type: 'cve',
+  types: ['cve'],
   value: 'CVE-2008-4250'
 };
 
@@ -55,6 +61,10 @@ let scope;
 const useInternalLogger = false;
 beforeAll(() => {
   startup(useInternalLogger ? Logger : emptyLogger);
+});
+
+afterEach(() => {
+  nock.cleanAll();
 });
 
 const buildErrorTest = (describeMessage, route, entity, defaultSuccessRoutes = []) =>
@@ -113,5 +123,5 @@ const testForError = (err, lookupResults, messageContainsString) => {
   expect(err.errors[0].detail).toEqual(expect.stringContaining(messageContainsString));
 };
 
-buildErrorTest('When searching for Indicators:', '/v4/indicator', ip);
-buildErrorTest('When searching for Search:', 'v4/search', cve);
+buildErrorTest('When searching for Indicators:', '/v4/indicator', ip, ['/v4/search']);
+buildErrorTest('When searching for Search:', '/v4/search', cve, ['/v4/vulnerability']);
